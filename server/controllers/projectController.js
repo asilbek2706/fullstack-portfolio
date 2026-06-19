@@ -1,7 +1,7 @@
 const Project = require("../models/Project");
 const mongoose = require("mongoose");
 
-// 1. BARCHA LOYIHALARNI OLISH (Hammaga ochiq)
+// 1. BARCHA LOYIHALARNI OLISH
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await Project.find().sort({ createdAt: -1 });
@@ -13,7 +13,7 @@ exports.getAllProjects = async (req, res) => {
   }
 };
 
-// 2. BITTA LOYIHANI ID BO'YICHA OLISH (Hammaga ochiq)
+// 2. BITTA LOYIHANI ID BO'YICHA OLISH
 exports.getProjectById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -37,20 +37,25 @@ exports.getProjectById = async (req, res) => {
   }
 };
 
-// 3. YANGI LOYIHA QO'SHISH (Faqat Adminlar)
+// 3. YANGI LOYIHA QO'SHISH
 exports.createProject = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, image, technologies, githubLink, demoLink } =
+      req.body;
 
-    if (!title || !description) {
-      return res
-        .status(400)
-        .json({ message: "Barcha maydonlar to'ldirilishi shart!" });
-    }
+    const adminId = req.user?._id || req.admin?._id;
 
-    const newProject = new Project({ title, description });
+    const newProject = new Project({
+      title,
+      description,
+      image,
+      technologies,
+      githubLink,
+      demoLink,
+      createdBy: adminId,
+    });
+
     await newProject.save();
-
     res
       .status(201)
       .json({ message: "Loyiha muvaffaqiyatli saqlandi!", data: newProject });
@@ -61,17 +66,19 @@ exports.createProject = async (req, res) => {
   }
 };
 
-// 4. LOYIHANI TO'LIQ YANGILASH (PUT - Faqat Adminlar)
+// 4. LOYIHANI TO'LIQ YANGILASH (PUT)
 exports.updateProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description } = req.body;
+    const { title, description, image, technologies, githubLink, demoLink } =
+      req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "ID formati noto'g'ri!" });
     }
 
-    if (!title || !description) {
+    // PUT qoidasiga ko'ra hamma narsa kiritilishi majburiy
+    if (!title || !description || !image || !technologies || !githubLink) {
       return res
         .status(400)
         .json({
@@ -81,7 +88,7 @@ exports.updateProject = async (req, res) => {
 
     const updatedProject = await Project.findByIdAndUpdate(
       id,
-      { title, description },
+      { title, description, image, technologies, githubLink, demoLink },
       { new: true, runValidators: true },
     );
 
@@ -103,7 +110,7 @@ exports.updateProject = async (req, res) => {
   }
 };
 
-// 5. LOYIHANI QISMAN YANGILASH (PATCH - Faqat Adminlar)
+// 5. LOYIHANI QISMAN YANGILASH (PATCH)
 exports.patchProject = async (req, res) => {
   try {
     const { id } = req.params;
@@ -112,11 +119,10 @@ exports.patchProject = async (req, res) => {
       return res.status(400).json({ message: "ID formati noto'g'ri!" });
     }
 
-    const updatedProject = await Project.findByIdAndUpdate(
-      id,
-      req.body, // Kelgan o'zgarishlarni avtomat qabul qiladi (masalan, faqat title)
-      { new: true, runValidators: true },
-    );
+    const updatedProject = await Project.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedProject) {
       return res.status(404).json({ message: "Loyiha topilmadi" });
@@ -130,7 +136,7 @@ exports.patchProject = async (req, res) => {
   }
 };
 
-// 6. LOYIHANI O'CHIRISH (Faqat Adminlar)
+// 6. LOYIHANI O'CHIRISH
 exports.deleteProject = async (req, res) => {
   try {
     const { id } = req.params;

@@ -1,53 +1,61 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 
-// 1. Token va qurilmani tekshirish (Umumiy himoya)
+// 1. Token va qurilmani tekshirish (Kuki tizimida avtomatik)
 const protect = async (req, res, next) => {
   try {
-    const authHeader = req.header("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ message: "Ruxsat rad etildi! Token topilmadi." });
+    let token;
+
+    // 🍪 1. Tokenni avtomatik Cookie (Kuki) ichidan qidiramiz
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
     }
 
-    const token = authHeader.split(" ")[1];
+    // Agar kuki o'chirilgan bo'lsa (yoki eski front-end uchun zaxira usul bo'lib tursin)
+    if (!token && req.header("Authorization") && req.header("Authorization").startsWith("Bearer ")) {
+      token = req.header("Authorization").split(" ")[1];
+    }
+
+    if (!token) {
+      return res.status(401).json({ message: "Ruxsat rad etildi! Iltimos, tizimga kiring (Token topilmadi)." });
+    }
+
+    // 2. Tokenni shifrdan ochamiz
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 🛡️ Xakerlikka qarshi: Qurilma (User-Agent) va IP nazorati
+    // 🛡️ Xavfsizlik nazorati: Qurilma (User-Agent) va IP tekshiruvi
     const currentIp = req.ip || req.headers["x-forwarded-for"];
     if (
       decoded.userAgent !== req.headers["user-agent"] ||
       decoded.ip !== currentIp
     ) {
-      return res
-        .status(403)
-        .json({
-          message:
-            "Xavfsizlik tizimi: Token boshqa qurilma yoki IP'dan o'g'irlangan!",
-        });
+      return res.status(403).json({
+        message: "Xavfsizlik tizimi: Token boshqa qurilma yoki IP-manzildan o'g'irlangan!",
+      });
     }
 
+    // 3. Bazadan adminni qidiramiz
     const admin = await Admin.findById(decoded.id).select("-password");
     if (!admin) {
-      return res.status(401).json({ message: "Foydalanuvchi mavjud emas!" });
+      return res.status(401).json({ message: "Foydalanuvchi tizimda mavjud emas!" });
     }
 
-    req.admin = admin; // Admin ma'lumotlarini keyingi bosqichga uzatamiz
+    // 🔑 Ikkala variantda ham xato bermasligi uchun req.user ga ham, req.admin ga ham yuklab qo'yamiz
+    req.admin = admin; 
+    req.user = admin; 
+
     next();
   } catch (error) {
-    return res
-      .status(401)
-      .json({ message: "Token yaroqsiz yoki muddati o'tgan!" });
+    return res.status(401).json({ message: "Token yaroqsiz yoki muddati o'tgan!" });
   }
 };
 
 // 2. Faqat SuperAdminga ruxsat beruvchi filtr
 const restrictToSuperAdmin = (req, res, next) => {
-  if (req.admin.role !== "superadmin") {
-    return res
-      .status(403)
-      .json({ message: "Ruxsat berilmagan! Bu amal faqat SuperAdmin uchun." });
+  const currentUser = req.admin || req.user;
+
+  if (!currentUser || currentUser.role !== "superadmin") {
+    return res.status(403).json({ message: "Ruxsat berilmagan! Bu amal faqat SuperAdmin uchun." });
   }
   next();
 };

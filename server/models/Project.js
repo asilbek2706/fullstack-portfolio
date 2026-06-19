@@ -21,11 +21,11 @@ const projectSchema = new mongoose.Schema(
       type: [String],
       required: [true, "Kamida bitta texnologiya kiritilishi shart"],
       validate: {
-        // Ko'pi bilan 4 ta texnologiya kiritishni tekshirish (Custom Validator)
         validator: function (val) {
           return val.length <= 4;
         },
-        message: "Texnologiyalar soni ko'pi bilan 4 ta bo'lishi mumkin!",
+        message:
+          "Texnologiyalar soni ko'pi bilan 4 ta bo'lika bo'lishi mumkin!",
       },
     },
     githubLink: {
@@ -35,9 +35,15 @@ const projectSchema = new mongoose.Schema(
     },
     demoLink: {
       type: String,
-      required: false, // Ixtiyoriy maydon
+      required: false,
       default: "",
       trim: true,
+    },
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin", // Admin modeliga bog'laymiz
+      required: [true, "Loyihani yaratgan admin ko'rsatilishi shart!"],
     },
   },
   {
@@ -46,6 +52,4 @@ const projectSchema = new mongoose.Schema(
   },
 );
 
-const Project = mongoose.model("Project", projectSchema);
-
-module.exports = Project;
+module.exports = mongoose.model("Project", projectSchema);

@@ -2,7 +2,7 @@ const Admin = require("../models/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// 1. TIZIMGA KIRISH (LOGIN)
+// 1. TIZIMGA KIRISH (LOGIN) — Cookie bilan avtomatlashtirilgan variant
 exports.loginAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -17,7 +17,7 @@ exports.loginAdmin = async (req, res) => {
       return res.status(400).json({ message: "Login yoki parol noto'g'ri!" });
     }
 
-    // Token ichiga xavfsizlik uchun User-Agent va IP'ni ham qo'shib shifrlaymiz
+    // Xavfsizlik uchun User-Agent va IP'ni ham qo'shib shifrlaymiz
     const userAgent = req.headers["user-agent"];
     const ip = req.ip || req.headers["x-forwarded-for"];
 
@@ -27,10 +27,20 @@ exports.loginAdmin = async (req, res) => {
       { expiresIn: "1d" },
     );
 
+    res.cookie("token", token, {
+      httpOnly: true, 
+      secure: false, 
+      maxAge: 24 * 60 * 60 * 1000, 
+    });
+
+    // Front-endga token qaytarib o'tirmaymiz, faqat kerakli ma'lumotlarni beramiz
     res.json({
-      message: "Tizimga muvaffaqiyatli kirdingiz!",
+      message: "Tizimga muvaffaqiyatli kirdingiz! 🚀",
       role: admin.role,
-      token: `${token}`,
+      user: {
+        username: admin.username,
+        email: admin.email,
+      },
     });
   } catch (error) {
     res
@@ -65,16 +75,16 @@ exports.inviteAdmin = async (req, res) => {
         });
     }
 
-    // 3. Parolni shifrlaymiz (Hash)
+    // Parolni shifrlaymiz (Hash)
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 4. Yangi adminni bazaga 'admin' roli bilan saqlaymiz
+    // Yangi adminni bazaga 'admin' roli bilan saqlaymiz
     const newAdmin = new Admin({
       username: username.trim(),
       email: email.trim().toLowerCase(),
       password: hashedPassword,
-      role: "admin", // Avtomat oddiy admin bo'ladi, superadmin emas!
+      role: "admin",
     });
 
     await newAdmin.save();
@@ -110,25 +120,29 @@ exports.getAllAdmins = async (req, res) => {
   }
 };
 
-// 4. PATCH — Admin o'z ma'lumotlarini qisman yangilashi (Ism, Email yoki Parol)
+// 4. PATCH — Admin o'z ma'lumotlarini qisman yangilashi
 exports.updateMe = async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    
     const adminId = req.user?._id || req.admin?._id;
 
     if (!adminId) {
-      return res.status(401).json({ message: "Foydalanuvchi aniqlanmadi, iltimos qayta login qiling!" });
+      return res
+        .status(401)
+        .json({
+          message: "Foydalanuvchi aniqlanmadi, iltimos qayta login qiling!",
+        });
     }
 
     let updateData = {};
     if (username) updateData.username = username.trim();
     if (email) updateData.email = email.trim().toLowerCase();
 
-    // Parol kelgan bo'lsa, uni shifrlaymiz
     if (password) {
       if (password.length < 4) {
-        return res.status(400).json({ message: "Parol kamida 4 ta belgi bo'lishi shart!" });
+        return res
+          .status(400)
+          .json({ message: "Parol kamida 4 ta belgi bo'lishi shart!" });
       }
       const salt = await bcrypt.genSalt(10);
       updateData.password = await bcrypt.hash(password, salt);
@@ -137,33 +151,39 @@ exports.updateMe = async (req, res) => {
     const updatedAdmin = await Admin.findByIdAndUpdate(
       adminId,
       { $set: updateData },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).select("-password");
 
     res.json({
       message: "Ma'lumotlaringiz muvaffaqiyatli yangilandi! ✨",
-      data: updatedAdmin
+      data: updatedAdmin,
     });
-
   } catch (error) {
-    res.status(500).json({ message: "Serverda xatolik yuz berdi", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Serverda xatolik yuz berdi", error: error.message });
   }
 };
 
-// 5. PUT — SuperAdmin tomonidan biron bir adminni to'liq boshqarish (Masalan, rolni o'zgartirish)
+// 5. PUT — SuperAdmin tomonidan biron bir adminni to'liq boshqarish
 exports.updateAdminBySuper = async (req, res) => {
   try {
     const { id } = req.params;
     const { username, email, role } = req.body;
 
     if (!username || !email || !role) {
-      return res.status(400).json({ message: "Barcha maydonlarni (username, email, role) to'ldirish shart!" });
+      return res
+        .status(400)
+        .json({
+          message:
+            "Barcha maydonlarni (username, email, role) to'ldirish shart!",
+        });
     }
 
     const updatedAdmin = await Admin.findByIdAndUpdate(
       id,
       { username: username.trim(), email: email.trim().toLowerCase(), role },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).select("-password");
 
     if (!updatedAdmin) {
@@ -172,15 +192,14 @@ exports.updateAdminBySuper = async (req, res) => {
 
     res.json({
       message: "Admin ma'lumotlari SuperAdmin tomonidan yangilandi! 🛠️",
-      data: updatedAdmin
+      data: updatedAdmin,
     });
-
   } catch (error) {
     res.status(500).json({ message: "Serverda xatolik", error: error.message });
   }
 };
 
-// 5. ADMINNI O'CHIRISH (Faqat SuperAdmin cheklangan adminlarni o'chira oladi)
+// 6. ADMINNI O'CHIRISH (Faqat SuperAdmin cheklangan adminlarni o'chira oladi)
 exports.deleteAdmin = async (req, res) => {
   try {
     const { id } = req.params;
@@ -192,7 +211,6 @@ exports.deleteAdmin = async (req, res) => {
         .json({ message: "O'chirilishi kerak bo'lgan admin topilmadi!" });
     }
 
-    // 🛡️ O'z-o'zini o'chirish yoki boshqa SuperAdminni o'chirishni taqiqlash!
     if (adminToDelete.role === "superadmin") {
       return res.status(403).json({
         message: "Taqiqlanadi! Tizimda SuperAdminlarni o'chirib bo'lmaydi!",
@@ -206,4 +224,10 @@ exports.deleteAdmin = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Xatolik", error: error.message });
   }
+};
+
+// 7. TIZIMDAN CHIQISH (LOGOUT)
+exports.logoutAdmin = async (req, res) => {
+  res.clearCookie("token");
+  res.json({ message: "Tizimdan muvaffaqiyatli chiqdingiz! 🚪" });
 };
