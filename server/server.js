@@ -76,7 +76,7 @@ app.use(limiter);
 
 const contactLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 10,
+  max: 50,
   message: {
     message: "Xabar yuborish limiti tugadi. Iltimos, birozdan keyin urining.",
   },
