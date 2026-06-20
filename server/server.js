@@ -4,18 +4,48 @@ const helmet = require("helmet");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
+const swaggerJSDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./swagger");
+
+const http = require("http");
+const { Server } = require("socket.io");
+
 require("dotenv").config();
 
 const projectRoutes = require("./routes/projectRoutes");
+const contactRoutes = require("./routes/contactRoutes");
 const authRoutes = require("./routes/authRoutes");
 
 const app = express();
+const server = http.createServer(app);
+app.set("trust proxy", 1);
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://shaxsiy_saytingiz.uz",
+];
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+global.io = io;
+
+io.on("connection", (socket) => {
+  console.log(`Foydalanuvchi tarmoqqa ulandi: ${socket.id}`);
+  socket.on("disconnect", () => console.log("Foydalanuvchi uzildi"));
+});
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
+
 app.use((req, res, next) => {
   const sanitize = (obj) => {
     if (obj instanceof Object) {
@@ -44,15 +74,27 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+const contactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: {
+    message: "Xabar yuborish limiti tugadi. Iltimos, birozdan keyin urining.",
+  },
+});
+app.use("/api/contact", contactLimiter);
+
 app.use(
   cors({
-    origin: ["http://localhost:5000", "https://shaxsiy_saytingiz.uz"],
+    origin: allowedOrigins,
     credentials: true,
   }),
 );
 
+// Routerlar
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/projects", projectRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/contact", contactRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
@@ -60,6 +102,8 @@ mongoose
   .catch((err) => console.error("MongoDB ulanishda xatolik:", err));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () =>
-  console.log(`Xavfsiz server ${PORT}-portda gurlab ishlamoqda... 🚀`),
+server.listen(PORT, () =>
+  console.log(
+    `Xavfsiz server HTTP va Websocket bilan ${PORT}-portda gurlab ishlamoqda... 🚀`,
+  ),
 );
