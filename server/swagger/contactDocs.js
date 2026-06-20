@@ -112,7 +112,20 @@ module.exports = {
         },
       },
     },
-    "/api/contact/{id}": {
+    "/api/contact/clear": {
+      delete: {
+        summary:
+          "Barcha murojaatlarni birdaniga to'liq o'chirib tashlash (⚠️ FAQAT SUPERADMIN)",
+        tags: ["Contacts"],
+        security: [{ cookieAuth: [] }],
+        responses: {
+          200: { description: "Barcha xabarlar o'chirildi, baza top-toza." },
+          403: { description: "Ruxsat berilmagan (Siz SuperAdmin emassiz!)." },
+          401: { description: "Avtorizatsiyadan o'tilmagan." },
+        },
+      },
+    },
+    "/api/contact/clear/{id}": {
       delete: {
         summary: "Kelgan murojaat/xabarni o'chirish (🔒 Faqat Admin)",
         tags: ["Contacts"],
@@ -129,7 +142,47 @@ module.exports = {
         responses: {
           200: {
             description:
-              "Murojaat muvaffaqiyatli o'chirildi (Tizim tozalandi).",
+              "Murojaat muvaffaqiyatli o'chirildi. Tizim tozalandi! 🧹",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    message: {
+                      type: "string",
+                      example:
+                        "Asilbek ismli foydalanuvchining murojaati tizimdan o'chirildi. Tizim tozalandi! 🧹",
+                    },
+                    data: {
+                      type: "object",
+                      properties: {
+                        _id: {
+                          type: "string",
+                          example: "6a36c14308a6b68648684032",
+                        },
+                        name: {
+                          type: "string",
+                          description: "O'chirilgan foydalanuvchining ismi",
+                          example: "Asilbek",
+                        },
+                        phone: { type: "string", example: "+998505243652" },
+                        message: {
+                          type: "string",
+                          example:
+                            "Assalomu alaykum, menga portfolio sayt kerak edi.",
+                        },
+                        isAnswered: { type: "boolean", example: false },
+                        answer: { type: "string", example: "" },
+                        telegramMessageId: { type: "integer", example: 24 },
+                        createdAt: { type: "string", format: "date-time" },
+                        updatedAt: { type: "string", format: "date-time" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
           404: { description: "Bunday IDga ega xabar topilmadi." },
           401: { description: "Avtorizatsiyadan o'tilmagan / Token xato." },

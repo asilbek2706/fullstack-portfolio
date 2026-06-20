@@ -4,7 +4,10 @@ const contactController = require("../controllers/contactController");
 const {
   validateContactAndRecaptcha,
 } = require("../middlewares/contactMiddleware");
-const { protect, restrictToSuperAdmin } = require("../middlewares/authMiddleware");
+const {
+  protect,
+  restrictToSuperAdmin,
+} = require("../middlewares/authMiddleware");
 
 // 📩 Yangi savol yuborish (Xavfsiz, reCAPTCHA v3 bilan)
 router.post("/", validateContactAndRecaptcha, contactController.createContact);
@@ -18,9 +21,17 @@ router.get("/answer", contactController.getContactAnswers);
 // 🔍 Bitta maxsus savol javobini tekshirish (ID bo'yicha)
 router.get("/answer/:id", contactController.getContactAnswer);
 
+// 🔒 Barcha savol-javoblarni tozalash (Faqat SuperAdmin)
+router.delete(
+  "/clear",
+  protect,
+  restrictToSuperAdmin,
+  contactController.clearAllContacts,
+);
+
 // 🔒 Bitta savolni ID bo'yicha o'chirish (Faqat Admin)
 router.delete(
-  "/:id",
+  "/clear/:id",
   protect,
   restrictToSuperAdmin,
   contactController.deleteContact,

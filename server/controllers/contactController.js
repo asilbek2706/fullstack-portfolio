@@ -182,7 +182,6 @@ exports.deleteContact = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Bazadan xabarni topish va o'chirish
     const deletedContact = await Contact.findByIdAndDelete(id);
 
     if (!deletedContact) {
@@ -194,7 +193,8 @@ exports.deleteContact = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Murojaat muvaffaqiyatli o'chirildi. Tizim tozalandi! 🧹",
+      message: `${deletedContact.name} ismli foydalanuvchining murojaati tizimdan o'chirildi. Tizim tozalandi! 🧹`,
+      data: deletedContact,
     });
   } catch (error) {
     res.status(500).json({
@@ -205,3 +205,20 @@ exports.deleteContact = async (req, res) => {
   }
 };
 
+// 7. BARCHA SAVOLLARNI O'CHIRISH (🔒 Faqat SuperAdmin)
+exports.clearAllContacts = async (req, res) => {
+  try {
+    const result = await Contact.deleteMany({});
+
+    res.status(200).json({
+      success: true,
+      message: `Barcha murojaatlar muvaffaqiyatli o'chirildi! Jami: ${result.deletedCount} ta xabar o'chirildi. Tizim noldan tozalandi! 🛑🧹`,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Bazani tozalashda server xatoligi yuz berdi.",
+      error: error.message,
+    });
+  }
+};
