@@ -112,5 +112,29 @@ module.exports = {
         },
       },
     },
+    "/api/contact/{id}": {
+      delete: {
+        summary: "Kelgan murojaat/xabarni o'chirish (🔒 Faqat Admin)",
+        tags: ["Contacts"],
+        security: [{ cookieAuth: [] }],
+        parameters: [
+          {
+            in: "path",
+            name: "id",
+            required: true,
+            schema: { type: "string" },
+            description: "O'chirilishi kerak bo'lgan xabar IDsi",
+          },
+        ],
+        responses: {
+          200: {
+            description:
+              "Murojaat muvaffaqiyatli o'chirildi (Tizim tozalandi).",
+          },
+          404: { description: "Bunday IDga ega xabar topilmadi." },
+          401: { description: "Avtorizatsiyadan o'tilmagan / Token xato." },
+        },
+      },
+    },
   },
 };

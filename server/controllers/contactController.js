@@ -77,6 +77,43 @@ exports.getAllQuestionsAnswers = async (req, res) => {
   }
 };
 
+// 5. BITTA SAVOL JAVOBINI ID BO'YICHA TEKSHIRISH (OMMAVIY)
+exports.getContactAnswer = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const contact = await Contact.findById(id);
+
+    if (!contact) {
+      return res.status(404).json({
+        success: false,
+        message: "Bunday IDga ega savol topilmadi!",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        id: contact._id,
+        name: contact.name,
+        isAnswered: contact.isAnswered,
+        answer: contact.answer || "",
+        createdAt: contact.createdAt,
+        updatedAt: contact.updatedAt,
+      },
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Yuborilgan ID formati noto'g'ri!" });
+    }
+    return res
+      .status(500)
+      .json({ success: false, message: "Serverda xatolik yuz berdi." });
+  }
+};
+
 // 3. TELEGRAM WEBHOOK HANDLER
 exports.handleTelegramWebhook = async (req, res) => {
   try {
@@ -140,39 +177,31 @@ exports.getContactAnswers = async (req, res) => {
   }
 };
 
-// 5. BITTA SAVOL JAVOBINI ID BO'YICHA TEKSHIRISH (OMMAVIY)
-exports.getContactAnswer = async (req, res) => {
+// 6. BITTA SAVOLNI ID BO'YICHA O'CHIRISH (🔒 Faqat Admin)
+exports.deleteContact = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const contact = await Contact.findById(id);
+    // Bazadan xabarni topish va o'chirish
+    const deletedContact = await Contact.findByIdAndDelete(id);
 
-    if (!contact) {
+    if (!deletedContact) {
       return res.status(404).json({
         success: false,
-        message: "Bunday IDga ega savol topilmadi!",
+        message: "Bunday IDga ega murojaat topilmadi!",
       });
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      data: {
-        id: contact._id,
-        name: contact.name,
-        isAnswered: contact.isAnswered,
-        answer: contact.answer || "",
-        createdAt: contact.createdAt,
-        updatedAt: contact.updatedAt,
-      },
+      message: "Murojaat muvaffaqiyatli o'chirildi. Tizim tozalandi! 🧹",
     });
   } catch (error) {
-    if (error.name === "CastError") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Yuborilgan ID formati noto'g'ri!" });
-    }
-    return res
-      .status(500)
-      .json({ success: false, message: "Serverda xatolik yuz berdi." });
+    res.status(500).json({
+      success: false,
+      message: "Xabarni o'chirishda server xatoligi yuz berdi.",
+      error: error.message,
+    });
   }
 };
+
