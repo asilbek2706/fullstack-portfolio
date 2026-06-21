@@ -1,5 +1,5 @@
 module.exports = {
-  // SCHEMA DEFINITION
+  // 💾 1. SCHEMA DEFINITION (Admin Modeli)
   schema: {
     type: "object",
     required: ["username", "email", "password"],
@@ -13,7 +13,7 @@ module.exports = {
     },
   },
 
-  // PATHS / ENDPOINTS
+  // 🌐 2. PATHS / ENDPOINTS
   paths: {
     "/api/auth/login": {
       post: {
@@ -25,9 +25,10 @@ module.exports = {
             "application/json": {
               schema: {
                 type: "object",
-                required: ["email", "password"],
+                // 🔥 YANGILANDI: email o'rniga username va password majburiy qilindi
+                required: ["username", "password"],
                 properties: {
-                  email: { type: "string", example: "admin@portfolio.uz" },
+                  username: { type: "string", example: "asilbek_admin" }, // 🔥 Postmandagi kabi username
                   password: { type: "string", example: "parol123" },
                 },
               },
@@ -38,7 +39,7 @@ module.exports = {
           200: {
             description: "Muvaffaqiyatli kirdi va Kuki (JWT) o'rnatildi.",
           },
-          401: { description: "Email yoki parol xato." },
+          401: { description: "Username yoki parol xato." }, // 📝 Xabarnoma ham moslandi
         },
       },
     },
@@ -48,7 +49,7 @@ module.exports = {
         tags: ["Auth"],
         security: [{ cookieAuth: [] }],
         responses: {
-          200: { description: "Kuki muvaffaqiyatli tozalandi." },
+          200: { description: "Kuki muvaffaqueiyatli tozalandi." },
           401: {
             description: "Token topilmadi / Avtorizatsiyadan o'tilmagan.",
           },
