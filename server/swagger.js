@@ -37,10 +37,14 @@ const options = {
       },
       // Real ma'lumotlar bazasi sxemalarimiz (Hamma rowlar shu yerda paydo bo'ladi!)
       schemas: {
-        Admin: authDocs.schema,
-        About: aboutDocs.schema,
-        Project: projectDocs.schema,
-        Contact: contactDocs.schema,
+        ...authDocs.schemas,
+        ...authDocs.schema,     // Agar eski fayllaringda "schema" qolib ketgan bo'lsa, ikkalasini ham qo'llab-quvvatlaydi
+        ...aboutDocs.schemas,    // Biz tuzatgan FAQ va About shu yerdan kirib keladi!
+        ...aboutDocs.schema,
+        ...projectDocs.schemas,
+        ...projectDocs.schema,
+        ...contactDocs.schemas,
+        ...contactDocs.schema,
       },
     },
     // Barcha fayllardan path'larni (endpointlarni) bitta obyektga birlashtiramiz
