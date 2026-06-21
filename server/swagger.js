@@ -5,6 +5,7 @@ const authDocs = require("./swagger/authDocs");
 const aboutDocs = require("./swagger/aboutDocs");
 const projectDocs = require("./swagger/projectDocs");
 const contactDocs = require("./swagger/contactDocs");
+const faqDocs = require("./swagger/faqDocs");
 
 const options = {
   definition: {
@@ -37,14 +38,11 @@ const options = {
       },
       // Real ma'lumotlar bazasi sxemalarimiz (Hamma rowlar shu yerda paydo bo'ladi!)
       schemas: {
-        ...authDocs.schemas,
-        ...authDocs.schema,     // Agar eski fayllaringda "schema" qolib ketgan bo'lsa, ikkalasini ham qo'llab-quvvatlaydi
-        ...aboutDocs.schemas,    // Biz tuzatgan FAQ va About shu yerdan kirib keladi!
-        ...aboutDocs.schema,
-        ...projectDocs.schemas,
-        ...projectDocs.schema,
-        ...contactDocs.schemas,
-        ...contactDocs.schema,
+        Admin: authDocs.schema,
+        About: aboutDocs.schema,
+        Project: projectDocs.schema,
+        Contact: contactDocs.schema,
+        FAQ: faqDocs.schema,
       },
     },
     // Barcha fayllardan path'larni (endpointlarni) bitta obyektga birlashtiramiz
@@ -53,6 +51,7 @@ const options = {
       ...aboutDocs.paths,
       ...projectDocs.paths,
       ...contactDocs.paths,
+      ...faqDocs.paths,
     },
   },
   apis: [], // Loyihadan ortiqcha sharhlarni o'qimasligi uchun bo'sh qoldiramiz
