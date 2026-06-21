@@ -15,6 +15,47 @@ module.exports = {
 
   // 🌐 2. PATHS / ENDPOINTS
   paths: {
+     "/api/auth/me": {
+      get: {
+        summary: "Joriy kirgan admin ma'lumotlarini olish",
+        tags: ["Auth"],
+        security: [{ cookieAuth: [] }],
+        responses: {
+          200: {
+            description: "Admin ma'lumotlari muvaffaqiyatli qaytarildi.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    username: { type: "string", example: "asilbek_admin" },
+                    email: { type: "string", example: "admin@portfolio.uz" },
+                    role: { type: "string", example: "superadmin" },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description:
+              "Avtorizatsiyadan o'tilmagan (Token yaroqsiz yoki yo'q).",
+          },
+        },
+      },
+    },
+       "/api/auth/admins": {
+      get: {
+        summary:
+          "Barcha ro'yxatdan o'tgan adminlar ro'yxati (🛡️ Faqat SuperAdmin)",
+        tags: ["Auth"],
+        security: [{ cookieAuth: [] }],
+        responses: {
+          200: {
+            description: "Barcha adminlar ro'yxati muvaffaqiyatli yuklandi.",
+          },
+        },
+      },
+    },
     "/api/auth/login": {
       post: {
         summary: "Tizimga kirish (Login)",
@@ -56,33 +97,6 @@ module.exports = {
         },
       },
     },
-    "/api/auth/update": {
-      patch: {
-        summary: "Admin o'z shaxsiy profilini tahrirlashi",
-        tags: ["Auth"],
-        security: [{ cookieAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  username: { type: "string", example: "yangi_login" },
-                  email: {
-                    type: "string",
-                    example: "yangi_email@portfolio.uz",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: { description: "Profil muvaffaqiyatli yangilandi." },
-        },
-      },
-    },
     "/api/auth/invite": {
       post: {
         summary: "Yangi admin taklif qilish (🛡️ Faqat SuperAdmin)",
@@ -115,16 +129,30 @@ module.exports = {
         },
       },
     },
-    "/api/auth/admins": {
-      get: {
-        summary:
-          "Barcha ro'yxatdan o'tgan adminlar ro'yxati (🛡️ Faqat SuperAdmin)",
+      "/api/auth/update": {
+      patch: {
+        summary: "Admin o'z shaxsiy profilini tahrirlashi",
         tags: ["Auth"],
         security: [{ cookieAuth: [] }],
-        responses: {
-          200: {
-            description: "Barcha adminlar ro'yxati muvaffaqiyatli yuklandi.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  username: { type: "string", example: "yangi_login" },
+                  email: {
+                    type: "string",
+                    example: "yangi_email@portfolio.uz",
+                  },
+                },
+              },
+            },
           },
+        },
+        responses: {
+          200: { description: "Profil muvaffaqiyatli yangilandi." },
         },
       },
     },

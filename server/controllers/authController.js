@@ -231,3 +231,30 @@ exports.logoutAdmin = async (req, res) => {
   res.clearCookie("token");
   res.json({ message: "Tizimdan muvaffaqiyatli chiqdingiz! 🚪" });
 };
+
+// 8. TIZIMDAGI JORIY ADMINNI ANIQLASH (Frontend refresh uchun)
+exports.getMe = async (req, res) => {
+  try {
+    // req.admin yoki req.user — bu sening verifyToken middleware'ing tokeni 
+    // ichidagi ma'lumotlarni qayerga yozganiga bog'liq (odatda req.admin yoki req.user)
+    const adminId = req.admin?.id || req.user?.id;
+
+    if (!adminId) {
+      return res.status(401).json({ message: "Siz tizimga kirmagansiz!" });
+    }
+
+    const admin = await Admin.findById(adminId).select("-password");
+    
+    if (!admin) {
+      return res.status(404).json({ message: "Admin topilmadi!" });
+    }
+
+    res.json({
+      username: admin.username,
+      role: admin.role,
+      email: admin.email
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Serverda xatolik yuz berdi", error: error.message });
+  }
+};

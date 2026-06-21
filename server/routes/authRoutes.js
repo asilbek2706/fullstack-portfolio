@@ -49,5 +49,8 @@ router.delete(
   restrictToSuperAdmin,
   authController.deleteAdmin
 );
+ 
+// Kirgan admin o'z ma'lumotlarini ko'rishi (ID, username, email, role)
+router.get("/me", protect, authController.getMe);
 
 module.exports = router;
