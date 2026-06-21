@@ -1,6 +1,6 @@
 module.exports = {
   // 💾 1. SCHEMAS (Ma'lumotlar modellari strukturasi)
-  schema: {
+  schemas: {
     About: {
       type: "object",
       required: ["fullName", "title", "avatar", "bio", "experienceYears"],
