@@ -40,32 +40,32 @@ const validateContactAndRecaptcha = async (req, res, next) => {
       });
     }
 
-    // if (!recaptchaToken) {
-    //   return res.status(400).json({
-    //     message: "Xavfsizlik tokeni (recaptchaToken) mavjud emas!",
-    //   });
-    // }
+    if (!recaptchaToken) {
+      return res.status(400).json({
+        message: "Xavfsizlik tokeni (recaptchaToken) mavjud emas!",
+      });
+    }
 
-    // try {
-    //   const googleResponse = await axios.post(
-    //     `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
-    //     {},
-    //     { timeout: 5000 },
-    //   );
+    try {
+      const googleResponse = await axios.post(
+        `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
+        {},
+        { timeout: 5000 },
+      );
 
-    //   if (!googleResponse.data.success || googleResponse.data.score < 0.5) {
-    //     return res.status(400).json({
-    //       message:
-    //         "Xavfsizlik tekshiruvidan o'ta olmadingiz! Tizim sizni bot deb gumon qildi.",
-    //     });
-    //   }
-    // } catch (recaptchaError) {
-    //   console.error("reCAPTCHA API ulanish xatosi:", recaptchaError.message);
-    //   return res.status(503).json({
-    //     message:
-    //       "Xavfsizlik xizmati vaqtincha ishlamayapti, iltimos qayta urining.",
-    //   });
-    // }
+      if (!googleResponse.data.success || googleResponse.data.score < 0.5) {
+        return res.status(400).json({
+          message:
+            "Xavfsizlik tekshiruvidan o'ta olmadingiz! Tizim sizni bot deb gumon qildi.",
+        });
+      }
+    } catch (recaptchaError) {
+      console.error("reCAPTCHA API ulanish xatosi:", recaptchaError.message);
+      return res.status(503).json({
+        message:
+          "Xavfsizlik xizmati vaqtincha ishlamayapti, iltimos qayta urining.",
+      });
+    }
 
     // Tozalangan ma'lumotlarni req.body'ga qayta yuklash
     req.body.name = name;
