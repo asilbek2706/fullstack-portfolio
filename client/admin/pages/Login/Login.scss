@@ -1,0 +1,106 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #121212; // Django va zamonaviy dashboardlarning to'q foni
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+
+  .login-form {
+    background: #1e1e1e;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #2d2d2d;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px); // Kichkina interaktiv effekt
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 2rem;
+      font-size: 1.75rem;
+      color: #ffffff;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .error-msg {
+      background-color: rgba(255, 77, 77, 0.15);
+      border: 1px solid #ff4d4d;
+      color: #ff6b6b;
+      padding: 0.75rem;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+
+      label {
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        color: #b3b3b3;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 1px solid #333333;
+        border-radius: 8px;
+        background-color: #141414;
+        color: #ffffff;
+        font-size: 1rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+        &::placeholder {
+          color: #555555;
+        }
+
+        &:focus {
+          border-color: #3b82f6; // Professional ko'k rang (Blue 500)
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+          outline: none;
+        }
+      }
+    }
+
+    button {
+      width: 100%;
+      padding: 0.85rem;
+      background-color: #2563eb; // Active ko'k rang
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      margin-top: 0.5rem;
+
+      &:hover {
+        background-color: #1d4ed8;
+      }
+
+      &:active {
+        transform: scale(0.98); // Bosganda ozgina ichkariga kirish effekti
+      }
+    }
+  }
+}

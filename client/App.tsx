@@ -1,4 +1,4 @@
-import Dashboard from "@admin/pages/Dashboard"
+import AdminRoot from "@admin/pages/AdminRoot"
 import Home from "@src/pages/Home"
 import {  Route, Routes } from "react-router-dom"
 
@@ -10,7 +10,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
           
         {/* Admin */}
-        <Route path="/admin" element={<Dashboard />} />
+        <Route path="/admin" element={<AdminRoot />} />
       </Routes>
     </div>
   )
