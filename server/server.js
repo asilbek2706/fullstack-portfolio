@@ -16,6 +16,8 @@ require("dotenv").config();
 const projectRoutes = require("./routes/projectRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const authRoutes = require("./routes/authRoutes");
+const aboutRoutes = require("./routes/aboutRoutes");
+const faqRoutes = require("./routes/faqRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -92,8 +94,11 @@ app.use(
 
 // Routerlar
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use("/api/projects", projectRoutes);
+
 app.use("/api/auth", authRoutes);
+app.use("/api/about", aboutRoutes);
+app.use("/api/faq", faqRoutes);
+app.use("/api/projects", projectRoutes);
 app.use("/api/contact", contactRoutes);
 
 mongoose

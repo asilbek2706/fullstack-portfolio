@@ -174,7 +174,22 @@ module.exports = {
           required: true,
           content: {
             "application/json": {
-              schema: { $ref: "#/components/schemas/Project" },
+              schema: {
+                type: "object",
+                properties: {
+                  title: { type: "string", example: "Yangilangan E-Commerce Web App" },
+                  description: { type: "string", example: "Tahrirlangan backend qismi." },
+                  image: { type: "string", example: "https://images.unsplash.com/...jpg" },
+                  technologies: {
+                    type: "array",
+                    maxItems: 4,
+                    items: { type: "string" },
+                    example: ["Node.js", "Express", "MongoDB", "React"],
+                  },
+                  githubLink: { type: "string", example: "https://github.com/..." },
+                  demoLink: { type: "string", example: "https://demo.uz" },
+                },
+              },
             },
           },
         },
