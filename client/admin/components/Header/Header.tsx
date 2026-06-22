@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import toast from 'react-hot-toast';
-import './Header.scss';
 import { useAdmin } from '../../../context/AdminContext';
 import api from '../../../api/axios';
 import Loading from '../../../Loading/Loading';
+import './Header.scss';
+import 'sweetalert2/src/sweetalert2.scss';
+import type { SweetAlertResult } from 'sweetalert2';
+import Swal from 'sweetalert2';
 
 const Header = () => {
   const { admin } = useAdmin();
@@ -13,7 +15,6 @@ const Header = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
 
-  // Asosiy Logout logikasi
   const performLogout = async () => {
     setIsLoggingOut(true);
     try {
@@ -22,13 +23,13 @@ const Header = () => {
       navigate('/admin', { replace: true });
     } catch (error) {
       console.error('Logout xatosi:', error);
-      toast.error('Tizimdan chiqishda xatolik yuz berdi.');
+      toast.error('Chiqishda xatolik yuz berdi.');
       setIsLoggingOut(false);
     }
   };
 
   const handleLogout = async () => {
-    const result = await Swal.fire({
+    const result: SweetAlertResult<void> = await Swal.fire({
       title: 'Ishonchingiz komilmi?',
       text: 'Siz tizimdan chiqasiz!',
       icon: 'warning',
@@ -39,7 +40,6 @@ const Header = () => {
       cancelButtonText: 'Bekor qilish',
       background: '#171b1f',
       color: '#fff',
-      zIndex: 9999,
     });
 
     if (result.isConfirmed) {
@@ -48,7 +48,6 @@ const Header = () => {
   };
 
   if (!admin) return null;
-
   if (isLoggingOut) return <Loading />;
 
   return (
