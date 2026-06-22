@@ -28,10 +28,10 @@ exports.loginAdmin = async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: true, 
-      secure: true, 
+      httpOnly: true,
+      secure: true,
       sameSite: "none",
-      maxAge: 24 * 60 * 60 * 1000, 
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     // Front-endga token qaytarib o'tirmaymiz, faqat kerakli ma'lumotlarni beramiz
@@ -69,11 +69,9 @@ exports.inviteAdmin = async (req, res) => {
     });
 
     if (existingAdmin) {
-      return res
-        .status(400)
-        .json({
-          message: "Bu username yoki email allaqachon ro'yxatdan o'tgan!",
-        });
+      return res.status(400).json({
+        message: "Bu username yoki email allaqachon ro'yxatdan o'tgan!",
+      });
     }
 
     // Parolni shifrlaymiz (Hash)
@@ -128,11 +126,9 @@ exports.updateMe = async (req, res) => {
     const adminId = req.user?._id || req.admin?._id;
 
     if (!adminId) {
-      return res
-        .status(401)
-        .json({
-          message: "Foydalanuvchi aniqlanmadi, iltimos qayta login qiling!",
-        });
+      return res.status(401).json({
+        message: "Foydalanuvchi aniqlanmadi, iltimos qayta login qiling!",
+      });
     }
 
     let updateData = {};
@@ -173,12 +169,9 @@ exports.updateAdminBySuper = async (req, res) => {
     const { username, email, role } = req.body;
 
     if (!username || !email || !role) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Barcha maydonlarni (username, email, role) to'ldirish shart!",
-        });
+      return res.status(400).json({
+        message: "Barcha maydonlarni (username, email, role) to'ldirish shart!",
+      });
     }
 
     const updatedAdmin = await Admin.findByIdAndUpdate(
@@ -236,7 +229,7 @@ exports.logoutAdmin = async (req, res) => {
 // 8. TIZIMDAGI JORIY ADMINNI ANIQLASH (Frontend refresh uchun)
 exports.getMe = async (req, res) => {
   try {
-    // req.admin yoki req.user — bu sening verifyToken middleware'ing tokeni 
+    // req.admin yoki req.user — bu sening verifyToken middleware'ing tokeni
     // ichidagi ma'lumotlarni qayerga yozganiga bog'liq (odatda req.admin yoki req.user)
     const adminId = req.admin?.id || req.user?.id;
 
@@ -245,7 +238,7 @@ exports.getMe = async (req, res) => {
     }
 
     const admin = await Admin.findById(adminId).select("-password");
-    
+
     if (!admin) {
       return res.status(404).json({ message: "Admin topilmadi!" });
     }
@@ -253,9 +246,11 @@ exports.getMe = async (req, res) => {
     res.json({
       username: admin.username,
       role: admin.role,
-      email: admin.email
+      email: admin.email,
     });
   } catch (error) {
-    res.status(500).json({ message: "Serverda xatolik yuz berdi", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Serverda xatolik yuz berdi", error: error.message });
   }
 };
