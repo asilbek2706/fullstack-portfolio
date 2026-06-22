@@ -1,24 +1,11 @@
-import { createContext, useContext, ReactNode } from "react";
-
-interface AdminUser {
-  username: string;
-  email: string;
-  role: 'admin' | 'superadmin';
-}
+import { createContext } from 'react';
+import type { AdminUser } from '../admin/interfaces/admin.interface';
 
 interface AdminContextType {
   admin: AdminUser | null;
+  setAdmin: (admin: AdminUser | null) => void;
 }
 
-export const AdminContext = createContext<AdminContextType>({ admin: null });
-
-// SHU YERDA HOOKNI EKSIRT QILAMIZ
-export const useAdmin = () => useContext(AdminContext);
-
-export const AdminProvider = ({ children, admin }: { children: ReactNode, admin: AdminUser | null }) => {
-  return (
-    <AdminContext.Provider value={{ admin }}>
-      {children}
-    </AdminContext.Provider>
-  );
-};
+export const AdminContext = createContext<AdminContextType | undefined>(
+  undefined,
+);
