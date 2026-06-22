@@ -20,7 +20,7 @@ const Login: React.FC = () => {
 
     try {
       await api.post('/auth/login', { username, password });
-      navigate('/dashboard');
+      navigate('/auth/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
       setError(

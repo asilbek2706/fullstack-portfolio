@@ -10,6 +10,7 @@ import Loading from '../../Loading/Loading';
 const AdminRoot = () => {
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
     const fetchAdmin = async () => {
@@ -33,11 +34,24 @@ const AdminRoot = () => {
 
   return (
     <AdminProvider admin={admin}>
-      <div className="admin-layout" style={{ display: 'flex' }}>
-        <Sidebar />
-        <main style={{ flex: 1 }}>
-          <Header />
-          <Outlet />
+      <div className="admin-layout">
+        <Sidebar
+          isOpen={isSidebarOpen}
+          toggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        />
+
+        <main
+          className="admin-main"
+          style={{
+            marginLeft: isSidebarOpen ? 280 : 80,
+            transition: 'margin-left 0.3s ease',
+          }}
+        >
+          <Header sidebarOpen={isSidebarOpen} />
+
+          <div className="content">
+            <Outlet />
+          </div>
         </main>
       </div>
     </AdminProvider>

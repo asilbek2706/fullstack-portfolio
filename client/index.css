@@ -1,5 +1,22 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.admin-layout {
+  min-height: 100vh;
+  background: #111418;
+}
+
+.admin-main {
+  margin-left: 280px;
+  min-height: 100vh;
+}
+
+.content {
+  padding: 94px 20px 20px;
+  min-height: 100vh;
+  color: #fff;
+  background: #111418;
 }
