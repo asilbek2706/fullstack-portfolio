@@ -27,5 +27,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "admin", "main.tsx", "App.tsx"]
+  "include": ["src", "admin", "main.tsx", "App.tsx", "api", "vite-env.d.ts"]
 }

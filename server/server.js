@@ -25,7 +25,7 @@ app.set("trust proxy", 1);
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://shaxsiy_saytingiz.uz",
+  "https://fullstack-portfolio-81mm.onrender.com",
 ];
 const io = new Server(server, {
   cors: {

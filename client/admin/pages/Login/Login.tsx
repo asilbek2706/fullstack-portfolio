@@ -1,35 +1,26 @@
 import React, { useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import  { AxiosError } from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './Login.scss';
+import api from '../../../api/axios';
 
-interface LoginProps {
-  onLoginSuccess: () => void;
-}
+const Login: React.FC = () => {
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  
+  const navigate = useNavigate();
 
-const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const API_URL = import.meta.env.VITE_API_URL
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setError('');
 
     try {
-      const response = await axios.post(
-        `${API_URL}/auth/login`,
-        { username, password },
-        { withCredentials: true } 
-      );
+      await api.post('/auth/login', { username, password });
 
-      if (response.status === 200) {
-        onLoginSuccess();
-      }
+      navigate("/dashboard");
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
-      
       setError(
         axiosError.response?.data?.message || 'Server bilan aloqa uzildi!'
       );

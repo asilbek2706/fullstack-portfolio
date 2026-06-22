@@ -29,7 +29,8 @@ exports.loginAdmin = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true, 
-      secure: false, 
+      secure: true, 
+      sameSite: "true",
       maxAge: 24 * 60 * 60 * 1000, 
     });
 
