@@ -1,0 +1,142 @@
+.header {
+  height: 75px;
+  padding: 0 24px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: #111418;
+  border-bottom: 1px solid #1f2937;
+
+  color: #9ca3af;
+
+  z-index: 100;
+
+  .header-brand {
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .profile-wrapper {
+    position: relative;
+    cursor: pointer;
+
+    .avatar {
+      width: 45px;
+      height: 45px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+
+      background: linear-gradient(145deg, #242a31, #111418);
+
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+
+      border: 1px solid #2c3440;
+
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #4b5563;
+        transform: scale(1.05);
+      }
+    }
+
+    .dropdown {
+      position: absolute;
+      top: 58px;
+      right: 0;
+
+      width: 260px;
+
+      background: #171b1f;
+
+      border: 1px solid #2a313b;
+      border-radius: 14px;
+
+      padding: 16px;
+
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+
+      animation: fadeIn 0.2s ease-out;
+
+      .header-info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        margin-bottom: 14px;
+
+        h3 {
+          color: #fff;
+          font-size: 1rem;
+          margin: 0;
+        }
+
+        .role-tag {
+          width: fit-content;
+
+          padding: 4px 10px;
+
+          border-radius: 999px;
+
+          background: rgba(59, 130, 246, 0.12);
+          color: #60a5fa;
+
+          font-size: 0.75rem;
+          font-weight: 600;
+        }
+
+        .email-text {
+          color: #9ca3af;
+          font-size: 0.85rem;
+          word-break: break-all;
+          margin: 0;
+        }
+      }
+
+      .logout-btn {
+        width: 100%;
+
+        padding: 10px;
+
+        border: none;
+        border-radius: 10px;
+
+        background: #dc2626;
+        color: white;
+
+        font-size: 0.9rem;
+        font-weight: 600;
+
+        cursor: pointer;
+
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #b91c1c;
+        }
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

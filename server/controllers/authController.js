@@ -222,8 +222,15 @@ exports.deleteAdmin = async (req, res) => {
 
 // 7. TIZIMDAN CHIQISH (LOGOUT)
 exports.logoutAdmin = async (req, res) => {
-  res.clearCookie("token");
-  res.json({ message: "Tizimdan muvaffaqiyatli chiqdingiz! 🚪" });
+  res.cookie("token", "", {
+    httpOnly: true,
+    expires: new Date(0), // Muddatini o'tmishga suramiz
+    secure: true,
+    sameSite: "none",
+    path: "/",
+  });
+
+  return res.json({ message: "Tizimdan muvaffaqiyatli chiqdingiz! 🚪" });
 };
 
 // 8. TIZIMDAGI JORIY ADMINNI ANIQLASH (Frontend refresh uchun)

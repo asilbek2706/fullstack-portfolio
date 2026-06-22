@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import Sidebar from '@admin/components/Sidebar/Sidebar';
-import Header from '@admin/components/Header';
+import Header from '@admin/components/Header/Header';
 import { AdminProvider } from '../../context/AdminContext';
 import type { AdminUser } from '@admin/interfaces/admin.interface';
 import api from '../../api/axios';
+import Loading from '../../Loading/Loading';
 
 const AdminRoot = () => {
   const [admin, setAdmin] = useState<AdminUser | null>(null);
@@ -26,7 +27,7 @@ const AdminRoot = () => {
     fetchAdmin();
   }, []);
 
-  if (isAuthenticated === null) return <div>Yuklanmoqda...</div>;
+  if (isAuthenticated === null) return <Loading />;
 
   if (!isAuthenticated) return <Navigate to="/admin" replace />;
 
