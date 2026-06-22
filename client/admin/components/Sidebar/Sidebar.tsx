@@ -42,12 +42,35 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             <Link
               key={link.id}
               to={`/auth/${link.id}`}
-              className={active === link.id ? 'active' : ''}
+              className={`${active === link.id ? 'active' : ''}`}
               onClick={() => setActive(link.id)}
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+              }}
             >
-              <span className="icon">{link.icon}</span>
-
-              {isOpen && <span className="label">{link.name}</span>}
+              {isOpen ? (
+                <div
+                  className="sidebar-link"
+                  style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+                >
+                  <span className="icon">{link.icon}</span>
+                  <span className="label">{link.name}</span>
+                </div>
+              ) : (
+                <span
+                  className="icon"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  {link.icon}
+                </span>
+              )}
             </Link>
           ))}
         </nav>

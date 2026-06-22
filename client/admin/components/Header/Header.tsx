@@ -75,7 +75,7 @@ const Header = ({ sidebarOpen }: HeaderProps) => {
       }`}
     >
       <header className="header">
-        <div className="header-brand">Admin Panel</div>
+        <div className="header-brand">Dashboard</div>
 
         <div
           className="profile-wrapper"
