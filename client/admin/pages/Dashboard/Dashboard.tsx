@@ -1,4 +1,4 @@
-import { useAdmin } from '../../../context/AdminContext';
+import { useAdmin } from '../../../context/useAdmin';
 import Loading from '../../../Loading/Loading';
 
 const Dashboard = () => {

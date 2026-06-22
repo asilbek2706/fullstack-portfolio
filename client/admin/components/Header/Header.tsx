@@ -4,12 +4,12 @@ import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import type { SweetAlertResult } from 'sweetalert2';
 
-import { useAdmin } from '../../../context/AdminContext';
 import api from '../../../api/axios';
 import Loading from '../../../Loading/Loading';
 
 import './Header.scss';
 import 'sweetalert2/src/sweetalert2.scss';
+import { useAdmin } from '../../../context/useAdmin';
 
 interface HeaderProps {
   sidebarOpen: boolean;
