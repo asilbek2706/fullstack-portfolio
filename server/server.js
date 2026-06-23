@@ -107,7 +107,7 @@ mongoose
   .then(() => console.log("MongoDB-ga muvaffaqiyatli ulandik! 🍃"))
   .catch((err) => console.error("MongoDB ulanishda xatolik:", err));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 server.listen(PORT, () =>
   console.log(
     `Xavfsiz server HTTP va Websocket bilan ${PORT}-portda gurlab ishlamoqda... 🚀`,
