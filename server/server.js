@@ -100,6 +100,7 @@ app.use("/api/about", aboutRoutes);
 app.use("/api/faq", faqRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/uploads", express.static("uploads"));
 
 mongoose
   .connect(process.env.MONGO_URI)

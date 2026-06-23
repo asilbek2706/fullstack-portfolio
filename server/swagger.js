@@ -1,11 +1,12 @@
 const swaggerJSDoc = require("swagger-jsdoc");
 
-// Alohida fayllardagi Swagger hujjatlarini chaqirib olamiz
+// 1. Yangi uploadDocs ni import qilamiz
 const authDocs = require("./swagger/authDocs");
 const aboutDocs = require("./swagger/aboutDocs");
 const projectDocs = require("./swagger/projectDocs");
 const contactDocs = require("./swagger/contactDocs");
 const faqDocs = require("./swagger/faqDocs");
+const uploadDocs = require("./swagger/uploadDocs"); // <--- Import
 
 const options = {
   definition: {
@@ -13,18 +14,14 @@ const options = {
     info: {
       title: "Asilbek's Full-Stack Portfolio API",
       version: "1.0.0",
-      description:
-        "Node.js, Express va MongoDB Atlas-da yozilgan, xavfsizligi va Telegram integratsiyasi ta'minlangan portfolio backend hujjatlari.",
+      description: "...",
     },
     servers: [
       {
         url: "https://fullstack-portfolio-81mm.onrender.com",
         description: "Render Jonli Server",
       },
-      {
-        url: "http://localhost:5000",
-        description: "Local Development Server",
-      },
+      { url: "http://localhost:5000", description: "Local Development Server" },
     ],
     components: {
       securitySchemes: {
@@ -36,25 +33,25 @@ const options = {
             "Adminlarni autentifikatsiya qilish uchun ishlatiladigan JWT kuki fayli.",
         },
       },
-      // Real ma'lumotlar bazasi sxemalarimiz (Hamma rowlar shu yerda paydo bo'ladi!)
       schemas: {
         Admin: authDocs.schema,
         About: aboutDocs.schema,
         Project: projectDocs.schema,
         Contact: contactDocs.schema,
         FAQ: faqDocs.schema,
+        // Upload uchun alohida sxema shart emas, chunki u oddiy obyekt qaytaradi
       },
     },
-    // Barcha fayllardan path'larni (endpointlarni) bitta obyektga birlashtiramiz
     paths: {
       ...authDocs.paths,
       ...aboutDocs.paths,
       ...projectDocs.paths,
       ...contactDocs.paths,
       ...faqDocs.paths,
+      ...uploadDocs.paths, // <--- Mana bu yerda yo'lni qo'shamiz
     },
   },
-  apis: [], // Loyihadan ortiqcha sharhlarni o'qimasligi uchun bo'sh qoldiramiz
+  apis: [],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
