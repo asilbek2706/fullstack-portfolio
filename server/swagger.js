@@ -21,7 +21,7 @@ const options = {
         url: "https://fullstack-portfolio-81mm.onrender.com",
         description: "Render Jonli Server",
       },
-      { url: "http://localhost:5000", description: "Local Development Server" },
+      { url: "http://localhost:8080", description: "Local Development Server" },
     ],
     components: {
       securitySchemes: {
