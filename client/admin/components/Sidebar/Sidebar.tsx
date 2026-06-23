@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './Sidebar.scss';
 
 interface NavLink {
@@ -22,7 +21,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
-  const [active, setActive] = useState('dashboard');
+  const location = useLocation();
 
   return (
     <aside className={`sidebar-container ${isOpen ? 'open' : 'closed'}`}>
@@ -38,41 +37,47 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
 
       <div className="sidebar-wrapper">
         <nav>
-          {navLinks.map((link) => (
-            <Link
-              key={link.id}
-              to={`/auth/${link.id}`}
-              className={`${active === link.id ? 'active' : ''}`}
-              onClick={() => setActive(link.id)}
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              {isOpen ? (
-                <div
-                  className="sidebar-link"
-                  style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-                >
-                  <span className="icon">{link.icon}</span>
-                  <span className="label">{link.name}</span>
-                </div>
-              ) : (
-                <span
-                  className="icon"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  {link.icon}
-                </span>
-              )}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = location.pathname.includes(`/auth/${link.id}`);
+            return (
+              <Link
+                key={link.id}
+                to={`/auth/${link.id}`}
+                className={`${isActive ? 'active' : ''}`}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
+                {isOpen ? (
+                  <div
+                    className="sidebar-link"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                    }}
+                  >
+                    <span className="icon">{link.icon}</span>
+                    <span className="label">{link.name}</span>
+                  </div>
+                ) : (
+                  <span
+                    className="icon"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {link.icon}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
       </div>
     </aside>

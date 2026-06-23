@@ -1,0 +1,62 @@
+.dashboard {
+  padding: 2rem;
+
+  .widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .widget {
+    background: #171b1f;
+    border: 1px solid #2a2e33;
+    padding: 1.5rem;
+    border-radius: 16px;
+    transition: transform 0.2s;
+
+    &:hover {
+      border-color: #3b82f6;
+    }
+
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+
+      h3 {
+        font-size: 1rem;
+        color: #94a3b8;
+      }
+      .status-pill {
+        background: #064e3b;
+        color: #34d399;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+      }
+    }
+
+    .widget-content {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+      }
+      h4 {
+        margin: 0;
+      }
+    }
+
+    .action-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 500;
+    }
+  }
+}
