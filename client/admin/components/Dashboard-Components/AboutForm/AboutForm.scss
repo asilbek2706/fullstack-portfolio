@@ -1,0 +1,250 @@
+.admin-form {
+  width: 100%;
+  max-width: 100%;
+
+  padding: 32px;
+
+  background: rgba(23, 27, 31, 0.95);
+  backdrop-filter: blur(16px);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.2);
+
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    label {
+      color: #f9fafb;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+
+    .avatar-upload {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .file-input-wrapper,
+    .avatar-preview {
+      width: 100%;
+    }
+    .file-input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+
+      padding: 14px 16px;
+
+      background: #0f1317;
+      color: #f9fafb;
+
+      border: 1px solid #2c3440;
+      border-radius: 14px;
+
+      font-size: 0.95rem;
+      line-height: 1.5;
+
+      outline: none;
+
+      transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease,
+        background 0.25s ease;
+
+      &::placeholder {
+        color: #6b7280;
+      }
+
+      &:hover {
+        border-color: #3b82f6;
+      }
+
+      &:focus {
+        border-color: #3b82f6;
+
+        box-shadow:
+          0 0 0 4px rgba(59, 130, 246, 0.15),
+          0 0 20px rgba(59, 130, 246, 0.2);
+
+        background: #12181d;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 150px;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #3b82f6;
+        border-radius: 20px;
+      }
+    }
+
+    input:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #12181d inset;
+      -webkit-text-fill-color: #fff;
+    }
+
+    input[type='file'] {
+      cursor: pointer;
+      padding: 10px;
+
+      &::-webkit-file-upload-button {
+        border: none;
+        border-radius: 12px;
+
+        padding: 10px 18px;
+
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+
+        color: white;
+        font-weight: 600;
+
+        cursor: pointer;
+
+        transition: all 0.3s ease;
+      }
+
+      &::-webkit-file-upload-button:hover {
+        transform: translateY(-1px);
+
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+      }
+    }
+  }
+
+  .avatar-preview {
+    width: 100%;
+    height: 220px;
+
+    img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      border-radius: 12px; // oldingi 50% ni olib tashla
+
+      border: 2px solid #374151;
+
+      background: #1f2937;
+
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.4),
+        0 0 0 4px rgba(59, 130, 246, 0.08);
+
+      transition: all 0.35s ease;
+
+      &:hover {
+        transform: scale(1.02);
+        border-color: #3b82f6;
+      }
+    }
+  }
+
+  .save-btn {
+    height: 56px;
+
+    border: none;
+    border-radius: 16px;
+
+    cursor: pointer;
+
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+
+    color: white;
+
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+
+    transition: all 0.3s ease;
+
+    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.25);
+
+    &:hover {
+      transform: translateY(-3px);
+
+      box-shadow: 0 20px 40px rgba(37, 99, 235, 0.35);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-form {
+    padding: 20px;
+    border-radius: 18px;
+
+    .avatar-upload {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .avatar-preview {
+      width: 100px;
+      height: 100px;
+    }
+
+    .save-btn {
+      height: 52px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-form {
+    padding: 16px;
+    gap: 18px;
+
+    .form-group {
+      input,
+      textarea {
+        padding: 12px 14px;
+      }
+    }
+
+    .avatar-preview {
+      width: 90px;
+      height: 90px;
+    }
+  }
+}
