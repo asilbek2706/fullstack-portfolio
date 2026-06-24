@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+.app-container {
+  margin: 0 auto;
+}
+
 .admin-layout {
   min-height: 100vh;
   background: #111418;
