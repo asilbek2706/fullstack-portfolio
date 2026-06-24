@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const swaggerSpec = require("./swagger");
+const path = require("path");
 
 const http = require("http");
 const { Server } = require("socket.io");
@@ -18,6 +19,7 @@ const contactRoutes = require("./routes/contactRoutes");
 const authRoutes = require("./routes/authRoutes");
 const aboutRoutes = require("./routes/aboutRoutes");
 const faqRoutes = require("./routes/faqRoutes");
+const uploadRoutes = require("./routes/uploadRoutes");
 
 const app = express();
 const server = http.createServer(app);
@@ -45,6 +47,7 @@ io.on("connection", (socket) => {
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(helmet());
 
@@ -100,7 +103,7 @@ app.use("/api/about", aboutRoutes);
 app.use("/api/faq", faqRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/contact", contactRoutes);
-app.use("/api/uploads", express.static("uploads"));
+app.use("/api/upload", uploadRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)
