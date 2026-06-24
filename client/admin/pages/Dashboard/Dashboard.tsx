@@ -1,34 +1,39 @@
 import { useEffect, useState } from 'react';
+import AboutCard from '@admin/components/Dashboard-Components/AboutCard';
 import api from '../../../api/axios';
-import Loading from '../../../Loading/Loading';
-import type { AboutData } from '../../interfaces/about.interface';
+import { uploadService } from '@admin/services/uploadService';
+import type { AboutData } from '@admin/interfaces/about.interface';
 import './Dashboard.scss';
-import AboutCard from './Dashboard-Components/AboutCard';
+import Loading from '../../../Loading/Loading';
 
 const Dashboard = () => {
-  const [about, setAbout] = useState<AboutData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [aboutData, setAboutData] = useState<AboutData | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    api
-      .get<{ data: AboutData }>('/about')
-      .then((res) => setAbout(res.data.data))
-      .finally(() => setLoading(false));
+    // Ikkala ma'lumotni parallel olamiz
+    Promise.all([
+      api.get<{ data: AboutData }>('/about'),
+      uploadService.getLatestImage(),
+    ]).then(([aboutRes, imgUrl]) => {
+      setAboutData(aboutRes.data.data);
+      setImageUrl(imgUrl);
+    });
   }, []);
 
-  if (loading) return <Loading />;
+  if (!aboutData) return <Loading />;
 
   return (
     <div className="dashboard">
       <header className="dashboard-header">
         <h1>Dashboard</h1>
-        <p>
-          Xush kelibsiz, Admin! Bu yerda loyihangizni boshqarishingiz mumkin.
-        </p>
       </header>
 
       <section className="widgets-grid">
-        {about ? <AboutCard data={about} /> : <p>Ma'lumot topilmadi</p>}
+        <AboutCard
+          data={aboutData}
+          imageUrl={imageUrl || '/default-avatar.png'}
+        />
       </section>
     </div>
   );

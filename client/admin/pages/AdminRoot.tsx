@@ -35,7 +35,7 @@ const AdminRoot = () => {
         toggle={() => setIsSidebarOpen(!isSidebarOpen)}
       />
       <main
-        className="admin-main"
+        className="admin-main app-container"
         style={{ marginLeft: isSidebarOpen ? 280 : 80 }}
       >
         <Header sidebarOpen={isSidebarOpen} />
