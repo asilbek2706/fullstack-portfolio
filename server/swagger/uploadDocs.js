@@ -1,6 +1,7 @@
 module.exports = {
   paths: {
     "/api/upload": {
+      // POST qismi avvalgidek qoladi
       post: {
         summary: "Profil uchun rasm yuklash (🔒 Faqat SuperAdmin)",
         tags: ["Upload"],
@@ -34,19 +35,41 @@ module.exports = {
                     success: { type: "boolean", example: true },
                     url: {
                       type: "string",
-                      example:
-                        "http://localhost:5000/api/uploads/17123456789.jpg",
+                      example: "http://localhost:8080/uploads/image.jpg",
                     },
                   },
                 },
               },
             },
           },
-          400: {
-            description: "Fayl formati noto'g'ri yoki fayl tanlanmagan.",
+          400: { description: "Fayl formati noto'g'ri." },
+          401: { description: "Avtorizatsiyadan o'tilmagan." },
+        },
+      },
+      // YANGI QO'SHILGAN GET QISMI
+      get: {
+        summary: "Oxirgi yuklangan profil rasmini olish",
+        tags: ["Upload"],
+        responses: {
+          200: {
+            description: "Rasm manzili muvaffaqiyatli olindi.",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    url: {
+                      type: "string",
+                      example: "http://localhost:8080/uploads/image.jpg",
+                    },
+                  },
+                },
+              },
+            },
           },
-          401: {
-            description: "Avtorizatsiyadan o'tilmagan.",
+          404: {
+            description: "Hali rasm yuklanmagan.",
           },
         },
       },

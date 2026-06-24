@@ -6,6 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm install --only=production
+RUN mkdir -p /app/uploads
 
 COPY . .
 
