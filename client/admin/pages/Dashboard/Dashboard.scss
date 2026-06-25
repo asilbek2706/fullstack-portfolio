@@ -13,8 +13,9 @@
 
   .widgets-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 270px);
     gap: 24px;
+    align-items: stretch;
   }
   .widgets-grid > * {
     height: 100%;
@@ -37,4 +38,9 @@
   .widgets-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.widget,
+.project-widget {
+  height: 100%;
 }

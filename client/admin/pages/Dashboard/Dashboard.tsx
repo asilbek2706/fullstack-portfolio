@@ -3,21 +3,25 @@ import AboutCard from '@admin/components/Dashboard-Components/AboutCard';
 import api from '../../../api/axios';
 import { uploadService } from '@admin/services/uploadService';
 import type { AboutData } from '@admin/interfaces/about.interface';
-import './Dashboard.scss';
+import type { ProjectData } from '@admin/interfaces/project.interface'; // Interfeysni import qil
 import Loading from '../../../Loading/Loading';
+import './Dashboard.scss';
+import ProjectCard from '@admin/components/Dashboard-Components/ProjectCard';
 
 const Dashboard = () => {
   const [aboutData, setAboutData] = useState<AboutData | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [projects, setProjects] = useState<ProjectData[]>([]); // 1. Projects state qo'shildi
 
   useEffect(() => {
-    // Ikkala ma'lumotni parallel olamiz
     Promise.all([
       api.get<{ data: AboutData }>('/about'),
       uploadService.getLatestImage(),
-    ]).then(([aboutRes, imgUrl]) => {
+      api.get<{ data: ProjectData[] }>('/projects'),
+    ]).then(([aboutRes, imgUrl, projectRes]) => {
       setAboutData(aboutRes.data.data);
       setImageUrl(imgUrl);
+      setProjects(projectRes.data.data); // 3. State ga yozamiz
     });
   }, []);
 
@@ -34,7 +38,9 @@ const Dashboard = () => {
           data={aboutData}
           imageUrl={imageUrl || '/default-avatar.png'}
         />
-      </section>
+
+        <ProjectCard projects={projects} />
+</section>
     </div>
   );
 };
