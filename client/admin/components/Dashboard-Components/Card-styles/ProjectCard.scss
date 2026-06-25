@@ -1,0 +1,178 @@
+.project-widget {
+  background: #171b1f;
+
+  border: 1px solid #232933;
+  border-radius: 18px;
+
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
+
+  height: 100%;
+
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+
+    border-color: #25eb32;
+
+    box-shadow:
+      0 15px 35px rgba(0, 0, 0, 0.35),
+      0 0 25px rgba(37, 235, 50, 0.15);
+  }
+
+  .project-banner {
+    width: 100%;
+    height: 180px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: linear-gradient(
+      135deg,
+      rgba(37, 235, 50, 0.12),
+      rgba(115, 229, 70, 0.05)
+    );
+
+    border: 1px solid rgba(37, 235, 50, 0.15);
+
+    color: #25eb32;
+
+    transition: all 0.3s ease;
+  }
+
+  &:hover .project-banner {
+    background: linear-gradient(
+      135deg,
+      rgba(37, 235, 50, 0.18),
+      rgba(115, 229, 70, 0.08)
+    );
+  }
+
+  .project-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    h3 {
+      margin: 0;
+
+      color: #f9fafb;
+
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    span {
+      color: #9ca3af;
+
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+  }
+
+  .project-content {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    h2 {
+      margin: 0;
+
+      color: #ffffff;
+
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0;
+
+      color: #9ca3af;
+
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+  }
+
+  .action-link {
+    margin-top: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 44px;
+
+    border-radius: 12px;
+
+    text-decoration: none;
+
+    background: linear-gradient(135deg, #25eb32, #73e546);
+
+    color: #0d0000;
+
+    font-size: 0.95rem;
+    font-weight: 700;
+
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+
+      box-shadow: 0 8px 20px rgba(37, 235, 119, 0.35);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .project-widget {
+    .project-banner {
+      height: 160px;
+    }
+
+    .project-content {
+      h2 {
+        font-size: 1.3rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .project-widget {
+    padding: 16px;
+
+    .project-banner {
+      height: 140px;
+    }
+
+    .project-header {
+      h3 {
+        font-size: 0.95rem;
+      }
+
+      span {
+        font-size: 0.8rem;
+      }
+    }
+
+    .project-content {
+      h2 {
+        font-size: 1.2rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
