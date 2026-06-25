@@ -1,40 +1,36 @@
-const fs = require("fs");
-const path = require("path");
+const About = require("../models/About"); // Sening About modeling
 
-// 1. Rasm yuklash (POST)
-exports.uploadImage = (req, res) => {
+exports.uploadImage = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, message: "Rasm yuklanmadi" });
   }
 
-  const host = req.get("host");
-  const imageUrl = `${req.protocol}://${host}/uploads/${req.file.filename}`;
+  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
-  res.status(200).json({ success: true, url: imageUrl });
-};
-
-// 2. Rasm olish (GET) - Eng oxirgi yuklangan rasmni qaytaradi
-exports.getImage = (req, res) => {
-  const directoryPath = path.join(__dirname, "../uploads/");
-
-  fs.readdir(directoryPath, (err, files) => {
-    if (err || files.length === 0) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Hali rasm yuklanmagan" });
-    }
-
-    // Fayllarni vaqt bo'yicha saralash (eng oxirgisini olish)
-    const sortedFiles = files
-      .map((file) => ({
-        name: file,
-        time: fs.statSync(path.join(directoryPath, file)).mtime.getTime(),
-      }))
-      .sort((a, b) => b.time - a.time);
-
-    const latestFile = sortedFiles[0].name;
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${latestFile}`;
+  try {
+    // 1. Bazada oxirgi ma'lumotni topamiz va rasmni yangilaymiz
+    // 'About' modeli bitta deb faraz qilamiz
+    await About.findOneAndUpdate(
+      {},
+      { avatar: imageUrl },
+      { new: true, upsert: true },
+    );
 
     res.status(200).json({ success: true, url: imageUrl });
-  });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Bazaga yozishda xato" });
+  }
+};
+
+// 2. GET endi fs.readdir emas, bazadan o'qiydi
+exports.getImage = async (req, res) => {
+  try {
+    const data = await About.findOne({});
+    if (!data || !data.avatar)
+      return res.status(404).json({ message: "Rasm yo'q" });
+
+    res.status(200).json({ success: true, url: data.avatar });
+  } catch (error) {
+    res.status(500).json({ message: "Bazadan o'qishda xato" });
+  }
 };
