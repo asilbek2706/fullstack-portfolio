@@ -1,0 +1,134 @@
+.project-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 16px 18px;
+
+  background: #171b1f;
+
+  border: 1px solid #232933;
+  border-radius: 16px;
+
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+
+    border-color: #3b82f6;
+
+    box-shadow:
+      0 12px 28px rgba(0, 0, 0, 0.28),
+      0 0 18px rgba(59, 130, 246, 0.12);
+  }
+
+  .project-title {
+    flex: 1;
+
+    color: #f9fafb;
+
+    font-size: 1rem;
+    font-weight: 600;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .project-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    button {
+      width: 42px;
+      height: 42px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: none;
+      outline: none;
+
+      border-radius: 12px;
+
+      cursor: pointer;
+
+      transition: all 0.25s ease;
+
+      svg {
+        transition: transform 0.25s ease;
+      }
+
+      &:hover svg {
+        transform: scale(1.15);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+
+    .edit-btn {
+      background: rgba(59, 130, 246, 0.12);
+      color: #3b82f6;
+
+      &:hover {
+        background: #3b82f6;
+        color: #fff;
+
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+      }
+    }
+
+    .delete-btn {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+
+      &:hover {
+        background: #ef4444;
+        color: #fff;
+
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.35);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .project-item {
+    padding: 14px 16px;
+
+    .project-title {
+      font-size: 0.95rem;
+    }
+
+    .project-actions {
+      gap: 8px;
+
+      button {
+        width: 38px;
+        height: 38px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .project-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+
+    .project-title {
+      width: 100%;
+    }
+
+    .project-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+}
