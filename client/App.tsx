@@ -5,9 +5,9 @@ import Home from '@src/pages/Home';
 import AdminRoot from '@admin/pages/AdminRoot';
 import StatusPage from './StatusPages/Status';
 import Contact from '@admin/pages/Contact/Contact';
-import About from '@admin/pages/About/About';
 import Settings from '@admin/pages/Settings/Settings';
-import Projects from '@admin/pages/Projects/Projects';
+import AboutPage from '@admin/pages/AboutPage/AboutPage';
+import ProjectPage from '@admin/pages/ProjectPage/ProjectPage';
 
 const App = () => {
   return (
@@ -16,8 +16,8 @@ const App = () => {
       <Route path="/admin" element={<Login />} />
       <Route element={<AdminRoot />}>
         <Route path="/auth/dashboard" element={<Dashboard />} />
-        <Route path="/auth/about" element={<About />} />
-        <Route path="/auth/projects" element={<Projects />} />
+        <Route path="/auth/about" element={<AboutPage />} />
+        <Route path="/auth/projects" element={<ProjectPage />} />
         <Route path="/auth/contact" element={<Contact />} />
         <Route path="/auth/settings" element={<Settings />} />
       </Route>
