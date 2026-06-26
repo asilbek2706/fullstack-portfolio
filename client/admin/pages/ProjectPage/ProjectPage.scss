@@ -1,0 +1,99 @@
+.project-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+
+  padding: 24px;
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    h1 {
+      margin: 0;
+
+      color: #f9fafb;
+
+      font-size: 2rem;
+      font-weight: 700;
+    }
+  }
+
+  .add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    height: 48px;
+
+    padding: 0 22px;
+
+    border-radius: 14px;
+
+    background: linear-gradient(135deg, #25eb32, #73e546);
+
+    color: #0d0000;
+
+    text-decoration: none;
+
+    font-size: 0.95rem;
+    font-weight: 700;
+
+    transition: all 0.3s ease;
+
+    box-shadow: 0 8px 20px rgba(37, 235, 119, 0.25);
+
+    &:hover {
+      transform: translateY(-2px);
+
+      box-shadow: 0 12px 30px rgba(37, 235, 119, 0.35);
+    }
+
+    svg {
+      font-size: 1.2rem;
+    }
+  }
+
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .project-page {
+    padding: 20px;
+
+    .page-header {
+      flex-direction: column;
+      align-items: stretch;
+
+      h1 {
+        font-size: 1.7rem;
+      }
+    }
+
+    .add-btn {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .project-page {
+    padding: 16px;
+
+    .page-header h1 {
+      font-size: 1.5rem;
+    }
+
+    .add-btn {
+      height: 44px;
+      font-size: 0.9rem;
+    }
+  }
+}
