@@ -14,8 +14,7 @@ const projectSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, "Loyiha rasmi (URL yoki fayl yo'li) kiritilishi shart"],
-      trim: true,
+      required: [true, "Rasm kiritilishi shart"],
     },
     technologies: {
       type: [String],

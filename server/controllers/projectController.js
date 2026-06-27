@@ -1,5 +1,6 @@
 const Project = require("../models/Project");
 const mongoose = require("mongoose");
+const upload = require("../middlewares/projectImage");
 
 // 1. BARCHA LOYIHALARNI OLISH
 exports.getAllProjects = async (req, res) => {
@@ -40,29 +41,22 @@ exports.getProjectById = async (req, res) => {
 // 3. YANGI LOYIHA QO'SHISH
 exports.createProject = async (req, res) => {
   try {
-    const { title, description, image, technologies, githubLink, demoLink } =
-      req.body;
+    // req.file faylni yuklab beradi
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const adminId = req.user?._id || req.admin?._id;
+    if (!imagePath)
+      return res.status(400).json({ message: "Rasm yuklanishi shart!" });
 
     const newProject = new Project({
-      title,
-      description,
-      image,
-      technologies,
-      githubLink,
-      demoLink,
-      createdBy: adminId,
+      ...req.body,
+      image: imagePath,
+      createdBy: req.user?._id || req.admin?._id,
     });
 
     await newProject.save();
-    res
-      .status(201)
-      .json({ message: "Loyiha muvaffaqiyatli saqlandi!", data: newProject });
+    res.status(201).json({ message: "Saqlandi!", data: newProject });
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Loyihani saqlashda xatolik", error: error.message });
+    res.status(400).json({ message: "Xatolik", error: error.message });
   }
 };
 
@@ -79,11 +73,9 @@ exports.updateProject = async (req, res) => {
 
     // PUT qoidasiga ko'ra hamma narsa kiritilishi majburiy
     if (!title || !description || !image || !technologies || !githubLink) {
-      return res
-        .status(400)
-        .json({
-          message: "PUT so'rovi uchun barcha maydonlar to'ldirilishi shart!",
-        });
+      return res.status(400).json({
+        message: "PUT so'rovi uchun barcha maydonlar to'ldirilishi shart!",
+      });
     }
 
     const updatedProject = await Project.findByIdAndUpdate(
@@ -101,12 +93,10 @@ exports.updateProject = async (req, res) => {
       data: updatedProject,
     });
   } catch (error) {
-    res
-      .status(400)
-      .json({
-        message: "Yangilashda xatolik yuzaga keldi",
-        error: error.message,
-      });
+    res.status(400).json({
+      message: "Yangilashda xatolik yuzaga keldi",
+      error: error.message,
+    });
   }
 };
 
@@ -152,11 +142,9 @@ exports.deleteProject = async (req, res) => {
 
     res.json({ message: "Loyiha tizimdan butunlay o'chirildi!" });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "O'chirishda xatolik yuzaga keldi",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "O'chirishda xatolik yuzaga keldi",
+      error: error.message,
+    });
   }
 };
