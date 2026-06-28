@@ -24,7 +24,7 @@ const uploadRoutes = require("./routes/uploadRoutes");
 
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir, { recursive: true });
   console.log("Uploads papkasi yaratildi!");
 }
 
@@ -32,10 +32,8 @@ const app = express();
 const server = http.createServer(app);
 app.set("trust proxy", 1);
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://fullstack-portfolio-81mm.onrender.com",
-];
+const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:5173"];
+
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
@@ -55,8 +53,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  }),
+);
 
 app.use((req, res, next) => {
   const sanitize = (obj) => {
@@ -71,6 +72,7 @@ app.use((req, res, next) => {
     }
   };
   sanitize(req.body);
+  sanitize(req.query);
   sanitize(req.params);
   next();
 });
@@ -84,6 +86,7 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
 app.use(limiter);
 
 const contactLimiter = rateLimit({
@@ -113,7 +116,9 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/upload", uploadRoutes);
 
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    autoIndex: false,
+  })
   .then(() => console.log("MongoDB-ga muvaffaqiyatli ulandik! 🍃"))
   .catch((err) => console.error("MongoDB ulanishda xatolik:", err));
 
