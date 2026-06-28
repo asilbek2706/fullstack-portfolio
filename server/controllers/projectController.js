@@ -1,149 +1,318 @@
 const Project = require("../models/Project");
 const mongoose = require("mongoose");
-const upload = require("../middlewares/projectImage");
+const fs = require("fs").promises;
+const path = require("path");
 
-// 1. BARCHA LOYIHALARNI OLISH
+// =========================
+// HELPERLAR
+// =========================
+
+// technologies ni arrayga aylantirish
+const parseTechnologies = (technologies) => {
+  if (!technologies) return [];
+
+  if (Array.isArray(technologies)) return technologies;
+
+  if (typeof technologies === "string") {
+    try {
+      const parsed = JSON.parse(technologies);
+
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    } catch (_) {}
+
+    return technologies
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
+
+// eski rasmni o'chirish
+const deleteImage = async (imagePath) => {
+  if (!imagePath) return;
+
+  try {
+    const fullPath = path.join(__dirname, "..", imagePath.replace(/^\//, ""));
+
+    await fs.access(fullPath);
+    await fs.unlink(fullPath);
+  } catch (_) {
+    // fayl topilmasa yoki o'chmasa davom etadi
+  }
+};
+
+// =========================
+// GET ALL PROJECTS
+// =========================
+
 exports.getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find().sort({ createdAt: -1 });
-    res.json({ message: "Loyihalar muvaffaqiyatli yuklandi", data: projects });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Serverda kutilmagan xatolik", error: error.message });
-  }
-};
-
-// 2. BITTA LOYIHANI ID BO'YICHA OLISH
-exports.getProjectById = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res
-        .status(400)
-        .json({ message: "Yuborilgan ID formati noto'g'ri!" });
-    }
-
-    const project = await Project.findById(id);
-    if (!project) {
-      return res.status(404).json({ message: "Loyiha topilmadi" });
-    }
-
-    res.json({ message: "Loyiha topildi!", data: project });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Serverda kutilmagan xatolik", error: error.message });
-  }
-};
-
-// 3. YANGI LOYIHA QO'SHISH
-exports.createProject = async (req, res) => {
-  try {
-    // req.file faylni yuklab beradi
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-
-    if (!imagePath)
-      return res.status(400).json({ message: "Rasm yuklanishi shart!" });
-
-    const newProject = new Project({
-      ...req.body,
-      image: imagePath,
-      createdBy: req.user?._id || req.admin?._id,
+    const projects = await Project.find().sort({
+      createdAt: -1,
     });
 
-    await newProject.save();
-    res.status(201).json({ message: "Saqlandi!", data: newProject });
-  } catch (error) {
-    res.status(400).json({ message: "Xatolik", error: error.message });
-  }
-};
-
-// 4. LOYIHANI TO'LIQ YANGILASH (PUT)
-exports.updateProject = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, description, image, technologies, githubLink, demoLink } =
-      req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "ID formati noto'g'ri!" });
-    }
-
-    // PUT qoidasiga ko'ra hamma narsa kiritilishi majburiy
-    if (!title || !description || !image || !technologies || !githubLink) {
-      return res.status(400).json({
-        message: "PUT so'rovi uchun barcha maydonlar to'ldirilishi shart!",
-      });
-    }
-
-    const updatedProject = await Project.findByIdAndUpdate(
-      id,
-      { title, description, image, technologies, githubLink, demoLink },
-      { new: true, runValidators: true },
-    );
-
-    if (!updatedProject) {
-      return res.status(404).json({ message: "Loyiha topilmadi" });
-    }
-
-    res.json({
-      message: "Loyiha muvaffaqiyatli yangilandi!",
-      data: updatedProject,
+    return res.status(200).json({
+      success: true,
+      message: "Loyihalar muvaffaqiyatli yuklandi.",
+      data: projects,
     });
   } catch (error) {
-    res.status(400).json({
-      message: "Yangilashda xatolik yuzaga keldi",
+    return res.status(500).json({
+      success: false,
+      message: "Serverda xatolik yuz berdi.",
       error: error.message,
     });
   }
 };
 
-// 5. LOYIHANI QISMAN YANGILASH (PATCH)
+// =========================
+// GET PROJECT BY ID
+// =========================
+
+exports.getProjectById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "ID formati noto'g'ri.",
+      });
+    }
+
+    const project = await Project.findById(id);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Loyiha topilmadi.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Loyiha topildi.",
+      data: project,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Serverda xatolik yuz berdi.",
+      error: error.message,
+    });
+  }
+};
+
+// =========================
+// CREATE PROJECT
+// =========================
+
+exports.createProject = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Rasm yuklanishi shart.",
+      });
+    }
+
+    const technologies = parseTechnologies(req.body.technologies);
+
+    const project = await Project.create({
+      title: req.body.title,
+      description: req.body.description,
+      technologies,
+      githubLink: req.body.githubLink,
+      demoLink: req.body.demoLink || "",
+      image: `/uploads/projects/${req.file.filename}`,
+      createdBy: req.user._id,
+    });
+
+    if (global.io) {
+      global.io.emit("projectCreated", project);
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Loyiha muvaffaqiyatli yaratildi.",
+      data: project,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Loyiha yaratishda xatolik.",
+      error: error.message,
+    });
+  }
+};
+// =========================
+// UPDATE PROJECT (PUT)
+// =========================
+
+exports.updateProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "ID formati noto'g'ri.",
+      });
+    }
+
+    const project = await Project.findById(id);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Loyiha topilmadi.",
+      });
+    }
+
+    const technologies = parseTechnologies(req.body.technologies);
+
+    const updateData = {
+      title: req.body.title,
+      description: req.body.description,
+      technologies,
+      githubLink: req.body.githubLink,
+      demoLink: req.body.demoLink || "",
+    };
+
+    if (req.file) {
+      await deleteImage(project.image);
+      updateData.image = `/uploads/projects/${req.file.filename}`;
+    } else {
+      updateData.image = project.image;
+    }
+
+    const updatedProject = await Project.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (global.io) {
+      global.io.emit("projectUpdated", updatedProject);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Loyiha muvaffaqiyatli yangilandi.",
+      data: updatedProject,
+    });
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: "Yangilashda xatolik yuz berdi.",
+      error: error.message,
+    });
+  }
+};
+
+// =========================
+// PATCH PROJECT
+// =========================
+
 exports.patchProject = async (req, res) => {
   try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "ID formati noto'g'ri!" });
+      return res.status(400).json({
+        success: false,
+        message: "ID formati noto'g'ri.",
+      });
     }
 
-    const updatedProject = await Project.findByIdAndUpdate(id, req.body, {
+    const project = await Project.findById(id);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Loyiha topilmadi.",
+      });
+    }
+
+    const updateData = { ...req.body };
+
+    if (req.body.technologies) {
+      updateData.technologies = parseTechnologies(req.body.technologies);
+    }
+
+    if (req.file) {
+      await deleteImage(project.image);
+      updateData.image = `/uploads/projects/${req.file.filename}`;
+    }
+
+    const updatedProject = await Project.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
 
-    if (!updatedProject) {
-      return res.status(404).json({ message: "Loyiha topilmadi" });
+    if (global.io) {
+      global.io.emit("projectUpdated", updatedProject);
     }
 
-    res.json({ message: "Loyiha qisman yangilandi!", data: updatedProject });
+    return res.status(200).json({
+      success: true,
+      message: "Loyiha qisman yangilandi.",
+      data: updatedProject,
+    });
   } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Qisman yangilashda xatolik", error: error.message });
+    return res.status(400).json({
+      success: false,
+      message: "Qisman yangilashda xatolik.",
+      error: error.message,
+    });
   }
 };
 
-// 6. LOYIHANI O'CHIRISH
+// =========================
+// DELETE PROJECT
+// =========================
+
 exports.deleteProject = async (req, res) => {
   try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "ID formati noto'g'ri!" });
+      return res.status(400).json({
+        success: false,
+        message: "ID formati noto'g'ri.",
+      });
     }
 
-    const deletedProject = await Project.findByIdAndDelete(id);
-    if (!deletedProject) {
-      return res.status(404).json({ message: "Loyiha topilmadi" });
+    const project = await Project.findById(id);
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Loyiha topilmadi.",
+      });
     }
 
-    res.json({ message: "Loyiha tizimdan butunlay o'chirildi!" });
+    await deleteImage(project.image);
+
+    await project.deleteOne();
+
+    if (global.io) {
+      global.io.emit("projectDeleted", {
+        id: project._id,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Loyiha muvaffaqiyatli o'chirildi.",
+    });
   } catch (error) {
-    res.status(500).json({
-      message: "O'chirishda xatolik yuzaga keldi",
+    return res.status(500).json({
+      success: false,
+      message: "O'chirishda xatolik yuz berdi.",
       error: error.message,
     });
   }
