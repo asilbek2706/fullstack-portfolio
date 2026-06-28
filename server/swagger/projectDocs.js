@@ -1,5 +1,4 @@
 module.exports = {
-  // Real MongoDB model sxemangiz (Hamma rowlar to'liq va mukammal)
   schema: {
     type: "object",
     required: [
@@ -10,79 +9,131 @@ module.exports = {
       "githubLink",
       "createdBy",
     ],
+
     properties: {
-      _id: { type: "string", example: "6a358d41d804b6f53d7de2c7" },
+      _id: {
+        type: "string",
+        example: "685fa3e9b30b25d6f26e6d6c",
+      },
+
       title: {
         type: "string",
         minLength: 3,
-        description: "Kamida 3 ta belgi",
-        example: "Mening Shaxsiy Portfolio veb-saytim",
+        example: "Portfolio Backend",
       },
+
       description: {
         type: "string",
         example:
-          "Node.js va React texnologiyalari yordamida yaratilgan mukammal portfolio backend tizimi.",
+          "Node.js, Express va MongoDB yordamida yozilgan portfolio backend.",
       },
+
       image: {
         type: "string",
-        description: "Rasm havolasi (URL yoki fayl yo'li)",
-        example: "https://res.cloudinary.com/.../project.jpg",
+        description: "Serverga yuklangan rasm yo'li",
+        example: "/uploads/1751191245123-345672189.png",
       },
+
       technologies: {
         type: "array",
+        items: {
+          type: "string",
+        },
         maxItems: 4,
-        description: "Texnologiyalar soni ko'pi bilan 4 ta bo'lishi shart!",
-        items: { type: "string" },
         example: ["Node.js", "Express", "MongoDB", "Socket.io"],
       },
+
       githubLink: {
         type: "string",
         example: "https://github.com/asilbek2706/fullstack-portfolio",
       },
+
       demoLink: {
         type: "string",
-        default: "",
-        example: "https://fullstack-portfolio-81mm.onrender.com",
+        example: "https://portfolio-demo.vercel.app",
       },
+
       createdBy: {
         type: "string",
-        description: "Loyihani yaratgan Admin IDsi (Relation)",
-        example: "64a58d41d804b6f53d7de2c7",
+        example: "685e95d2786d5db418a56781",
       },
-      createdAt: { type: "string", format: "date-time" },
-      updatedAt: { type: "string", format: "date-time" },
+
+      createdAt: {
+        type: "string",
+        format: "date-time",
+      },
+
+      updatedAt: {
+        type: "string",
+        format: "date-time",
+      },
     },
   },
 
   paths: {
     "/api/projects": {
       get: {
-        summary: "Barcha loyihalarni ko'rish (Ommaviy)",
         tags: ["Projects"],
+        summary: "Barcha loyihalarni olish",
+
         responses: {
           200: {
-            description: "Loyihalar ro'yxati muvaffaqiyatli yuklandi.",
+            description: "Muvaffaqiyatli",
+
             content: {
               "application/json": {
                 schema: {
-                  type: "array",
-                  items: { $ref: "#/components/schemas/Project" },
+                  type: "object",
+
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+
+                    message: {
+                      type: "string",
+                      example: "Loyihalar muvaffaqiyatli yuklandi",
+                    },
+
+                    data: {
+                      type: "array",
+
+                      items: {
+                        $ref: "#/components/schemas/Project",
+                      },
+                    },
+                  },
                 },
               },
             },
           },
+
+          500: {
+            description: "Server xatosi",
+          },
         },
       },
+
       post: {
-        summary: "Yangi portfolio loyihasini qo'shish (🔒 Faqat Admin)",
         tags: ["Projects"],
-        security: [{ cookieAuth: [] }],
+
+        summary: "Yangi loyiha yaratish",
+
+        security: [
+          {
+            cookieAuth: [],
+          },
+        ],
+
         requestBody: {
           required: true,
+
           content: {
-            "application/json": {
+            "multipart/form-data": {
               schema: {
                 type: "object",
+
                 required: [
                   "title",
                   "description",
@@ -90,168 +141,380 @@ module.exports = {
                   "technologies",
                   "githubLink",
                 ],
+
                 properties: {
                   title: {
                     type: "string",
-                    minLength: 3,
-                    example: "E-Commerce Web App",
+                    example: "Portfolio Backend",
                   },
+
                   description: {
                     type: "string",
-                    example: "Online magazin platformasi backend qismi.",
+                    example: "Express va MongoDB yordamida yozilgan backend.",
                   },
+
                   image: {
                     type: "string",
-                    example:
-                      "https://images.unsplash.com/photo-1555066931-4365d14bab8c",
+                    format: "binary",
                   },
+
                   technologies: {
                     type: "array",
-                    maxItems: 4,
-                    items: { type: "string" },
+
+                    items: {
+                      type: "string",
+                    },
+
                     example: ["Node.js", "Express", "MongoDB"],
                   },
+
                   githubLink: {
                     type: "string",
-                    example: "https://github.com/...",
+                    example:
+                      "https://github.com/asilbek2706/fullstack-portfolio",
                   },
-                  demoLink: { type: "string", example: "https://demo.uz" },
+
+                  demoLink: {
+                    type: "string",
+                    example: "https://portfolio.vercel.app",
+                  },
                 },
               },
             },
           },
         },
+
         responses: {
           201: {
-            description:
-              "Loyiha muvaffaqiyatli yaratildi va Websocket (Socket.io) orqali barchaga tarqatildi.",
+            description: "Loyiha yaratildi",
+
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+
+                    message: {
+                      type: "string",
+                      example: "Loyiha muvaffaqiyatli yaratildi",
+                    },
+
+                    data: {
+                      $ref: "#/components/schemas/Project",
+                    },
+                  },
+                },
+              },
+            },
           },
+
           400: {
-            description:
-              "Validatsiya xatoligi (Masalan: texnologiyalar soni 4 tadan oshib ketgan).",
+            description: "Validatsiya xatosi",
+          },
+
+          401: {
+            description: "Token topilmadi",
+          },
+
+          500: {
+            description: "Server xatosi",
           },
         },
       },
     },
     "/api/projects/{id}": {
       get: {
-        summary: "Bitta loyihani ID orqali olish (Ommaviy)",
         tags: ["Projects"],
+        summary: "ID bo'yicha bitta loyihani olish",
+
         parameters: [
           {
-            in: "path",
             name: "id",
+            in: "path",
             required: true,
-            schema: { type: "string" },
-            description: "Loyiha IDsi",
-          },
-        ],
-        responses: {
-          200: {
-            description: "Loyiha topildi.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/Project" },
-              },
+            schema: {
+              type: "string",
             },
           },
-          404: { description: "Bunday IDga ega loyiha topilmadi." },
-        },
-      },
-      put: {
-        summary: "Loyihani to'liq yangilash (🔒 Admin/Owner yoki SuperAdmin)",
-        tags: ["Projects"],
-        security: [{ cookieAuth: [] }],
-        parameters: [
-          {
-            in: "path",
-            name: "id",
-            required: true,
-            schema: { type: "string" },
-          },
         ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  title: { type: "string", example: "Yangilangan E-Commerce Web App" },
-                  description: { type: "string", example: "Tahrirlangan backend qismi." },
-                  image: { type: "string", example: "https://images.unsplash.com/...jpg" },
-                  technologies: {
-                    type: "array",
-                    maxItems: 4,
-                    items: { type: "string" },
-                    example: ["Node.js", "Express", "MongoDB", "React"],
+
+        responses: {
+          200: {
+            description: "Loyiha topildi",
+
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+
+                  properties: {
+                    success: {
+                      type: "boolean",
+                      example: true,
+                    },
+
+                    message: {
+                      type: "string",
+                      example: "Loyiha topildi",
+                    },
+
+                    data: {
+                      $ref: "#/components/schemas/Project",
+                    },
                   },
-                  githubLink: { type: "string", example: "https://github.com/..." },
-                  demoLink: { type: "string", example: "https://demo.uz" },
                 },
               },
             },
           },
-        },
-        responses: {
-          200: { description: "Loyiha to'liq yangilandi." },
-          403: {
-            description:
-              "Sizda bu loyihani o'zgartirishga ruxsat yo'q (Ega emassiz).",
+
+          400: {
+            description: "ID noto'g'ri",
+          },
+
+          404: {
+            description: "Loyiha topilmadi",
+          },
+
+          500: {
+            description: "Server xatosi",
           },
         },
       },
-      patch: {
-        summary: "Loyihaning ba'zi qismlarini yangilash (🔒 Admin/Owner)",
+
+      put: {
         tags: ["Projects"],
-        security: [{ cookieAuth: [] }],
-        parameters: [
+        summary: "Loyihani to'liq yangilash",
+
+        security: [
           {
-            in: "path",
-            name: "id",
-            required: true,
-            schema: { type: "string" },
+            cookieAuth: [],
           },
         ],
+
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+          },
+        ],
+
         requestBody: {
           required: true,
+
           content: {
-            "application/json": {
+            "multipart/form-data": {
               schema: {
                 type: "object",
+
+                required: [
+                  "title",
+                  "description",
+                  "technologies",
+                  "githubLink",
+                ],
+
                 properties: {
                   title: {
                     type: "string",
-                    example: "Qisman o'zgargan sarlavha",
                   },
+
                   description: {
                     type: "string",
-                    example: "Faqat tavsif matni o'zgardi",
+                  },
+
+                  image: {
+                    type: "string",
+                    format: "binary",
+                    description: "Yangi rasm (ixtiyoriy)",
+                  },
+
+                  technologies: {
+                    type: "array",
+                    items: {
+                      type: "string",
+                    },
+                  },
+
+                  githubLink: {
+                    type: "string",
+                  },
+
+                  demoLink: {
+                    type: "string",
                   },
                 },
               },
             },
           },
         },
-        responses: {
-          200: { description: "Loyiha qisman muvaffaqiyatli tahrirlandi." },
-        },
-      },
-      delete: {
-        summary: "Loyihani o'chirish (🔒 Admin/Owner)",
-        tags: ["Projects"],
-        security: [{ cookieAuth: [] }],
-        parameters: [
-          {
-            in: "path",
-            name: "id",
-            required: true,
-            schema: { type: "string" },
-          },
-        ],
+
         responses: {
           200: {
-            description: "Loyiha tizimdan va bazadan butunlay o'chirildi.",
+            description: "Loyiha yangilandi",
+          },
+
+          400: {
+            description: "Validatsiya xatosi",
+          },
+
+          401: {
+            description: "Token kerak",
+          },
+
+          403: {
+            description: "Ruxsat yo'q",
+          },
+
+          404: {
+            description: "Loyiha topilmadi",
+          },
+
+          500: {
+            description: "Server xatosi",
+          },
+        },
+      },
+
+      patch: {
+        tags: ["Projects"],
+        summary: "Loyihani qisman yangilash",
+
+        security: [
+          {
+            cookieAuth: [],
+          },
+        ],
+
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+          },
+        ],
+
+        requestBody: {
+          required: false,
+
+          content: {
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+
+                properties: {
+                  title: {
+                    type: "string",
+                  },
+
+                  description: {
+                    type: "string",
+                  },
+
+                  image: {
+                    type: "string",
+                    format: "binary",
+                  },
+
+                  technologies: {
+                    type: "array",
+
+                    items: {
+                      type: "string",
+                    },
+                  },
+
+                  githubLink: {
+                    type: "string",
+                  },
+
+                  demoLink: {
+                    type: "string",
+                  },
+                },
+              },
+            },
+          },
+        },
+
+        responses: {
+          200: {
+            description: "Loyiha yangilandi",
+          },
+
+          400: {
+            description: "Xato so'rov",
+          },
+
+          401: {
+            description: "Token kerak",
+          },
+
+          403: {
+            description: "Ruxsat yo'q",
+          },
+
+          404: {
+            description: "Loyiha topilmadi",
+          },
+
+          500: {
+            description: "Server xatosi",
+          },
+        },
+      },
+
+      delete: {
+        tags: ["Projects"],
+        summary: "Loyihani o'chirish",
+
+        security: [
+          {
+            cookieAuth: [],
+          },
+        ],
+
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+          },
+        ],
+
+        responses: {
+          200: {
+            description: "Loyiha o'chirildi",
+          },
+
+          401: {
+            description: "Token kerak",
+          },
+
+          403: {
+            description: "Ruxsat yo'q",
+          },
+
+          404: {
+            description: "Loyiha topilmadi",
+          },
+
+          500: {
+            description: "Server xatosi",
           },
         },
       },
