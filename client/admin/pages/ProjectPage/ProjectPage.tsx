@@ -1,69 +1,81 @@
 import { useEffect, useState } from 'react';
-import { projectService } from '@admin/services/projectService';
-import type { ProjectData } from '@admin/interfaces/project.interface';
-import { IoAddCircleOutline } from 'react-icons/io5';
-import './ProjectPage.scss';
+import {
+  getProjects,
+  createProject,
+  deleteProject,
+} from '@admin/services/projectService';
+
+import { useNavigate } from 'react-router-dom';
+
+import type {
+  Project,
+  ProjectFormData,
+} from '@admin/interfaces/project.interface';
+
+import CreateProjectModal from '@admin/components/Dashboard-Components/ProjectsPage-components/CreateProjectModal';
 import ProjectItem from '@admin/components/Dashboard-Components/ProjectsPage-components/ProjectItem';
-import ProjectModal from '@admin/components/Dashboard-Components/ProjectsPage-components/ProjectModal';
+
+import './ProjectPage.scss';
+import { IoArrowBackOutline } from 'react-icons/io5';
 
 const ProjectPage = () => {
-  const [projects, setProjects] = useState<ProjectData[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<ProjectData | null>(
-    null,
-  );
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    projectService.getAll().then((res) => setProjects(res.data.data));
+    getProjects().then(setProjects);
   }, []);
 
-  const handleEdit = (project: ProjectData) => {
-    setSelectedProject(project);
-    setIsModalOpen(true);
+  const handleSave = async (data: ProjectFormData) => {
+    const newProject = await createProject(data);
+    setProjects((prev) => [...prev, newProject]);
   };
 
-  const handleAdd = () => {
-    setSelectedProject(null);
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    projectService
-      .delete(id)
-      .then(() => setProjects(projects.filter((proj) => proj._id !== id)));
+  const handleDelete = async (id: string) => {
+    await deleteProject(id);
+    setProjects((prev) => prev.filter((item) => item._id !== id));
   };
 
   return (
     <div className="project-page">
-      <header className="page-header">
-        <h1>Loyihalar Boshqaruvi</h1>
+      <div className="project-page__header">
+        <div className="header-left">
+          <button className="back-btn" onClick={() => navigate(-1)}>
+            <IoArrowBackOutline />
+          </button>
 
-        <button onClick={handleAdd} className="add-btn">
-          <IoAddCircleOutline size={20} />
-          <span>Yangi loyiha</span>
+          <div>
+            <h1>Loyihalar</h1>
+            <p>Barcha loyihalarni boshqaring</p>
+          </div>
+        </div>
+
+        <button
+          className="add-project-btn"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <span>+</span>
+          Yangi loyiha
         </button>
-        <ProjectModal
-          key={selectedProject?._id ?? 'new'}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          project={selectedProject}
-          onSave={(data) => {
-            console.log("Saqlanayotgan ma'lumot:", data);
-            setIsModalOpen(false);
-          }}
-        />
-      </header>
+      </div>
 
       <div className="project-list">
-        {projects.map((proj) => (
+        {projects.map((project) => (
           <ProjectItem
-            key={proj._id}
-            project={proj}
+            key={project._id}
+            project={project}
             onDelete={handleDelete}
-            onEdit={handleEdit}
           />
         ))}
       </div>
+
+      <CreateProjectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSave}
+      />
     </div>
   );
 };

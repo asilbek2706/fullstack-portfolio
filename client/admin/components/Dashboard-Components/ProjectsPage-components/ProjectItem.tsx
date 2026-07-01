@@ -1,23 +1,60 @@
-import { IoPencilOutline, IoTrashOutline } from 'react-icons/io5';
+import {
+  IoPencilOutline,
+  IoTrashOutline,
+  IoLogoGithub,
+  IoGlobeOutline,
+} from 'react-icons/io5';
+import type { Project } from '@admin/interfaces/project.interface';
 import '../Card-styles/ProjectItem.scss';
-import type { ProjectData } from '@admin/interfaces/project.interface';
 
 interface Props {
-  project: ProjectData;
+  project: Project;
   onDelete: (id: string) => void;
-  onEdit: (project: ProjectData) => void;
+  onEdit?: (project: Project) => void;
 }
 
 const ProjectItem = ({ project, onDelete, onEdit }: Props) => {
   return (
     <div className="project-item">
-      <span className="project-title">{project.title}</span>
+      <div className="project-image">
+        <img src={`${project.image}`} alt={project.title} />
+      </div>
+
+      <div className="project-info">
+        <h3>{project.title}</h3>
+
+        <p>{project.description || 'Loyiha tavsifi mavjud emas.'}</p>
+
+        <div className="project-tech">
+          {project.technologies.map((tech, index) => (
+            <span key={index}>{tech}</span>
+          ))}
+        </div>
+
+        <div className="project-links">
+          {project.githubLink && (
+            <a href={project.githubLink} target="_blank" rel="noreferrer">
+              <IoLogoGithub />
+              GitHub
+            </a>
+          )}
+
+          {project.demoLink && (
+            <a href={project.demoLink} target="_blank" rel="noreferrer">
+              <IoGlobeOutline />
+              Demo
+            </a>
+          )}
+        </div>
+      </div>
+
       <div className="project-actions">
-        <button className="edit-btn" onClick={() => onEdit(project)}>
-          <IoPencilOutline size={18} />
+        <button onClick={() => onEdit?.(project)}>
+          <IoPencilOutline />
         </button>
-        <button className="delete-btn" onClick={() => onDelete(project._id)}>
-          <IoTrashOutline size={18} />
+
+        <button className="delete" onClick={() => onDelete(project._id)}>
+          <IoTrashOutline />
         </button>
       </div>
     </div>

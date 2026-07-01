@@ -40,9 +40,12 @@ export const createProject = async (project: ProjectFormData) => {
     formData.append('image', project.image);
   }
 
-  const { data } = await API.post('/projects', formData);
-
-  return data.data as Project;
+  const { data } = await API.post('/projects', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data.data;
 };
 
 // ======================
