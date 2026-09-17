@@ -30,6 +30,20 @@ if (!fs.existsSync(uploadDir)) {
 
 const app = express();
 const server = http.createServer(app);
+
+server.on("error", async (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(
+      `PORT ${process.env.PORT || 8080} boshqa process tomonidan ishlatilmoqda.`,
+    );
+  } else {
+    console.error("HTTP server xatoligi:", error.message);
+  }
+
+  await mongoose.disconnect().catch(() => {});
+  process.exit(1);
+});
+
 app.set("trust proxy", 1);
 
 const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:5173"];

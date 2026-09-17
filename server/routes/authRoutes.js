@@ -1,4 +1,5 @@
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const {
@@ -6,8 +7,20 @@ const {
   restrictToSuperAdmin,
 } = require("../middlewares/authMiddleware");
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+  message: {
+    message:
+      "Login urinishlari juda ko'p. 15 daqiqadan keyin qayta urining.",
+  },
+});
+
 // 🔓 OCHIQ YO'LLAR (Hamma foydalanishi mumkin)
-router.post("/login", authController.loginAdmin);
+router.post("/login", loginLimiter, authController.loginAdmin);
 
 // 🚪 TIZIMDAN CHIQISH (Faqat kirgan adminlar kuki faylini tozalashi uchun)
 router.post("/logout", protect, authController.logoutAdmin);

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "server": "nodemon server.js",
-    "createsuperadmin": "node scripts/createSuperAdmin.js"
+    "createsuperadmin": "node scripts/createSuperAdmin.js",
+    "check": "node --check server.js"
   },
   "keywords": [],
   "author": "",

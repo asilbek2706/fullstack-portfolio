@@ -21,6 +21,7 @@ const AdminSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Parol kiritilishi shart"],
+      select: false,
     },
     role: {
       type: String,

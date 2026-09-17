@@ -9,6 +9,28 @@ const protect = async (req, res, next) => {
     // 🍪 1. Tokenni avtomatik Cookie (Kuki) ichidan qidiramiz
     if (req.cookies && req.cookies.token) {
       token = req.cookies.token;
+
+      const unsafeMethod = !["GET", "HEAD", "OPTIONS"].includes(
+        req.method,
+      );
+
+      const allowedOrigins = [
+        process.env.CLIENT_URL,
+        "http://localhost:5173",
+      ]
+        .filter(Boolean)
+        .map((origin) => origin.replace(/\/$/, ""));
+
+      const requestOrigin = req.get("origin");
+
+      if (
+        unsafeMethod &&
+        (!requestOrigin || !allowedOrigins.includes(requestOrigin))
+      ) {
+        return res.status(403).json({
+          message: "So'rov manbasi tasdiqlanmadi.",
+        });
+      }
     }
 
     // Agar kuki o'chirilgan bo'lsa (yoki eski front-end uchun zaxira usul bo'lib tursin)
@@ -30,29 +52,7 @@ const protect = async (req, res, next) => {
     // 2. Tokenni shifrdan ochamiz
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 🛡️ Xavfsizlik nazorati: Qurilma (User-Agent) va IP tekshiruvi
-    const currentIp = req.ip || req.headers["x-forwarded-for"];
-    console.log("=== XAVFSIZLIK TEKSHIRUVI ===");
-    console.log("Token ichidagi IP:", decoded.ip, " | Hozirgi IP:", currentIp);
-    console.log(
-      "Token ichidagi UA:",
-      decoded.userAgent,
-      " | Hozirgi UA:",
-      req.headers["user-agent"],
-    );
-    console.log("=============================");
-    
-    // LOYIHA LOCALHOST-DA MUAMMOSIZ ISHLASHI UCHUN FAQAT USER-AGENT TEKSHIRILADI
-    if (
-      decoded.userAgent !== req.headers["user-agent"]
-    ) {
-      return res.status(403).json({
-        message:
-          "Xavfsizlik tizimi: Token boshqa qurilma yoki IP-manzildan o'g'irlangan!",
-      });
-    }
-
-    // 3. Bazadan adminni qidiramiz
+    // Admin har bir requestda bazadan qayta tekshiriladi.
     const admin = await Admin.findById(decoded.id).select("-password");
     if (!admin) {
       return res
@@ -66,15 +66,9 @@ const protect = async (req, res, next) => {
 
     next();
   } catch (error) {
-    // 🚨 KONSOLGA HAQIQIY XATOLIKNI CHIQARISH (BU SIZGA TERMINALDA MUAMMONI KO'RSATADI)
-    console.error("❌ JWT VERIFY XATOLIGI:", error.message);
-    
-    return res
-      .status(401)
-      .json({ 
-        message: "Token yaroqsiz yoki muddati o'tgan!",
-        error: error.message // muammo nimadaligini bilish uchun javobga ham qo'shildi
-      });
+    return res.status(401).json({
+      message: "Token yaroqsiz yoki muddati o'tgan!",
+    });
   }
 };
 

@@ -2,12 +2,36 @@ const Admin = require("../models/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const getAuthCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    path: "/",
+  };
+};
+
 // 1. TIZIMGA KIRISH (LOGIN) — Cookie bilan avtomatlashtirilgan variant
 exports.loginAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    const admin = await Admin.findOne({ username });
+    if (
+      typeof username !== "string" ||
+      typeof password !== "string" ||
+      !username.trim() ||
+      !password
+    ) {
+      return res.status(400).json({
+        message: "Login va parolni kiriting!",
+      });
+    }
+
+    const admin = await Admin.findOne({
+      username: username.trim(),
+    }).select("+password");
     if (!admin) {
       return res.status(400).json({ message: "Login yoki parol noto'g'ri!" });
     }
@@ -17,20 +41,14 @@ exports.loginAdmin = async (req, res) => {
       return res.status(400).json({ message: "Login yoki parol noto'g'ri!" });
     }
 
-    // Xavfsizlik uchun User-Agent va IP'ni ham qo'shib shifrlaymiz
-    const userAgent = req.headers["user-agent"];
-    const ip = req.ip || req.headers["x-forwarded-for"];
-
     const token = jwt.sign(
-      { id: admin._id, role: admin.role, userAgent, ip },
+      { id: admin._id },
       process.env.JWT_SECRET,
       { expiresIn: "1d" },
     );
 
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      ...getAuthCookieOptions(),
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -55,10 +73,18 @@ exports.inviteAdmin = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Barcha maydonlarni to'ldiring!" });
+    if (
+      typeof username !== "string" ||
+      typeof email !== "string" ||
+      typeof password !== "string" ||
+      !username.trim() ||
+      !email.trim() ||
+      password.length < 8
+    ) {
+      return res.status(400).json({
+        message:
+          "Username, email va kamida 8 belgilik parolni kiriting!",
+      });
     }
 
     const existingAdmin = await Admin.findOne({
@@ -135,12 +161,13 @@ exports.updateMe = async (req, res) => {
     if (username) updateData.username = username.trim();
     if (email) updateData.email = email.trim().toLowerCase();
 
-    if (password) {
-      if (password.length < 4) {
-        return res
-          .status(400)
-          .json({ message: "Parol kamida 4 ta belgi bo'lishi shart!" });
+    if (password !== undefined) {
+      if (typeof password !== "string" || password.length < 8) {
+        return res.status(400).json({
+          message: "Parol kamida 8 ta belgi bo'lishi shart!",
+        });
       }
+
       const salt = await bcrypt.genSalt(10);
       updateData.password = await bcrypt.hash(password, salt);
     }
@@ -222,15 +249,11 @@ exports.deleteAdmin = async (req, res) => {
 
 // 7. TIZIMDAN CHIQISH (LOGOUT)
 exports.logoutAdmin = async (req, res) => {
-  res.cookie("token", "", {
-    httpOnly: true,
-    expires: new Date(0), // Muddatini o'tmishga suramiz
-    secure: true,
-    sameSite: "none",
-    path: "/",
-  });
+  res.clearCookie("token", getAuthCookieOptions());
 
-  return res.json({ message: "Tizimdan muvaffaqiyatli chiqdingiz! 🚪" });
+  return res.json({
+    message: "Tizimdan muvaffaqiyatli chiqdingiz! 🚪",
+  });
 };
 
 // 8. TIZIMDAGI JORIY ADMINNI ANIQLASH (Frontend refresh uchun)

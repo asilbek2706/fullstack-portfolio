@@ -81,15 +81,15 @@ async function main() {
         {
           type: "password",
           name: "inputPassword",
-          message: "🔒 Parol kiriting (kamida 4 ta belgi):",
+          message: "🔒 Parol kiriting (kamida 8 ta belgi):",
           mask: "*",
         },
       ]);
 
       password = result.inputPassword;
 
-      if (!password || password.length < 4) {
-        console.log("❌ Xatolik: Parol juda qisqa! Kamida 4 ta belgi bo'lishi shart.\n");
+      if (!password || password.length < 8) {
+        console.log("❌ Xatolik: Parol juda qisqa! Kamida 8 ta belgi bo'lishi shart.\n");
         continue;
       }
       break;
