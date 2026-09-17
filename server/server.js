@@ -1,3 +1,5 @@
+require("dotenv").config({ quiet: true });
+
 const express = require("express");
 const mongoose = require("mongoose");
 const helmet = require("helmet");
@@ -11,9 +13,11 @@ const path = require("path");
 const fs = require("fs");
 
 const http = require("http");
+const crypto = require("crypto");
 const { Server } = require("socket.io");
+const pinoHttp = require("pino-http");
+const logger = require("./utils/logger");
 
-require("dotenv").config();
 
 const projectRoutes = require("./routes/projectRoutes");
 const contactRoutes = require("./routes/contactRoutes");
@@ -25,7 +29,7 @@ const uploadRoutes = require("./routes/uploadRoutes");
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
-  console.log("Uploads papkasi yaratildi!");
+  logger.info({ uploadDir }, "Uploads papkasi yaratildi.");
 }
 
 const app = express();
@@ -33,11 +37,12 @@ const server = http.createServer(app);
 
 server.on("error", async (error) => {
   if (error.code === "EADDRINUSE") {
-    console.error(
-      `PORT ${process.env.PORT || 8080} boshqa process tomonidan ishlatilmoqda.`,
+    logger.error(
+      { port: process.env.PORT || 8080 },
+      "Port boshqa process tomonidan ishlatilmoqda.",
     );
   } else {
-    console.error("HTTP server xatoligi:", error.message);
+    logger.error({ err: error }, "HTTP server xatoligi.");
   }
 
   await mongoose.disconnect().catch(() => {});
@@ -45,6 +50,37 @@ server.on("error", async (error) => {
 });
 
 app.set("trust proxy", 1);
+
+app.use(
+  pinoHttp({
+    logger,
+
+    genReqId: (req, res) => {
+      const incomingId = req.headers["x-request-id"];
+
+      const requestId =
+        typeof incomingId === "string" &&
+        /^[A-Za-z0-9._-]{1,100}$/.test(incomingId)
+          ? incomingId
+          : crypto.randomUUID();
+
+      res.setHeader("X-Request-Id", requestId);
+      return requestId;
+    },
+
+    customLogLevel: (req, res, error) => {
+      if (error || res.statusCode >= 500) return "error";
+      if (res.statusCode >= 400) return "warn";
+      return "info";
+    },
+
+    customSuccessMessage: (req, res) =>
+      `${req.method} ${req.url} completed`,
+
+    customErrorMessage: (req, res) =>
+      `${req.method} ${req.url} failed`,
+  }),
+);
 
 const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:5173"];
 
@@ -59,8 +95,16 @@ const io = new Server(server, {
 global.io = io;
 
 io.on("connection", (socket) => {
-  console.log(`Foydalanuvchi tarmoqqa ulandi: ${socket.id}`);
-  socket.on("disconnect", () => console.log("Foydalanuvchi uzildi"));
+  logger.debug(
+    { socketId: socket.id },
+    "Socket foydalanuvchisi ulandi.",
+  );
+  socket.on("disconnect", (reason) => {
+    logger.debug(
+      { socketId: socket.id, reason },
+      "Socket foydalanuvchisi uzildi.",
+    );
+  });
 });
 
 app.use(express.json());
@@ -171,13 +215,13 @@ const startServer = async () => {
       return;
     }
 
-    console.log("MongoDB-ga muvaffaqiyatli ulandik! 🍃");
+    logger.info("MongoDB-ga muvaffaqiyatli ulandi.");
 
     server.listen(PORT, () => {
-      console.log(`Server ${PORT}-portda ishlamoqda. 🚀`);
+      logger.info({ port: PORT }, "Server ishga tushdi.");
     });
   } catch (error) {
-    console.error("Server ishga tushmadi:", error.message);
+    logger.fatal({ err: error }, "Server ishga tushmadi.");
     process.exit(1);
   }
 };
@@ -188,7 +232,7 @@ const shutdown = async (signal) => {
   if (isShuttingDown) return;
   isShuttingDown = true;
 
-  console.log(`${signal} qabul qilindi. Server yopilmoqda...`);
+  logger.info({ signal }, "Server yopilmoqda.");
 
   try {
     if (server.listening) {
@@ -201,10 +245,10 @@ const shutdown = async (signal) => {
     }
 
     await mongoose.disconnect();
-    console.log("MongoDB ulanishi yopildi.");
+    logger.info("MongoDB ulanishi yopildi.");
     process.exit(0);
   } catch (error) {
-    console.error("Serverni yopishda xatolik:", error.message);
+    logger.error({ err: error }, "Serverni yopishda xatolik.");
     process.exit(1);
   }
 };

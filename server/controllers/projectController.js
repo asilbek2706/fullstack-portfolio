@@ -2,6 +2,7 @@ const Project = require("../models/Project");
 const mongoose = require("mongoose");
 const fs = require("fs").promises;
 const path = require("path");
+const logger = require("../utils/logger");
 
 // =========================
 // HELPERLAR
@@ -52,7 +53,10 @@ const deleteImage = async (imagePath) => {
     await fs.unlink(fullPath);
   } catch (error) {
     if (error.code !== "ENOENT") {
-      console.error("Rasmni o'chirishda xatolik:", error.message);
+      logger.error(
+        { err: error, imagePath },
+        "Project rasmini o'chirishda xatolik.",
+      );
     }
   }
 };

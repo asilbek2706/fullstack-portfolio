@@ -1,4 +1,5 @@
 const axios = require("axios");
+const logger = require("../utils/logger");
 
 const validateContactAndRecaptcha = async (req, res, next) => {
   try {
@@ -60,7 +61,10 @@ const validateContactAndRecaptcha = async (req, res, next) => {
         });
       }
     } catch (recaptchaError) {
-      console.error("reCAPTCHA API ulanish xatosi:", recaptchaError.message);
+      logger.error(
+        { err: recaptchaError },
+        "reCAPTCHA API ulanish xatosi.",
+      );
       return res.status(503).json({
         message:
           "Xavfsizlik xizmati vaqtincha ishlamayapti, iltimos qayta urining.",

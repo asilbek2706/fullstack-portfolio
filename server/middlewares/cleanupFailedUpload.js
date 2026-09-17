@@ -1,4 +1,5 @@
 const fs = require("fs").promises;
+const logger = require("../utils/logger");
 
 const cleanupFailedUpload = (req, res, next) => {
   const uploadedFilePath = req.file?.path;
@@ -11,9 +12,9 @@ const cleanupFailedUpload = (req, res, next) => {
     if (res.statusCode >= 400) {
       fs.unlink(uploadedFilePath).catch((error) => {
         if (error.code !== "ENOENT") {
-          console.error(
-            "Muvaffaqiyatsiz upload faylini o'chirishda xatolik:",
-            error.message,
+          logger.error(
+            { err: error, uploadedFilePath },
+            "Muvaffaqiyatsiz upload faylini o'chirishda xatolik.",
           );
         }
       });

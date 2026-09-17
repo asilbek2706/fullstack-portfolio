@@ -1,5 +1,6 @@
 const Contact = require("../models/Contact");
 const axios = require("axios");
+const logger = require("../utils/logger");
 
 // 1. YANGI KONTAKT YARATISH (OMMAVIY)
 exports.createContact = async (req, res) => {
@@ -62,7 +63,10 @@ exports.getAllQuestionsAnswers = async (req, res) => {
   try {
     // protect middleware'dan o'tib kelgan admin ma'lumotlarini logda ko'rish (ixtiyoriy)
     const currentAdminId = req.admin?._id || req.user?._id;
-    console.log(`🤖 Kuki orqali kelgan Admin ID: ${currentAdminId}`);
+    logger.debug(
+      { adminId: currentAdminId?.toString() },
+      "Admin contact ro'yxatini so'radi.",
+    );
 
     const QAs = await Contact.find().sort({ createdAt: -1 });
     return res.status(200).json({
@@ -120,7 +124,10 @@ exports.handleTelegramWebhook = async (req, res) => {
     const telegramToken = req.headers["x-telegram-bot-api-secret-token"];
 
     if (!telegramToken || telegramToken !== process.env.WEBHOOK_SECRET_TOKEN) {
-      console.log("⚠️ Diqqat! Tizimga begona soxta webhook so'rovi aniqlandi!");
+      logger.warn(
+        { ip: req.ip },
+        "Noto'g'ri Telegram webhook tokeni.",
+      );
       return res.status(403).json({ message: "Ruxsat etilmagan so'rov!" });
     }
 
@@ -146,13 +153,19 @@ exports.handleTelegramWebhook = async (req, res) => {
             isAnswered: true,
           });
         }
-        console.log(`✅ Savolga javob berildi: ${answerText}`);
+        logger.info(
+          { contactId: contact._id.toString() },
+          "Contact savoliga Telegram orqali javob berildi.",
+        );
       }
     }
 
     return res.status(200).send("OK");
   } catch (error) {
-    console.error("❌ Telegram webhook xatoligi:", error.message);
+    logger.error(
+      { err: error },
+      "Telegram webhook xatoligi.",
+    );
     return res.status(200).send("OK");
   }
 };
@@ -170,7 +183,10 @@ exports.getContactAnswers = async (req, res) => {
       data: answeredContacts,
     });
   } catch (error) {
-    console.error("getAllAnswers error:", error);
+    logger.error(
+      { err: error },
+      "Contact javoblarini olishda xatolik.",
+    );
     return res
       .status(500)
       .json({ success: false, message: "Server xatoligi." });

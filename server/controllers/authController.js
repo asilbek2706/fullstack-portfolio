@@ -1,6 +1,8 @@
 const Admin = require("../models/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+const logger = require("../utils/logger");
 
 const getAuthCookieOptions = () => {
   const isProduction = process.env.NODE_ENV === "production";
@@ -11,6 +13,18 @@ const getAuthCookieOptions = () => {
     sameSite: isProduction ? "none" : "lax",
     path: "/",
   };
+};
+
+
+const sendServerError = (res, error) => {
+  logger.error(
+    { err: error },
+    "Auth controller xatoligi.",
+  );
+
+  return res.status(500).json({
+    message: "Serverda ichki xatolik yuz berdi.",
+  });
 };
 
 // 1. TIZIMGA KIRISH (LOGIN) — Cookie bilan avtomatlashtirilgan variant
@@ -62,9 +76,7 @@ exports.loginAdmin = async (req, res) => {
       },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Serverda xatolik yuz berdi", error: error.message });
+    return sendServerError(res, error);
   }
 };
 
@@ -124,7 +136,7 @@ exports.inviteAdmin = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Serverda xatolik", error: error.message });
+    return sendServerError(res, error);
   }
 };
 
@@ -139,9 +151,7 @@ exports.getAllAdmins = async (req, res) => {
       data: admins,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Serverda xatolik yuz berdi", error: error.message });
+    return sendServerError(res, error);
   }
 };
 
@@ -183,9 +193,7 @@ exports.updateMe = async (req, res) => {
       data: updatedAdmin,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Serverda xatolik yuz berdi", error: error.message });
+    return sendServerError(res, error);
   }
 };
 
@@ -194,6 +202,12 @@ exports.updateAdminBySuper = async (req, res) => {
   try {
     const { id } = req.params;
     const { username, email, role } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Admin ID formati noto'g'ri!",
+      });
+    }
 
     if (!username || !email || !role) {
       return res.status(400).json({
@@ -216,7 +230,7 @@ exports.updateAdminBySuper = async (req, res) => {
       data: updatedAdmin,
     });
   } catch (error) {
-    res.status(500).json({ message: "Serverda xatolik", error: error.message });
+    return sendServerError(res, error);
   }
 };
 
@@ -224,6 +238,12 @@ exports.updateAdminBySuper = async (req, res) => {
 exports.deleteAdmin = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Admin ID formati noto'g'ri!",
+      });
+    }
 
     const adminToDelete = await Admin.findById(id);
     if (!adminToDelete) {
@@ -243,7 +263,7 @@ exports.deleteAdmin = async (req, res) => {
       message: `Admin (${adminToDelete.username}) tizimdan muvaffaqiyatli o'chirildi!`,
     });
   } catch (error) {
-    res.status(500).json({ message: "Xatolik", error: error.message });
+    return sendServerError(res, error);
   }
 };
 
@@ -279,8 +299,6 @@ exports.getMe = async (req, res) => {
       email: admin.email,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Serverda xatolik yuz berdi", error: error.message });
+    return sendServerError(res, error);
   }
 };
