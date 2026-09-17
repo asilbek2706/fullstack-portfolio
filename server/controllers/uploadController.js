@@ -5,21 +5,13 @@ exports.uploadImage = async (req, res) => {
     return res.status(400).json({ success: false, message: "Rasm yuklanmadi" });
   }
 
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+  const imageUrl =
+    `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
-  try {
-    // 1. Bazada oxirgi ma'lumotni topamiz va rasmni yangilaymiz
-    // 'About' modeli bitta deb faraz qilamiz
-    await About.findOneAndUpdate(
-      {},
-      { avatar: imageUrl },
-      { new: true, upsert: true },
-    );
-
-    res.status(200).json({ success: true, url: imageUrl });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Bazaga yozishda xato" });
-  }
+  return res.status(201).json({
+    success: true,
+    url: imageUrl,
+  });
 };
 
 // 2. GET endi fs.readdir emas, bazadan o'qiydi

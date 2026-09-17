@@ -1,25 +1,53 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+const crypto = require("crypto");
+
+const uploadPath = path.join(__dirname, "../uploads");
+
+fs.mkdirSync(uploadPath, { recursive: true });
+
+const extensionByMime = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+};
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, uploadPath);
   },
+
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    const extension = extensionByMime[file.mimetype];
+
+    if (!extension) {
+      return cb(new Error("Ruxsat berilmagan rasm formati."));
+    }
+
+    cb(null, `${crypto.randomUUID()}${extension}`);
   },
 });
 
+const fileFilter = (req, file, cb) => {
+  if (!extensionByMime[file.mimetype]) {
+    return cb(
+      new Error("Faqat JPG, PNG yoki WEBP rasmlarini yuklash mumkin."),
+      false,
+    );
+  }
+
+  return cb(null, true);
+};
+
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Faqat rasm fayllari yuklanishi mumkin!"), false);
-    }
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    files: 1,
+    fields: 10,
+    parts: 11,
   },
 });
 

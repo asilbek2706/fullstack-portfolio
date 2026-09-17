@@ -60,20 +60,33 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  const sanitize = (obj) => {
-    if (obj instanceof Object) {
-      for (let key in obj) {
-        if (key.startsWith("$") || key.includes(".")) {
-          delete obj[key];
-        } else {
-          sanitize(obj[key]);
-        }
+  const blockedKeys = new Set([
+    "__proto__",
+    "prototype",
+    "constructor",
+  ]);
+
+  const sanitize = (value) => {
+    if (!value || typeof value !== "object") return;
+
+    for (const key of Object.keys(value)) {
+      if (
+        key.startsWith("$") ||
+        key.includes(".") ||
+        blockedKeys.has(key)
+      ) {
+        delete value[key];
+        continue;
       }
+
+      sanitize(value[key]);
     }
   };
+
   sanitize(req.body);
   sanitize(req.query);
   sanitize(req.params);
+
   next();
 });
 
@@ -115,16 +128,74 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/upload", uploadRoutes);
 
-mongoose
-  .connect(process.env.MONGO_URI, {
-    autoIndex: false,
-  })
-  .then(() => console.log("MongoDB-ga muvaffaqiyatli ulandik! 🍃"))
-  .catch((err) => console.error("MongoDB ulanishda xatolik:", err));
-
 const PORT = process.env.PORT || 8080;
-server.listen(PORT, () =>
-  console.log(
-    `Xavfsiz server HTTP va Websocket bilan ${PORT}-portda gurlab ishlamoqda... 🚀`,
-  ),
-);
+
+const startServer = async () => {
+  try {
+    const requiredEnv = ["MONGO_URI", "JWT_SECRET", "CLIENT_URL"];
+    const missingEnv = requiredEnv.filter((name) => !process.env[name]);
+
+    if (missingEnv.length > 0) {
+      throw new Error(
+        `Majburiy environment qiymatlari topilmadi: ${missingEnv.join(", ")}`,
+      );
+    }
+
+    if (process.env.JWT_SECRET.length < 32) {
+      throw new Error(
+        "JWT_SECRET kamida 32 ta belgidan iborat bo'lishi kerak.",
+      );
+    }
+
+    await mongoose.connect(process.env.MONGO_URI, {
+      autoIndex: process.env.NODE_ENV !== "production",
+      serverSelectionTimeoutMS: 10000,
+    });
+
+    if (isShuttingDown) {
+      await mongoose.disconnect();
+      return;
+    }
+
+    console.log("MongoDB-ga muvaffaqiyatli ulandik! 🍃");
+
+    server.listen(PORT, () => {
+      console.log(`Server ${PORT}-portda ishlamoqda. 🚀`);
+    });
+  } catch (error) {
+    console.error("Server ishga tushmadi:", error.message);
+    process.exit(1);
+  }
+};
+
+let isShuttingDown = false;
+
+const shutdown = async (signal) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  console.log(`${signal} qabul qilindi. Server yopilmoqda...`);
+
+  try {
+    if (server.listening) {
+      await new Promise((resolve, reject) => {
+        server.close((error) => {
+          if (error) return reject(error);
+          resolve();
+        });
+      });
+    }
+
+    await mongoose.disconnect();
+    console.log("MongoDB ulanishi yopildi.");
+    process.exit(0);
+  } catch (error) {
+    console.error("Serverni yopishda xatolik:", error.message);
+    process.exit(1);
+  }
+};
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+
+startServer();
