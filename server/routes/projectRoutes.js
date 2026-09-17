@@ -6,6 +6,8 @@ const projectController = require("../controllers/projectController");
 const { protect } = require("../middlewares/authMiddleware");
 
 const upload = require("../middlewares/projectImage");
+const validateImageFile = require("../middlewares/validateImageFile");
+const cleanupFailedUpload = require("../middlewares/cleanupFailedUpload");
 
 const {
   validateProjectInput,
@@ -31,6 +33,8 @@ router.post(
   "/",
   protect,
   upload.single("image"),
+  validateImageFile,
+  cleanupFailedUpload,
   validateProjectInput,
   projectController.createProject,
 );
@@ -41,6 +45,8 @@ router.put(
   protect,
   checkProjectOwnerOrSuper,
   upload.single("image"),
+  validateImageFile,
+  cleanupFailedUpload,
   validateProjectInput,
   projectController.updateProject,
 );
@@ -51,6 +57,8 @@ router.patch(
   protect,
   checkProjectOwnerOrSuper,
   upload.single("image"),
+  validateImageFile,
+  cleanupFailedUpload,
   projectController.patchProject,
 );
 

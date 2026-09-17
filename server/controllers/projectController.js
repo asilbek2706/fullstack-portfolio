@@ -33,15 +33,27 @@ const parseTechnologies = (technologies) => {
 
 // eski rasmni o'chirish
 const deleteImage = async (imagePath) => {
-  if (!imagePath) return;
+  if (
+    typeof imagePath !== "string" ||
+    !imagePath.startsWith("/uploads/projects/")
+  ) {
+    return;
+  }
+
+  const uploadsRoot = path.resolve(__dirname, "../uploads/projects");
+  const relativePath = imagePath.replace("/uploads/projects/", "");
+  const fullPath = path.resolve(uploadsRoot, relativePath);
+
+  if (!fullPath.startsWith(`${uploadsRoot}${path.sep}`)) {
+    return;
+  }
 
   try {
-    const fullPath = path.join(__dirname, "..", imagePath.replace(/^\//, ""));
-
-    await fs.access(fullPath);
     await fs.unlink(fullPath);
-  } catch (_) {
-    // fayl topilmasa yoki o'chmasa davom etadi
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.error("Rasmni o'chirishda xatolik:", error.message);
+    }
   }
 };
 
@@ -142,6 +154,10 @@ exports.createProject = async (req, res) => {
       data: project,
     });
   } catch (error) {
+    if (req.file) {
+      await deleteImage(`/uploads/projects/${req.file.filename}`);
+    }
+
     return res.status(400).json({
       success: false,
       message: "Loyiha yaratishda xatolik.",
@@ -183,8 +199,9 @@ exports.updateProject = async (req, res) => {
       demoLink: req.body.demoLink || "",
     };
 
+    const oldImage = project.image;
+
     if (req.file) {
-      await deleteImage(project.image);
       updateData.image = `/uploads/projects/${req.file.filename}`;
     } else {
       updateData.image = project.image;
@@ -194,6 +211,10 @@ exports.updateProject = async (req, res) => {
       new: true,
       runValidators: true,
     });
+
+    if (req.file) {
+      await deleteImage(oldImage);
+    }
 
     if (global.io) {
       global.io.emit("projectUpdated", updatedProject);
@@ -205,6 +226,10 @@ exports.updateProject = async (req, res) => {
       data: updatedProject,
     });
   } catch (error) {
+    if (req.file) {
+      await deleteImage(`/uploads/projects/${req.file.filename}`);
+    }
+
     return res.status(400).json({
       success: false,
       message: "Yangilashda xatolik yuz berdi.",
@@ -237,14 +262,27 @@ exports.patchProject = async (req, res) => {
       });
     }
 
-    const updateData = { ...req.body };
+    const allowedFields = [
+      "title",
+      "description",
+      "technologies",
+      "githubLink",
+      "demoLink",
+    ];
+
+    const updateData = Object.fromEntries(
+      Object.entries(req.body).filter(([key]) =>
+        allowedFields.includes(key),
+      ),
+    );
 
     if (req.body.technologies) {
       updateData.technologies = parseTechnologies(req.body.technologies);
     }
 
+    const oldImage = project.image;
+
     if (req.file) {
-      await deleteImage(project.image);
       updateData.image = `/uploads/projects/${req.file.filename}`;
     }
 
@@ -252,6 +290,10 @@ exports.patchProject = async (req, res) => {
       new: true,
       runValidators: true,
     });
+
+    if (req.file) {
+      await deleteImage(oldImage);
+    }
 
     if (global.io) {
       global.io.emit("projectUpdated", updatedProject);
@@ -263,6 +305,10 @@ exports.patchProject = async (req, res) => {
       data: updatedProject,
     });
   } catch (error) {
+    if (req.file) {
+      await deleteImage(`/uploads/projects/${req.file.filename}`);
+    }
+
     return res.status(400).json({
       success: false,
       message: "Qisman yangilashda xatolik.",
@@ -295,9 +341,9 @@ exports.deleteProject = async (req, res) => {
       });
     }
 
-    await deleteImage(project.image);
-
     await project.deleteOne();
+
+    await deleteImage(project.image);
 
     if (global.io) {
       global.io.emit("projectDeleted", {
