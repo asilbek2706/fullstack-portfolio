@@ -1,26 +1,73 @@
 const axios = require("axios");
 const logger = require("../utils/logger");
+const { env } = require("../config/env");
 
 const validateContactAndRecaptcha = async (req, res, next) => {
   try {
-    let { name, phone, message, recaptchaToken } = req.body;
-
-    if (!name || !phone || !message) {
+    if (
+      !req.body ||
+      typeof req.body !== "object" ||
+      Array.isArray(req.body)
+    ) {
       return res.status(400).json({
-        message: "Hamma maydonlarni to'ldirish kerak (name, phone, message)",
+        success: false,
+        message: "So'rov body qismi obyekt bo'lishi kerak.",
       });
     }
 
-    // Inputlarni tozalash (XSS va inyeksiyalardan himoya)
-    name = name
-      .toString()
-      .trim()
-      .replace(/<\/?[^>]+(>|$)/g, "");
-    message = message
-      .toString()
-      .trim()
-      .replace(/<\/?[^>]+(>|$)/g, "");
-    phone = phone.toString().trim().replace(/\s+/g, "");
+    const allowedFields = new Set([
+      "name",
+      "phone",
+      "message",
+      "recaptchaToken",
+    ]);
+
+    const unknownFields = Object.keys(req.body).filter(
+      (field) => !allowedFields.has(field),
+    );
+
+    if (unknownFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Ruxsat etilmagan maydonlar: ${unknownFields.join(", ")}`,
+      });
+    }
+
+    let { name, phone, message, recaptchaToken } = req.body;
+
+    const requiredTextFields = { name, phone, message };
+
+    for (const [field, value] of Object.entries(requiredTextFields)) {
+      if (typeof value !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: `${field} matn ko'rinishida bo'lishi kerak.`,
+        });
+      }
+    }
+
+    name = name.trim();
+    message = message.trim();
+    phone = phone.trim().replace(/\s+/g, "");
+
+    if (!name || !phone || !message) {
+      return res.status(400).json({
+        success: false,
+        message: "Barcha maydonlarni to'ldiring.",
+      });
+    }
+
+    const forbiddenControlCharacters = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
+
+    if (
+      forbiddenControlCharacters.test(name) ||
+      forbiddenControlCharacters.test(message)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Matnda ruxsat etilmagan boshqaruv belgisi mavjud.",
+      });
+    }
 
     if (name.length < 2 || name.length > 50) {
       return res.status(400).json({
@@ -41,28 +88,66 @@ const validateContactAndRecaptcha = async (req, res, next) => {
       });
     }
 
-    if (!recaptchaToken) {
+    if (
+      typeof recaptchaToken !== "string" ||
+      recaptchaToken.length < 20 ||
+      recaptchaToken.length > 4096
+    ) {
       return res.status(400).json({
-        message: "Xavfsizlik tokeni (recaptchaToken) mavjud emas!",
+        success: false,
+        message: "Xavfsizlik tokeni mavjud emas yoki noto'g'ri.",
       });
     }
 
     try {
+      const verificationPayload = new URLSearchParams({
+        secret: env.recaptchaSecretKey,
+        response: recaptchaToken,
+        remoteip: req.ip,
+      });
+
       const googleResponse = await axios.post(
-        `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
-        {},
-        { timeout: 5000 },
+        "https://www.google.com/recaptcha/api/siteverify",
+        verificationPayload,
+        {
+          timeout: 5000,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        },
       );
 
-      if (!googleResponse.data.success || googleResponse.data.score < 0.5) {
+      const verification = googleResponse.data;
+      const isValid =
+        verification?.success === true &&
+        Number.isFinite(verification.score) &&
+        verification.score >= env.recaptchaMinScore &&
+        verification.action === env.recaptchaAction &&
+        verification.hostname === env.recaptchaHostname;
+
+      if (!isValid) {
+        logger.warn(
+          {
+            success: verification?.success,
+            score: verification?.score,
+            action: verification?.action,
+            hostname: verification?.hostname,
+            errorCodes: verification?.["error-codes"],
+          },
+          "reCAPTCHA tekshiruvi rad etildi.",
+        );
+
         return res.status(400).json({
-          message:
-            "Xavfsizlik tekshiruvidan o'ta olmadingiz! Tizim sizni bot deb gumon qildi.",
+          success: false,
+          message: "Xavfsizlik tekshiruvidan o'tib bo'lmadi.",
         });
       }
     } catch (recaptchaError) {
       logger.error(
-        { err: recaptchaError },
+        {
+          errorCode: recaptchaError.code,
+          googleStatus: recaptchaError.response?.status,
+        },
         "reCAPTCHA API ulanish xatosi.",
       );
       return res.status(503).json({
@@ -72,17 +157,16 @@ const validateContactAndRecaptcha = async (req, res, next) => {
     }
 
     // Tozalangan ma'lumotlarni req.body'ga qayta yuklash
-    req.body.name = name;
-    req.body.phone = phone;
-    req.body.message = message;
+    req.body = {
+      name,
+      phone,
+      message,
+      recaptchaToken,
+    };
 
     return next();
   } catch (error) {
-    return res.status(500).json({
-      message:
-        "Serverda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko'ring.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
 

@@ -14,7 +14,6 @@ const requestLogger = require("./middlewares/requestLogger");
 const sanitizeRequest = require("./middlewares/sanitizeRequest");
 const {
   globalLimiter,
-  contactLimiter,
 } = require("./middlewares/rateLimiters");
 
 const apiRoutes = require("./routes");
@@ -50,7 +49,6 @@ app.use(
 
 app.use(sanitizeRequest);
 app.use(globalLimiter);
-app.use("/api/contact", contactLimiter);
 app.use(cors(corsOptions));
 
 app.use(

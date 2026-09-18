@@ -8,9 +8,18 @@ const {
   protect,
   restrictToSuperAdmin,
 } = require("../middlewares/authMiddleware");
+const {
+  contactLimiter,
+  telegramWebhookLimiter,
+} = require("../middlewares/rateLimiters");
 
 // 📩 Yangi savol yuborish (Xavfsiz, reCAPTCHA v3 bilan)
-router.post("/", validateContactAndRecaptcha, contactController.createContact);
+router.post(
+  "/",
+  contactLimiter,
+  validateContactAndRecaptcha,
+  contactController.createContact,
+);
 
 // 🔒 Barcha savol-javoblarni ko'rish (Faqat Login qilgan Admin uchun)
 router.get("/", protect, contactController.getAllQuestionsAnswers);
@@ -20,6 +29,14 @@ router.get("/answer", contactController.getContactAnswers);
 
 // 🔍 Bitta maxsus savol javobini tekshirish (ID bo'yicha)
 router.get("/answer/:id", contactController.getContactAnswer);
+
+// 🔒 Contact javobini public qilish yoki yashirish
+router.patch(
+  "/:id/publication",
+  protect,
+  restrictToSuperAdmin,
+  contactController.setContactPublication,
+);
 
 // 🔒 Barcha savol-javoblarni tozalash (Faqat SuperAdmin)
 router.delete(
@@ -38,6 +55,10 @@ router.delete(
 );
 
 // 🤖 Telegram Botdan keladigan javobni qabul qilish (Webhook)
-router.post("/telegram-webhook", contactController.handleTelegramWebhook);
+router.post(
+  "/telegram-webhook",
+  telegramWebhookLimiter,
+  contactController.handleTelegramWebhook,
+);
 
 module.exports = router;
