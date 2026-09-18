@@ -28,7 +28,7 @@ router.get("/", protect, contactController.getAllQuestionsAnswers);
 router.get("/answer", contactController.getContactAnswers);
 
 // 🔍 Bitta maxsus savol javobini tekshirish (ID bo'yicha)
-router.get("/answer/:id", contactController.getContactAnswer);
+router.get("/answer/:token", contactController.getContactAnswer);
 
 // 🔒 Contact javobini public qilish yoki yashirish
 router.patch(

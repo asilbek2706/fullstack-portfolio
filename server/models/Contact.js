@@ -39,6 +39,17 @@ const contactSchema = new mongoose.Schema(
       trim: true,
       maxlength: [4096, "Javob 4096 ta belgidan oshmasligi kerak"],
     },
+    trackingTokenHash: {
+      type: String,
+      required: [
+        function requireTrackingTokenForNewContact() {
+          return this.isNew;
+        },
+        "Yangi murojaat uchun tracking token majburiy",
+      ],
+      select: false,
+      index: true,
+    },
     telegramMessageId: {
       type: Number,
       default: null,

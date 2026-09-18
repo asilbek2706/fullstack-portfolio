@@ -1,14 +1,29 @@
 const Contact = require("../models/Contact");
+const Admin = require("../models/Admin");
 const axios = require("axios");
+const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const logger = require("../utils/logger");
 const { env } = require("../config/env");
+const {
+  parsePagination,
+  buildPaginationMeta,
+} = require("../utils/pagination");
 
 const escapeTelegramHtml = (value) =>
   String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
+
+const createTrackingToken = () =>
+  crypto.randomBytes(32).toString("base64url");
+
+const hashTrackingToken = (token) =>
+  crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
 
 const safeSecretEqual = (received, expected) => {
   if (
@@ -53,7 +68,17 @@ exports.createContact = async (req, res, next) => {
       .replace(/<\/?[^>]+(>|$)/g, "");
     phone = phone.toString().trim().replace(/\s+/g, "");
 
-    const newContact = new Contact({ name, phone, message });
+    const trackingToken = createTrackingToken();
+    const trackingTokenHash =
+      hashTrackingToken(trackingToken);
+
+    const newContact = new Contact({
+      name,
+      phone,
+      message,
+      trackingTokenHash,
+    });
+
     await newContact.save();
 
     const safeName = escapeTelegramHtml(name);
@@ -95,7 +120,7 @@ exports.createContact = async (req, res, next) => {
         success: true,
         message: "Xabaringiz muvaffaqiyatli qabul qilindi.",
         data: {
-          id: newContact._id,
+          trackingToken,
           deliveryStatus: "sent",
         },
       });
@@ -117,7 +142,7 @@ exports.createContact = async (req, res, next) => {
         message:
           "Xabaringiz qabul qilindi, lekin bildirishnoma yuborilishi kechikmoqda.",
         data: {
-          id: newContact._id,
+          trackingToken,
           deliveryStatus: "failed",
         },
       });
@@ -137,10 +162,29 @@ exports.getAllQuestionsAnswers = async (req, res, next) => {
       "Admin contact ro'yxatini so'radi.",
     );
 
-    const QAs = await Contact.find().sort({ createdAt: -1 });
+    const pagination = parsePagination(req.query, {
+      defaultLimit: 20,
+      maxLimit: 100,
+    });
+
+    const [contacts, total] = await Promise.all([
+      Contact.find()
+        .sort({ createdAt: -1 })
+        .skip(pagination.skip)
+        .limit(pagination.limit)
+        .lean(),
+      Contact.countDocuments(),
+    ]);
+
     return res.status(200).json({
-      message: "Savol-javoblar muvaffaqiyatli yuklandi! 📚",
-      data: QAs,
+      success: true,
+      message: "Murojaatlar muvaffaqiyatli yuklandi.",
+      count: contacts.length,
+      pagination: buildPaginationMeta({
+        ...pagination,
+        total,
+      }),
+      data: contacts,
     });
   } catch (error) {
     return next(error);
@@ -150,22 +194,34 @@ exports.getAllQuestionsAnswers = async (req, res, next) => {
 // 5. BITTA SAVOL JAVOBINI ID BO'YICHA TEKSHIRISH (OMMAVIY)
 exports.getContactAnswer = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { token } = req.params;
 
-    const contact = await Contact.findById(id);
+    if (
+      typeof token !== "string" ||
+      !/^[A-Za-z0-9_-]{43}$/.test(token)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Tracking token formati noto'g'ri.",
+      });
+    }
+
+    const trackingTokenHash = hashTrackingToken(token);
+
+    const contact = await Contact.findOne({
+      trackingTokenHash,
+    });
 
     if (!contact) {
       return res.status(404).json({
         success: false,
-        message: "Bunday IDga ega savol topilmadi!",
+        message: "Murojaat topilmadi.",
       });
     }
 
     return res.status(200).json({
       success: true,
       data: {
-        id: contact._id,
-        name: contact.name,
         isAnswered: contact.isAnswered,
         answer: contact.answer || "",
         createdAt: contact.createdAt,
@@ -274,17 +330,33 @@ exports.handleTelegramWebhook = async (req, res) => {
 // 4. BARCHA JAVOB BERILGAN SAVOLLARNI OLISH (OMMAVIY - F.A.Q uchun)
 exports.getContactAnswers = async (req, res, next) => {
   try {
-    const answeredContacts = await Contact.find({
+    const pagination = parsePagination(req.query, {
+      defaultLimit: 20,
+      maxLimit: 50,
+    });
+
+    const publicFilter = {
       isAnswered: true,
       isPublic: true,
-    })
-      .select("name message answer updatedAt")
-      .sort({ updatedAt: -1 })
-      .lean();
+    };
+
+    const [answeredContacts, total] = await Promise.all([
+      Contact.find(publicFilter)
+        .select("name message answer updatedAt")
+        .sort({ updatedAt: -1 })
+        .skip(pagination.skip)
+        .limit(pagination.limit)
+        .lean(),
+      Contact.countDocuments(publicFilter),
+    ]);
 
     return res.status(200).json({
       success: true,
       count: answeredContacts.length,
+      pagination: buildPaginationMeta({
+        ...pagination,
+        total,
+      }),
       data: answeredContacts,
     });
   } catch (error) {
@@ -378,11 +450,55 @@ exports.deleteContact = async (req, res, next) => {
 // 7. BARCHA SAVOLLARNI O'CHIRISH (🔒 Faqat SuperAdmin)
 exports.clearAllContacts = async (req, res, next) => {
   try {
+    const { confirmation, password } = req.body || {};
+
+    if (confirmation !== "DELETE_ALL_CONTACTS") {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Tasdiqlash uchun DELETE_ALL_CONTACTS qiymatini yuboring.",
+      });
+    }
+
+    if (
+      typeof password !== "string" ||
+      password.length < 1 ||
+      password.length > 128
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Amaldagi admin parolini kiriting.",
+      });
+    }
+
+    const admin = await Admin.findById(req.admin._id)
+      .select("+password");
+
+    if (!admin) {
+      return res.status(401).json({
+        success: false,
+        message: "Admin hisobi topilmadi.",
+      });
+    }
+
+    const passwordMatches = await bcrypt.compare(
+      password,
+      admin.password,
+    );
+
+    if (!passwordMatches) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin paroli noto'g'ri.",
+      });
+    }
+
     const result = await Contact.deleteMany({});
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: `Barcha murojaatlar muvaffaqiyatli o'chirildi! Jami: ${result.deletedCount} ta xabar o'chirildi. Tizim noldan tozalandi! 🛑🧹`,
+      message: "Barcha murojaatlar o'chirildi.",
+      deletedCount: result.deletedCount,
     });
   } catch (error) {
     return next(error);
