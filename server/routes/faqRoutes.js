@@ -5,15 +5,26 @@ const {
   protect,
   restrictToSuperAdmin,
 } = require("../middlewares/authMiddleware");
+const validateFaq = require("../middlewares/validateFaq");
 
 router
   .route("/")
   .get(faqController.getFAQs)
-  .post(protect, restrictToSuperAdmin, faqController.createFAQ);
+  .post(
+    protect,
+    restrictToSuperAdmin,
+    validateFaq,
+    faqController.createFAQ,
+  );
 
 router
   .route("/:id")
-  .put(protect, restrictToSuperAdmin, faqController.updateFAQ)
+  .put(
+    protect,
+    restrictToSuperAdmin,
+    validateFaq,
+    faqController.updateFAQ,
+  )
   .delete(protect, restrictToSuperAdmin, faqController.deleteFAQ);
 
 module.exports = router;

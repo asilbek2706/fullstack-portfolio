@@ -1,11 +1,24 @@
 const FAQ = require("../models/Faq");
-const mongoose = require("mongoose"); // 🔥 ID validatsiyasi uchun mongoose ulandi
+const mongoose = require("mongoose");
+
+const toPublicFAQ = (faq) => {
+  const data =
+    typeof faq.toObject === "function"
+      ? faq.toObject()
+      : { ...faq };
+
+  delete data.createdBy;
+  return data;
+};
 
 // 🌐 1. Barcha FAQ savol-javoblarini olish (Ommaviy - Home Page uchun)
-exports.getFAQs = async (req, res) => {
+exports.getFAQs = async (req, res, next) => {
   try {
     // 🔥 -__v maydoni front-endga keraksiz, shuni select orqali olib tashlaymiz
-    const faqs = await FAQ.find().sort({ order: 1 }).select("-__v");
+    const faqs = await FAQ.find()
+      .sort({ order: 1, createdAt: 1 })
+      .select("-createdBy")
+      .lean();
 
     res.status(200).json({
       success: true,
@@ -13,16 +26,12 @@ exports.getFAQs = async (req, res) => {
       data: faqs,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "FAQ ma'lumotlarini yuklashda xatolik.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
 
 // 🔒 2. Yangi FAQ savol-javob qo'shish (⚠️ Faqat SuperAdmin)
-exports.createFAQ = async (req, res) => {
+exports.createFAQ = async (req, res, next) => {
   try {
     const { question, answer, order } = req.body;
 
@@ -39,26 +48,22 @@ exports.createFAQ = async (req, res) => {
     const newFaq = await FAQ.create({
       question: question.trim(),
       answer: answer.trim(),
-      order: order || 0,
+      order: order ?? 0,
       createdBy: adminId,
     });
 
     res.status(201).json({
       success: true,
       message: "Yangi FAQ muvaffaqiyatli yaratildi! 🚀",
-      data: newFaq,
+      data: toPublicFAQ(newFaq),
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "FAQ yaratishda server xatoligi.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
 
 // 🔒 3. FAQ savolini tahrirlash (⚠️ Faqat SuperAdmin)
-exports.updateFAQ = async (req, res) => {
+exports.updateFAQ = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { question, answer, order } = req.body;
@@ -90,19 +95,15 @@ exports.updateFAQ = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "FAQ muvaffaqiyatli tahrirlandi! 📝",
-      data: faq,
+      data: toPublicFAQ(faq),
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "FAQni yangilashda server xatoligi.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
 
 // 🔒 4. FAQ savolini o'chirish (⚠️ Faqat SuperAdmin)
-exports.deleteFAQ = async (req, res) => {
+exports.deleteFAQ = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -128,10 +129,6 @@ exports.deleteFAQ = async (req, res) => {
       message: "FAQ daxshatli tarzda bazadan o'chirib tashlandi! 🗑️",
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "FAQni o'chirishda server xatoligi.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
