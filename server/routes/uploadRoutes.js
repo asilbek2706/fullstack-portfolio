@@ -3,6 +3,7 @@ const router = express.Router();
 const { uploadImage } = require("../controllers/uploadController");
 const upload = require("../middlewares/uploadMiddleware");
 const validateImageFile = require("../middlewares/validateImageFile");
+const cleanupFailedUpload = require("../middlewares/cleanupFailedUpload");
 const {
   protect,
   restrictToSuperAdmin,
@@ -14,7 +15,7 @@ router.post(
   restrictToSuperAdmin,
   upload.single("image"),
   validateImageFile,
+  cleanupFailedUpload,
   uploadImage,
 );
-router.get("/", require("../controllers/uploadController").getImage);
 module.exports = router;

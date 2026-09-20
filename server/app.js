@@ -32,14 +32,6 @@ if (!fs.existsSync(uploadDir)) {
 app.set("trust proxy", 1);
 
 app.use(requestLogger);
-app.use(express.json({ limit: "100kb" }));
-app.use(express.urlencoded({ extended: false, limit: "100kb" }));
-app.use(cookieParser());
-
-app.use(
-  "/uploads",
-  express.static(uploadDir),
-);
 
 app.use(
   helmet({
@@ -47,9 +39,32 @@ app.use(
   }),
 );
 
+app.use(cors(corsOptions));
+app.use(express.json({ limit: "100kb" }));
+app.use(express.urlencoded({ extended: false, limit: "100kb" }));
+app.use(cookieParser());
+
+app.use(
+  "/uploads",
+  express.static(uploadDir, {
+    dotfiles: "deny",
+    index: false,
+    etag: true,
+    lastModified: true,
+    maxAge: "1y",
+    immutable: true,
+    setHeaders: (res) => {
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.setHeader(
+        "Cross-Origin-Resource-Policy",
+        "cross-origin",
+      );
+    },
+  }),
+);
+
 app.use(sanitizeRequest);
 app.use(globalLimiter);
-app.use(cors(corsOptions));
 
 app.use(
   "/swagger",
