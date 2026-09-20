@@ -2,6 +2,9 @@ const { Server } = require("socket.io");
 
 const { corsOptions } = require("./cors");
 const logger = require("../utils/logger");
+const {
+  setRealtimeServer,
+} = require("../services/realtime");
 
 const createSocketServer = (httpServer) => {
   const io = new Server(httpServer, {
@@ -25,6 +28,7 @@ const createSocketServer = (httpServer) => {
     });
   });
 
+  setRealtimeServer(io);
   return io;
 };
 

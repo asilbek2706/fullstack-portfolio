@@ -4,6 +4,9 @@ const axios = require("axios");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const logger = require("../utils/logger");
+const {
+  emitRealtimeEvent,
+} = require("../services/realtime");
 const { env } = require("../config/env");
 const {
   parsePagination,
@@ -400,20 +403,18 @@ exports.setContactPublication = async (req, res, next) => {
     contact.isPublic = body.isPublic;
     await contact.save();
 
-    if (global.io) {
-      if (contact.isPublic) {
-        global.io.emit("contactPublished", {
-          _id: contact._id,
-          name: contact.name,
-          message: contact.message,
-          answer: contact.answer,
-          updatedAt: contact.updatedAt,
-        });
-      } else {
-        global.io.emit("contactUnpublished", {
-          _id: contact._id,
-        });
-      }
+    if (contact.isPublic) {
+      emitRealtimeEvent("contactPublished", {
+        _id: contact._id,
+        name: contact.name,
+        message: contact.message,
+        answer: contact.answer,
+        updatedAt: contact.updatedAt,
+      });
+    } else {
+      emitRealtimeEvent("contactUnpublished", {
+        _id: contact._id,
+      });
     }
 
     return res.status(200).json({

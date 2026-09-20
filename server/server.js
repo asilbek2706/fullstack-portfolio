@@ -13,9 +13,7 @@ const {
 } = require("./lifecycle/shutdown");
 
 const server = http.createServer(app);
-const io = createSocketServer(server);
-
-global.io = io;
+createSocketServer(server);
 
 const lifecycle = registerShutdownHandlers(server);
 

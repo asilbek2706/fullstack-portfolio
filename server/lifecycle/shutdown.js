@@ -2,6 +2,10 @@ const {
   disconnectDatabase,
 } = require("../config/database");
 const logger = require("../utils/logger");
+const {
+  disconnectRealtimeClients,
+  clearRealtimeServer,
+} = require("../services/realtime");
 
 const registerShutdownHandlers = (server) => {
   let isShuttingDown = false;
@@ -16,6 +20,8 @@ const registerShutdownHandlers = (server) => {
     );
 
     try {
+      disconnectRealtimeClients();
+
       if (server.listening) {
         await new Promise((resolve, reject) => {
           server.close((error) => {
@@ -25,6 +31,7 @@ const registerShutdownHandlers = (server) => {
         });
       }
 
+      clearRealtimeServer();
       await disconnectDatabase();
       logger.info("Server muvaffaqiyatli yopildi.");
       process.exit(0);

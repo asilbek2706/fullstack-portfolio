@@ -2,6 +2,9 @@ const Project = require("../models/Project");
 const mongoose = require("mongoose");
 const fs = require("fs").promises;
 const path = require("path");
+const {
+  emitRealtimeEvent,
+} = require("../services/realtime");
 const logger = require("../utils/logger");
 
 // =========================
@@ -148,9 +151,7 @@ exports.createProject = async (req, res) => {
       createdBy: req.user._id,
     });
 
-    if (global.io) {
-      global.io.emit("projectCreated", project);
-    }
+    emitRealtimeEvent("projectCreated", project);
 
     return res.status(201).json({
       success: true,
@@ -220,9 +221,7 @@ exports.updateProject = async (req, res) => {
       await deleteImage(oldImage);
     }
 
-    if (global.io) {
-      global.io.emit("projectUpdated", updatedProject);
-    }
+    emitRealtimeEvent("projectUpdated", updatedProject);
 
     return res.status(200).json({
       success: true,
@@ -299,9 +298,7 @@ exports.patchProject = async (req, res) => {
       await deleteImage(oldImage);
     }
 
-    if (global.io) {
-      global.io.emit("projectUpdated", updatedProject);
-    }
+    emitRealtimeEvent("projectUpdated", updatedProject);
 
     return res.status(200).json({
       success: true,
@@ -349,11 +346,9 @@ exports.deleteProject = async (req, res) => {
 
     await deleteImage(project.image);
 
-    if (global.io) {
-      global.io.emit("projectDeleted", {
-        id: project._id,
-      });
-    }
+    emitRealtimeEvent("projectDeleted", {
+      id: project._id,
+    });
 
     return res.status(200).json({
       success: true,
