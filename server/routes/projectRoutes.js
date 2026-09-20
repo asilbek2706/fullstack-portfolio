@@ -59,6 +59,7 @@ router.patch(
   upload.single("image"),
   validateImageFile,
   cleanupFailedUpload,
+  validateProjectInput,
   projectController.patchProject,
 );
 

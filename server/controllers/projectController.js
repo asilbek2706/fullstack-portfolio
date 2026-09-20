@@ -5,6 +5,10 @@ const path = require("path");
 const {
   emitRealtimeEvent,
 } = require("../services/realtime");
+const {
+  parsePagination,
+  buildPaginationMeta,
+} = require("../utils/pagination");
 const logger = require("../utils/logger");
 
 // =========================
@@ -68,23 +72,34 @@ const deleteImage = async (imagePath) => {
 // GET ALL PROJECTS
 // =========================
 
-exports.getAllProjects = async (req, res) => {
+exports.getAllProjects = async (req, res, next) => {
   try {
-    const projects = await Project.find().sort({
-      createdAt: -1,
+    const pagination = parsePagination(req.query, {
+      defaultLimit: 12,
+      maxLimit: 50,
     });
+
+    const [projects, total] = await Promise.all([
+      Project.find()
+        .sort({ createdAt: -1 })
+        .skip(pagination.skip)
+        .limit(pagination.limit)
+        .lean(),
+      Project.countDocuments(),
+    ]);
 
     return res.status(200).json({
       success: true,
       message: "Loyihalar muvaffaqiyatli yuklandi.",
+      count: projects.length,
+      pagination: buildPaginationMeta({
+        ...pagination,
+        total,
+      }),
       data: projects,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Serverda xatolik yuz berdi.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
 
@@ -92,7 +107,7 @@ exports.getAllProjects = async (req, res) => {
 // GET PROJECT BY ID
 // =========================
 
-exports.getProjectById = async (req, res) => {
+exports.getProjectById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -118,11 +133,7 @@ exports.getProjectById = async (req, res) => {
       data: project,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Serverda xatolik yuz berdi.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
 
@@ -130,7 +141,7 @@ exports.getProjectById = async (req, res) => {
 // CREATE PROJECT
 // =========================
 
-exports.createProject = async (req, res) => {
+exports.createProject = async (req, res, next) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -160,21 +171,19 @@ exports.createProject = async (req, res) => {
     });
   } catch (error) {
     if (req.file) {
-      await deleteImage(`/uploads/projects/${req.file.filename}`);
+      await deleteImage(
+        `/uploads/projects/${req.file.filename}`,
+      );
     }
 
-    return res.status(400).json({
-      success: false,
-      message: "Loyiha yaratishda xatolik.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
 // =========================
 // UPDATE PROJECT (PUT)
 // =========================
 
-exports.updateProject = async (req, res) => {
+exports.updateProject = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -230,14 +239,12 @@ exports.updateProject = async (req, res) => {
     });
   } catch (error) {
     if (req.file) {
-      await deleteImage(`/uploads/projects/${req.file.filename}`);
+      await deleteImage(
+        `/uploads/projects/${req.file.filename}`,
+      );
     }
 
-    return res.status(400).json({
-      success: false,
-      message: "Yangilashda xatolik yuz berdi.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
 
@@ -245,7 +252,7 @@ exports.updateProject = async (req, res) => {
 // PATCH PROJECT
 // =========================
 
-exports.patchProject = async (req, res) => {
+exports.patchProject = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -307,14 +314,12 @@ exports.patchProject = async (req, res) => {
     });
   } catch (error) {
     if (req.file) {
-      await deleteImage(`/uploads/projects/${req.file.filename}`);
+      await deleteImage(
+        `/uploads/projects/${req.file.filename}`,
+      );
     }
 
-    return res.status(400).json({
-      success: false,
-      message: "Qisman yangilashda xatolik.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
 
@@ -322,7 +327,7 @@ exports.patchProject = async (req, res) => {
 // DELETE PROJECT
 // =========================
 
-exports.deleteProject = async (req, res) => {
+exports.deleteProject = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -355,10 +360,6 @@ exports.deleteProject = async (req, res) => {
       message: "Loyiha muvaffaqiyatli o'chirildi.",
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "O'chirishda xatolik yuz berdi.",
-      error: error.message,
-    });
+    return next(error);
   }
 };
