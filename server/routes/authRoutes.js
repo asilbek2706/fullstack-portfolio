@@ -6,6 +6,12 @@ const {
   protect,
   restrictToSuperAdmin,
 } = require("../middlewares/authMiddleware");
+const {
+  validateLogin,
+  validateInviteAdmin,
+  validateUpdateMe,
+  validateAdminUpdate,
+} = require("../middlewares/authValidation");
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -20,13 +26,23 @@ const loginLimiter = rateLimit({
 });
 
 // 🔓 OCHIQ YO'LLAR (Hamma foydalanishi mumkin)
-router.post("/login", loginLimiter, authController.loginAdmin);
+router.post(
+  "/login",
+  loginLimiter,
+  validateLogin,
+  authController.loginAdmin,
+);
 
 // 🚪 TIZIMDAN CHIQISH (Faqat kirgan adminlar kuki faylini tozalashi uchun)
 router.post("/logout", protect, authController.logoutAdmin);
 
 // 🔒 ADMIN O'Z PROFILINI TAHRIRLASHI (Istalgan kirgan admin qila oladi)
-router.patch("/update", protect, authController.updateMe);
+router.patch(
+  "/update",
+  protect,
+  validateUpdateMe,
+  authController.updateMe,
+);
 
 
 // 🛡️ ---- QUYIDAGI YO'LLAR FAQAT SUPERADMIN UCHUN HIMOYA QILINGAN ----
@@ -36,7 +52,8 @@ router.post(
   "/invite",
   protect,
   restrictToSuperAdmin,
-  authController.inviteAdmin
+  validateInviteAdmin,
+  authController.inviteAdmin,
 );
 
 // Barcha adminlar ro'yxatini ko'rish
@@ -52,7 +69,8 @@ router.put(
   "/update/:id",
   protect,
   restrictToSuperAdmin,
-  authController.updateAdminBySuper
+  validateAdminUpdate,
+  authController.updateAdminBySuper,
 );
 
 // Adminni tizimdan o'chirish
