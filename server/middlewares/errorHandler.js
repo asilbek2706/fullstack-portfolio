@@ -6,6 +6,46 @@ const getValidationMessage = (error) =>
     .filter(Boolean)
     .join(" ");
 
+const getMulterErrorDetails = (error) => {
+  const errors = {
+    LIMIT_FILE_SIZE: {
+      statusCode: 413,
+      message: "Rasm hajmi belgilangan limitdan oshib ketdi.",
+    },
+    LIMIT_FILE_COUNT: {
+      statusCode: 400,
+      message: "Faqat bitta rasm yuklash mumkin.",
+    },
+    LIMIT_UNEXPECTED_FILE: {
+      statusCode: 400,
+      message: "Rasm maydoni noto'g'ri.",
+    },
+    LIMIT_FIELD_COUNT: {
+      statusCode: 413,
+      message: "Maydonlar soni belgilangan limitdan oshdi.",
+    },
+    LIMIT_FIELD_VALUE: {
+      statusCode: 413,
+      message: "Maydon hajmi belgilangan limitdan oshdi.",
+    },
+    LIMIT_FIELD_KEY: {
+      statusCode: 413,
+      message: "Maydon nomi belgilangan limitdan oshdi.",
+    },
+    LIMIT_PART_COUNT: {
+      statusCode: 413,
+      message: "So'rov qismlari soni belgilangan limitdan oshdi.",
+    },
+  };
+
+  return (
+    errors[error.code] || {
+      statusCode: 400,
+      message: "Fayl yuklashda xatolik yuz berdi.",
+    }
+  );
+};
+
 const errorHandler = (error, req, res, next) => {
   if (res.headersSent) {
     return next(error);
@@ -14,19 +54,31 @@ const errorHandler = (error, req, res, next) => {
   let statusCode = 500;
   let message = "Serverda ichki xatolik yuz berdi.";
 
-  if (error.name === "MulterError") {
-    const multerMessages = {
-      LIMIT_FILE_SIZE: "Rasm hajmi belgilangan limitdan oshib ketdi.",
-      LIMIT_FILE_COUNT: "Faqat bitta rasm yuklash mumkin.",
-      LIMIT_UNEXPECTED_FILE: "Rasm maydoni noto'g'ri.",
-      LIMIT_FIELD_COUNT: "Maydonlar soni belgilangan limitdan oshdi.",
-      LIMIT_PART_COUNT: "So'rov qismlari soni belgilangan limitdan oshdi.",
-    };
-
+  if (error.type === "entity.parse.failed") {
     statusCode = 400;
-    message =
-      multerMessages[error.code] ||
-      "Fayl yuklashda xatolik yuz berdi.";
+    message = "JSON ma'lumoti noto'g'ri formatda.";
+  } else if (error.type === "entity.too.large") {
+    statusCode = 413;
+    message = "So'rov hajmi belgilangan limitdan oshib ketdi.";
+  } else if (error.type === "parameters.too.many") {
+    statusCode = 413;
+    message = "So'rov parametrlari soni belgilangan limitdan oshdi.";
+  } else if (
+    error.type === "encoding.unsupported" ||
+    error.type === "charset.unsupported"
+  ) {
+    statusCode = 415;
+    message = "So'rov kodlash formati qo'llab-quvvatlanmaydi.";
+  } else if (
+    error.type === "request.aborted" ||
+    error.type === "request.size.invalid"
+  ) {
+    statusCode = 400;
+    message = "So'rov to'liq yoki to'g'ri yuborilmadi.";
+  } else if (error.name === "MulterError") {
+    const multerError = getMulterErrorDetails(error);
+    statusCode = multerError.statusCode;
+    message = multerError.message;
   } else if (error.name === "ValidationError") {
     statusCode = 400;
     message =
@@ -38,30 +90,42 @@ const errorHandler = (error, req, res, next) => {
   } else if (error.code === 11000) {
     statusCode = 409;
     message = "Ushbu ma'lumot avval ro'yxatdan o'tgan.";
-  } else if (
-    Number.isInteger(error.statusCode) &&
-    error.statusCode >= 400 &&
-    error.statusCode < 600
-  ) {
-    statusCode = error.statusCode;
-    message =
-      statusCode === 500
-        ? "Serverda ichki xatolik yuz berdi."
-        : error.message;
+  } else {
+    const httpStatus = error.statusCode || error.status;
+
+    if (
+      Number.isInteger(httpStatus) &&
+      httpStatus >= 400 &&
+      httpStatus < 600
+    ) {
+      statusCode = httpStatus;
+      message =
+        statusCode >= 500
+          ? "Serverda ichki xatolik yuz berdi."
+          : "So'rovni qayta ishlashda xatolik yuz berdi.";
+    }
   }
 
   const logData = {
-    err: error,
     requestId: req.id,
     method: req.method,
     url: req.originalUrl,
     statusCode,
+    errorName: error.name,
+    errorType: error.type,
+    errorCode: error.code,
   };
 
   if (statusCode >= 500) {
-    logger.error(logData, "So'rovni bajarishda server xatoligi.");
+    logger.error(
+      { ...logData, err: error },
+      "So'rovni bajarishda server xatoligi.",
+    );
   } else {
-    logger.warn(logData, "So'rov noto'g'ri ma'lumot sababli rad etildi.");
+    logger.warn(
+      logData,
+      "So'rov noto'g'ri ma'lumot sababli rad etildi.",
+    );
   }
 
   return res.status(statusCode).json({
