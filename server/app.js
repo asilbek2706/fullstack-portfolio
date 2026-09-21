@@ -17,6 +17,7 @@ const {
 } = require("./middlewares/rateLimiters");
 
 const apiRoutes = require("./routes");
+const systemRoutes = require("./routes/systemRoutes");
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
 
@@ -64,6 +65,10 @@ app.use(
 );
 
 app.use(sanitizeRequest);
+
+// Hosting health-checklari rate limitdan mustasno.
+app.use(systemRoutes);
+
 app.use(globalLimiter);
 
 app.use(
