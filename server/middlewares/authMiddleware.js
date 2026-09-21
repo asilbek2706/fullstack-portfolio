@@ -47,14 +47,30 @@ const protect = async (req, res, next) => {
     }
 
     // 2. Tokenni shifrdan ochamiz
-    const decoded = jwt.verify(token, env.jwtSecret);
+    const decoded = jwt.verify(token, env.jwtSecret, {
+      algorithms: ["HS256"],
+      issuer: "portfolio-api",
+      audience: "portfolio-admin",
+    });
 
     // Admin har bir requestda bazadan qayta tekshiriladi.
-    const admin = await Admin.findById(decoded.id).select("-password");
+    const admin = await Admin.findById(decoded.id)
+      .select("+tokenVersion");
+
     if (!admin) {
       return res
         .status(401)
         .json({ message: "Foydalanuvchi tizimda mavjud emas!" });
+    }
+
+    if (
+      !Number.isInteger(decoded.tokenVersion) ||
+      decoded.tokenVersion !== admin.tokenVersion
+    ) {
+      return res.status(401).json({
+        message:
+          "Sessiya bekor qilingan. Iltimos, qayta tizimga kiring.",
+      });
     }
 
     // 🔑 Ikkala variantda ham xato bermasligi uchun req.user ga ham, req.admin ga ham yuklab qo'yamiz

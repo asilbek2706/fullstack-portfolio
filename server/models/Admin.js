@@ -31,6 +31,12 @@ const AdminSchema = new mongoose.Schema(
       required: [true, "Parol kiritilishi shart"],
       select: false,
     },
+    tokenVersion: {
+      type: Number,
+      default: 0,
+      min: 0,
+      select: false,
+    },
     role: {
       type: String,
       enum: ["admin", "superadmin"],

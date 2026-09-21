@@ -16,6 +16,28 @@ const getAuthCookieOptions = () => {
   };
 };
 
+const createAuthToken = (admin) =>
+  jwt.sign(
+    {
+      id: admin._id,
+      tokenVersion: admin.tokenVersion ?? 0,
+    },
+    env.jwtSecret,
+    {
+      algorithm: "HS256",
+      expiresIn: "1d",
+      issuer: "portfolio-api",
+      audience: "portfolio-admin",
+    },
+  );
+
+const setAuthCookie = (res, token) => {
+  res.cookie("token", token, {
+    ...getAuthCookieOptions(),
+    maxAge: 24 * 60 * 60 * 1000,
+  });
+};
+
 
 const sendServerError = (res, error) => {
   logger.error(
@@ -46,7 +68,7 @@ exports.loginAdmin = async (req, res) => {
 
     const admin = await Admin.findOne({
       username: username.trim(),
-    }).select("+password");
+    }).select("+password +tokenVersion");
     if (!admin) {
       return res.status(400).json({ message: "Login yoki parol noto'g'ri!" });
     }
@@ -56,16 +78,8 @@ exports.loginAdmin = async (req, res) => {
       return res.status(400).json({ message: "Login yoki parol noto'g'ri!" });
     }
 
-    const token = jwt.sign(
-      { id: admin._id },
-      env.jwtSecret,
-      { expiresIn: "1d" },
-    );
-
-    res.cookie("token", token, {
-      ...getAuthCookieOptions(),
-      maxAge: 24 * 60 * 60 * 1000,
-    });
+    const token = createAuthToken(admin);
+    setAuthCookie(res, token);
 
     // Front-endga token qaytarib o'tirmaymiz, faqat kerakli ma'lumotlarni beramiz
     res.json({
@@ -183,15 +197,48 @@ exports.updateMe = async (req, res) => {
       updateData.password = await bcrypt.hash(password, salt);
     }
 
-    const updatedAdmin = await Admin.findByIdAndUpdate(
-      adminId,
-      { $set: updateData },
-      { new: true, runValidators: true },
-    ).select("-password");
+    const passwordChanged = password !== undefined;
+    const updateOperation = {
+      $set: updateData,
+    };
 
-    res.json({
+    if (passwordChanged) {
+      updateOperation.$inc = {
+        tokenVersion: 1,
+      };
+    }
+
+    let updateQuery = Admin.findByIdAndUpdate(
+      adminId,
+      updateOperation,
+      { new: true, runValidators: true },
+    );
+
+    if (passwordChanged) {
+      updateQuery = updateQuery.select("+tokenVersion");
+    }
+
+    const updatedAdmin = await updateQuery;
+
+    if (!updatedAdmin) {
+      return res.status(404).json({
+        message: "Admin topilmadi.",
+      });
+    }
+
+    if (passwordChanged) {
+      const token = createAuthToken(updatedAdmin);
+      setAuthCookie(res, token);
+    }
+
+    return res.json({
       message: "Ma'lumotlaringiz muvaffaqiyatli yangilandi! ✨",
-      data: updatedAdmin,
+      data: {
+        id: updatedAdmin._id,
+        username: updatedAdmin.username,
+        email: updatedAdmin.email,
+        role: updatedAdmin.role,
+      },
     });
   } catch (error) {
     return sendServerError(res, error);
