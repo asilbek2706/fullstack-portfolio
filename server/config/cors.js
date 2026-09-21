@@ -18,9 +18,12 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    return callback(
-      new Error("CORS tomonidan ruxsat berilmagan origin."),
+    const error = new Error(
+      "CORS tomonidan ruxsat berilmagan origin.",
     );
+    error.code = "CORS_ORIGIN_DENIED";
+
+    return callback(error);
   },
   credentials: true,
 };

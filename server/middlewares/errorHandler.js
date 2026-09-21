@@ -54,7 +54,10 @@ const errorHandler = (error, req, res, next) => {
   let statusCode = 500;
   let message = "Serverda ichki xatolik yuz berdi.";
 
-  if (error.type === "entity.parse.failed") {
+  if (error.code === "CORS_ORIGIN_DENIED") {
+    statusCode = 403;
+    message = "So'rov manbasi tasdiqlanmadi.";
+  } else if (error.type === "entity.parse.failed") {
     statusCode = 400;
     message = "JSON ma'lumoti noto'g'ri formatda.";
   } else if (error.type === "entity.too.large") {
