@@ -4,6 +4,10 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const logger = require("../utils/logger");
 const { env } = require("../config/env");
+const {
+  parsePagination,
+  buildPaginationMeta,
+} = require("../utils/pagination");
 
 const getAuthCookieOptions = () => {
   const isProduction = env.nodeEnv === "production";
@@ -156,17 +160,36 @@ exports.inviteAdmin = async (req, res) => {
 };
 
 // 3. BARCHA ADMINLAR RO'YXATINI KO'RISH (Faqat SuperAdmin)
-exports.getAllAdmins = async (req, res) => {
+exports.getAllAdmins = async (req, res, next) => {
   try {
-    const admins = await Admin.find()
-      .select("-password")
-      .sort({ createdAt: -1 });
-    res.json({
-      message: "Barcha adminlar ro'yxati muvaffaqiyatli yuklandi",
+    const pagination = parsePagination(req.query, {
+      defaultLimit: 20,
+      maxLimit: 50,
+    });
+
+    const [admins, total] = await Promise.all([
+      Admin.find()
+        .select("username email role createdAt updatedAt")
+        .sort({ createdAt: -1 })
+        .skip(pagination.skip)
+        .limit(pagination.limit)
+        .lean(),
+      Admin.countDocuments(),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "Barcha adminlar ro'yxati muvaffaqiyatli yuklandi.",
+      count: admins.length,
+      pagination: buildPaginationMeta({
+        ...pagination,
+        total,
+      }),
       data: admins,
     });
   } catch (error) {
-    return sendServerError(res, error);
+    return next(error);
   }
 };
 
