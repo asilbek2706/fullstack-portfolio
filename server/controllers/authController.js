@@ -216,15 +216,33 @@ exports.updateAdminBySuper = async (req, res) => {
       });
     }
 
+    const adminToUpdate = await Admin.findById(id).select("role");
+
+    if (!adminToUpdate) {
+      return res.status(404).json({
+        message: "Bunday admin topilmadi!",
+      });
+    }
+
+    if (
+      adminToUpdate.role === "superadmin" &&
+      role !== "superadmin"
+    ) {
+      return res.status(403).json({
+        message:
+          "SuperAdmin rolini pasaytirish taqiqlangan.",
+      });
+    }
+
     const updatedAdmin = await Admin.findByIdAndUpdate(
       id,
-      { username: username.trim(), email: email.trim().toLowerCase(), role },
+      {
+        username: username.trim(),
+        email: email.trim().toLowerCase(),
+        role,
+      },
       { new: true, runValidators: true },
     ).select("-password");
-
-    if (!updatedAdmin) {
-      return res.status(404).json({ message: "Bunday admin topilmadi!" });
-    }
 
     res.json({
       message: "Admin ma'lumotlari SuperAdmin tomonidan yangilandi! 🛠️",
