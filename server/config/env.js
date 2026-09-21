@@ -4,6 +4,11 @@ const rawPort = process.env.PORT;
 
 const env = {
   nodeEnv: process.env.NODE_ENV || "development",
+  logLevel: process.env.LOG_LEVEL || (
+    process.env.NODE_ENV === "production"
+      ? "info"
+      : "debug"
+  ),
   port: rawPort === undefined ? 8080 : Number(rawPort),
   mongoUri: process.env.MONGO_URI,
   jwtSecret: process.env.JWT_SECRET,
@@ -52,6 +57,22 @@ const validateEnv = () => {
   if (!["development", "test", "production"].includes(env.nodeEnv)) {
     throw new Error(
       "NODE_ENV faqat development, test yoki production bo'lishi mumkin.",
+    );
+  }
+
+  const allowedLogLevels = [
+    "fatal",
+    "error",
+    "warn",
+    "info",
+    "debug",
+    "trace",
+    "silent",
+  ];
+
+  if (!allowedLogLevels.includes(env.logLevel)) {
+    throw new Error(
+      `LOG_LEVEL noto'g'ri. Ruxsat etilgan qiymatlar: ${allowedLogLevels.join(", ")}`,
     );
   }
 

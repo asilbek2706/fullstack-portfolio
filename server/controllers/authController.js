@@ -3,9 +3,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const logger = require("../utils/logger");
+const { env } = require("../config/env");
 
 const getAuthCookieOptions = () => {
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = env.nodeEnv === "production";
 
   return {
     httpOnly: true,
@@ -57,7 +58,7 @@ exports.loginAdmin = async (req, res) => {
 
     const token = jwt.sign(
       { id: admin._id },
-      process.env.JWT_SECRET,
+      env.jwtSecret,
       { expiresIn: "1d" },
     );
 

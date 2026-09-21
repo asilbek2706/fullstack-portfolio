@@ -1,15 +1,26 @@
 const pino = require("pino");
+const { env } = require("../config/env");
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = env.nodeEnv === "production";
+const pinoLogLevels = new Set([
+  "fatal",
+  "error",
+  "warn",
+  "info",
+  "debug",
+  "trace",
+  "silent",
+]);
+const fallbackLogLevel = isProduction ? "info" : "debug";
 
 const logger = pino({
-  level:
-    process.env.LOG_LEVEL ||
-    (isProduction ? "info" : "debug"),
+  level: pinoLogLevels.has(env.logLevel)
+    ? env.logLevel
+    : fallbackLogLevel,
 
   base: {
     service: "portfolio-api",
-    environment: process.env.NODE_ENV || "development",
+    environment: env.nodeEnv,
   },
 
   redact: {

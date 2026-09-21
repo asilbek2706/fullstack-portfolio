@@ -1,5 +1,9 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
+const { env } = require("../config/env");
+const {
+  isOriginAllowed,
+} = require("../config/cors");
 
 // 1. Token va qurilmani tekshirish (Kuki tizimida avtomatik)
 const protect = async (req, res, next) => {
@@ -14,18 +18,11 @@ const protect = async (req, res, next) => {
         req.method,
       );
 
-      const allowedOrigins = [
-        process.env.CLIENT_URL,
-        "http://localhost:5173",
-      ]
-        .filter(Boolean)
-        .map((origin) => origin.replace(/\/$/, ""));
-
       const requestOrigin = req.get("origin");
 
       if (
         unsafeMethod &&
-        (!requestOrigin || !allowedOrigins.includes(requestOrigin))
+        (!requestOrigin || !isOriginAllowed(requestOrigin))
       ) {
         return res.status(403).json({
           message: "So'rov manbasi tasdiqlanmadi.",
@@ -50,7 +47,7 @@ const protect = async (req, res, next) => {
     }
 
     // 2. Tokenni shifrdan ochamiz
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, env.jwtSecret);
 
     // Admin har bir requestda bazadan qayta tekshiriladi.
     const admin = await Admin.findById(decoded.id).select("-password");
