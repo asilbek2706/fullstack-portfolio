@@ -3,6 +3,7 @@ const Admin = require("../models/Admin");
 const axios = require("axios");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const logger = require("../utils/logger");
 const {
   emitRealtimeEvent,
@@ -437,6 +438,13 @@ exports.setContactPublication = async (req, res, next) => {
 exports.deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Murojaat ID formati noto'g'ri.",
+      });
+    }
 
     const deletedContact = await Contact.findByIdAndDelete(id);
 
