@@ -30,16 +30,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    env:
+      CI: true
+      NODE_ENV: test
+      LOG_LEVEL: silent
+      MONGO_URI: mongodb://127.0.0.1:27017/portfolio_ci
+      JWT_SECRET: ci-only-jwt-secret-at-least-32-characters-long
+      CLIENT_URL: http://localhost:5173
+      RECAPTCHA_SECRET_KEY: ci-recaptcha-secret
+      RECAPTCHA_ACTION: contact
+      RECAPTCHA_HOSTNAME: localhost
+      RECAPTCHA_MIN_SCORE: "0.5"
+      TELEGRAM_BOT_TOKEN: ci-telegram-bot-token
+      TELEGRAM_CHAT_ID: ci-telegram-chat
+      WEBHOOK_SECRET_TOKEN: ci-webhook-secret
+
     defaults:
       run:
         working-directory: server
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
