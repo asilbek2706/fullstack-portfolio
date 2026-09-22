@@ -6,12 +6,12 @@ const assert = require("node:assert/strict");
 const { afterEach } = require("node:test");
 
 const bcrypt = require("bcryptjs");
-const Contact = require("../models/Contact");
-const Admin = require("../models/Admin");
+const Contact = require("../../models/Contact");
+const Admin = require("../../models/Admin");
 const {
   deleteContact,
   clearAllContacts,
-} = require("../controllers/contactController");
+} = require("../../controllers/contactController");
 
 const originalFindByIdAndDelete =
   Contact.findByIdAndDelete;

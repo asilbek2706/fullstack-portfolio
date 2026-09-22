@@ -8,12 +8,12 @@ const {
 const assert = require("node:assert/strict");
 const jwt = require("jsonwebtoken");
 
-const Admin = require("../models/Admin");
-const { env } = require("../config/env");
+const Admin = require("../../models/Admin");
+const { env } = require("../../config/env");
 const {
   protect,
   restrictToSuperAdmin,
-} = require("../middlewares/authMiddleware");
+} = require("../../middlewares/authMiddleware");
 
 const originalFindById = Admin.findById;
 

@@ -8,9 +8,9 @@ const {
   afterEach,
 } = require("node:test");
 
-const Contact = require("../models/Contact");
-const { env } = require("../config/env");
-const realtime = require("../services/realtime");
+const Contact = require("../../models/Contact");
+const { env } = require("../../config/env");
+const realtime = require("../../services/realtime");
 
 const originalFindOne = Contact.findOne;
 const originalEmitRealtimeEvent =
@@ -24,7 +24,7 @@ realtime.emitRealtimeEvent = (...args) => {
 
 const {
   handleTelegramWebhook,
-} = require("../controllers/contactController");
+} = require("../../controllers/contactController");
 
 afterEach(() => {
   Contact.findOne = originalFindOne;

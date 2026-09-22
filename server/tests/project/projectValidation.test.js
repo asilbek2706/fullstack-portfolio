@@ -6,7 +6,7 @@ const assert = require("node:assert/strict");
 
 const {
   validateProjectInput,
-} = require("../middlewares/projectMiddleware");
+} = require("../../middlewares/projectMiddleware");
 
 const createResponse = () => ({
   statusCode: 200,

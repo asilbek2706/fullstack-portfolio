@@ -6,10 +6,10 @@ const assert = require("node:assert/strict");
 const { afterEach } = require("node:test");
 
 const axios = require("axios");
-const { env } = require("../config/env");
+const { env } = require("../../config/env");
 const {
   validateContactAndRecaptcha,
-} = require("../middlewares/contactMiddleware");
+} = require("../../middlewares/contactMiddleware");
 
 const originalAxiosPost = axios.post;
 

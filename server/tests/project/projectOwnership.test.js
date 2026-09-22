@@ -7,10 +7,10 @@ const {
 } = require("node:test");
 const assert = require("node:assert/strict");
 
-const Project = require("../models/Project");
+const Project = require("../../models/Project");
 const {
   checkProjectOwnerOrSuper,
-} = require("../middlewares/projectMiddleware");
+} = require("../../middlewares/projectMiddleware");
 
 const originalFindById = Project.findById;
 

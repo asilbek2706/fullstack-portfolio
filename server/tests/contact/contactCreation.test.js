@@ -7,10 +7,10 @@ const crypto = require("node:crypto");
 const { afterEach } = require("node:test");
 
 const axios = require("axios");
-const Contact = require("../models/Contact");
+const Contact = require("../../models/Contact");
 const {
   createContact,
-} = require("../controllers/contactController");
+} = require("../../controllers/contactController");
 
 const originalAxiosPost = axios.post;
 const originalContactSave = Contact.prototype.save;

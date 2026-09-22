@@ -4,7 +4,7 @@ process.env.LOG_LEVEL = "silent";
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const validateFaq = require("../middlewares/validateFaq");
+const validateFaq = require("../../middlewares/validateFaq");
 
 const createResponse = () => ({
   statusCode: 200,

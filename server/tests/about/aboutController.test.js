@@ -7,8 +7,8 @@ const {
 } = require("node:test");
 const assert = require("node:assert/strict");
 
-const About = require("../models/About");
-const aboutController = require("../controllers/aboutController");
+const About = require("../../models/About");
+const aboutController = require("../../controllers/aboutController");
 
 const originalFindOne = About.findOne;
 

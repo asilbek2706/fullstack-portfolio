@@ -8,8 +8,8 @@ const {
   afterEach,
 } = require("node:test");
 
-const Contact = require("../models/Contact");
-const realtime = require("../services/realtime");
+const Contact = require("../../models/Contact");
+const realtime = require("../../services/realtime");
 
 const originalFindById = Contact.findById;
 const originalEmitRealtimeEvent =
@@ -23,7 +23,7 @@ realtime.emitRealtimeEvent = (...args) => {
 
 const {
   setContactPublication,
-} = require("../controllers/contactController");
+} = require("../../controllers/contactController");
 
 afterEach(() => {
   Contact.findById = originalFindById;

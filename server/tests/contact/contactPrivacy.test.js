@@ -6,11 +6,11 @@ const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const { afterEach } = require("node:test");
 
-const Contact = require("../models/Contact");
+const Contact = require("../../models/Contact");
 const {
   getContactAnswer,
   getContactAnswers,
-} = require("../controllers/contactController");
+} = require("../../controllers/contactController");
 
 const originalFindOne = Contact.findOne;
 const originalFind = Contact.find;
