@@ -1,91 +1,94 @@
-module.exports = {
-  // 💾 1. SCHEMA (Faqat About model strukturasi, siz aytgan formatda)
-  schema: {
+const {
+  authSecurity,
+  dataResponse,
+  jsonBody,
+  response,
+  schemaRef,
+  standardErrorResponses,
+} = require("./common");
+
+const aboutFields = {
+  fullName: {
+    type: "string",
+    minLength: 1,
+    maxLength: 100,
+    example: "Asilbek",
+  },
+  title: {
+    type: "string",
+    minLength: 1,
+    maxLength: 150,
+    example: "Full-stack developer",
+  },
+  avatar: {
+    type: "string",
+    maxLength: 2048,
+    description:
+      "HTTPS URL yoki /uploads/<uuid>.<ext> ko‘rinishidagi lokal URL.",
+    example: "/uploads/123e4567-e89b-12d3-a456-426614174000.webp",
+  },
+  bio: { type: "string", minLength: 1, maxLength: 3000 },
+  experienceYears: {
+    type: "string",
+    minLength: 1,
+    maxLength: 50,
+    example: "3+ yil",
+  },
+};
+
+const schemas = {
+  About: {
     type: "object",
     required: ["fullName", "title", "avatar", "bio", "experienceYears"],
     properties: {
-      _id: { type: "string", example: "64a58d41d804b6f53d7de2c9" },
-      fullName: { type: "string", example: "Asilbek Karomatov" },
-      title: { type: "string", example: "Frontend Developer" },
-      avatar: {
-        type: "string",
-        example: "https://res.cloudinary.com/demo/image/upload/v1/profile.png",
-      },
-      bio: {
-        type: "string",
-        example:
-          "7+ oydan beri zamonaviy frontend texnologiyalari (React, JavaScript) va chiroyli interfeyslar qurish sirlarini mukammal o'rganib kelmoqdaman.",
-      },
-      experienceYears: { type: "string", example: "7+ oy" },
-      updatedBy: {
-        type: "string",
-        description: "O'zgartirgan SuperAdmin IDsi",
-        example: "64a58d41d804b6f53d7de2c7",
-      },
+      _id: schemaRef("ObjectId"),
+      ...aboutFields,
       createdAt: { type: "string", format: "date-time" },
       updatedAt: { type: "string", format: "date-time" },
     },
   },
+  AboutUpdate: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    description:
+      "Birinchi sozlashda barcha maydonlar, keyingi yangilashlarda kamida bittasi talab qilinadi.",
+    properties: aboutFields,
+  },
+};
 
-  // 🌐 2. PATHS (Faqat About'ga tegishli API Endpointlar)
-  paths: {
-    // ---------------- ABOUT SECTION ----------------
-    "/api/about": {
-      get: {
-        summary: "Men haqimda ma'lumotlarini olish (Ommaviy)",
-        tags: ["About"],
-        responses: {
-          200: {
-            description: "Ma'lumotlar muvaffaqiyatli yuklandi.",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/About" },
-              },
-            },
-          },
-        },
-      }, // <- get metodi bu yerda xavfsiz yopildi
-      put: {
-        summary:
-          "Men haqimda ma'lumotlarini yangilash (🔒 Faqat SuperAdmin, Kuki orqali)",
-        tags: ["About"],
-        security: [{ cookieAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  fullName: { type: "string", example: "Asilbek Karomatov" },
-                  title: { type: "string", example: "Frontend Developer" },
-                  avatar: {
-                    type: "string",
-                    example:
-                      "https://res.cloudinary.com/demo/image/upload/v1/profile.png",
-                  },
-                  bio: {
-                    type: "string",
-                    example:
-                      "7+ oydan beri intensiv frontend texnologiyalarini o'rganib kelyapman.",
-                  },
-                  experienceYears: { type: "string", example: "7+ oy" },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Ma'lumotlar daxshatli xavfsiz holatda yangilandi.",
-          },
-          403: {
-            description:
-              "Siz SuperAdmin emassiz, buzib o'zgartirish taqiqlanadi!",
-          },
-          401: { description: "Avtorizatsiyadan o'tilmagan, kuki topilmadi." },
-        },
+const paths = {
+  "/api/about": {
+    get: {
+      tags: ["About"],
+      summary: "About ma’lumotlarini olish",
+      operationId: "getAbout",
+      responses: {
+        200: response(
+          "About ma’lumotlari.",
+          dataResponse("AboutResponse", schemaRef("About")),
+        ),
+        404: { $ref: "#/components/responses/NotFound" },
+        500: { $ref: "#/components/responses/InternalServerError" },
+      },
+    },
+    put: {
+      tags: ["About"],
+      summary: "About ma’lumotlarini yaratish yoki yangilash",
+      operationId: "updateAbout",
+      security: authSecurity,
+      requestBody: jsonBody(schemaRef("AboutUpdate")),
+      responses: {
+        200: response(
+          "About saqlandi.",
+          dataResponse("AboutUpdateResponse", schemaRef("About"), {
+            message: { type: "string" },
+          }),
+        ),
+        ...standardErrorResponses,
       },
     },
   },
 };
+
+module.exports = { schemas, paths };

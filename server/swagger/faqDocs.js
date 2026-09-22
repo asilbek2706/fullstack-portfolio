@@ -1,149 +1,131 @@
-module.exports = {
-  // 💾 1. SCHEMA (Faqat FAQ model strukturasi)
-  schema: {
+const {
+  authSecurity,
+  dataResponse,
+  idParameter,
+  jsonBody,
+  response,
+  schemaRef,
+  standardErrorResponses,
+} = require("./common");
+
+const faqFields = {
+  question: {
+    type: "string",
+    minLength: 3,
+    maxLength: 300,
+    example: "Qanday bog‘lanish mumkin?",
+  },
+  answer: {
+    type: "string",
+    minLength: 2,
+    maxLength: 3000,
+    example: "Contact formasi orqali.",
+  },
+  order: { type: "integer", minimum: 0, maximum: 10000, default: 0 },
+};
+
+const schemas = {
+  FAQ: {
     type: "object",
-    required: ["question", "answer"],
+    required: ["question", "answer", "order"],
     properties: {
-      _id: { type: "string", example: "64a58d41d804b6f53d7de2fa" },
-      question: {
-        type: "string",
-        example: "Masofadan (Remote) ishlaysizmi?",
-      },
-      answer: {
-        type: "string",
-        example: "Ha, qiziqarli loyihalar uchun doim ochiqman.",
-      },
-      order: { type: "integer", example: 1 },
-      createdBy: { type: "string", example: "64a58d41d804b6f53d7de2c7" },
+      _id: schemaRef("ObjectId"),
+      ...faqFields,
       createdAt: { type: "string", format: "date-time" },
       updatedAt: { type: "string", format: "date-time" },
     },
   },
+  FAQCreate: {
+    type: "object",
+    required: ["question", "answer"],
+    additionalProperties: false,
+    properties: faqFields,
+  },
+  FAQUpdate: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties: faqFields,
+  },
+};
 
-  // 🌐 2. PATHS (Faqat FAQ tegishli API Endpointlar)
-  paths: {
-    "/api/faq": {
-      get: {
-        summary: "Barcha FAQ savol-javoblarini olish (Ommaviy)",
-        tags: ["FAQ"],
-        responses: {
-          200: {
-            description: "FAQ ro'yxati muvaffaqiyatli yuklandi.",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    success: { type: "boolean", example: true },
-                    data: {
-                      type: "array",
-                      items: { $ref: "#/components/schemas/FAQ" },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      post: {
-        summary:
-          "Yangi FAQ savol-javob qo'shish (🔒 Faqat SuperAdmin, Kuki orqali)",
-        tags: ["FAQ"],
-        security: [{ cookieAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["question", "answer"],
-                properties: {
-                  question: {
-                    type: "string",
-                    example: "Siz bilan qanday bog'lansa bo'ladi?",
-                  },
-                  answer: {
-                    type: "string",
-                    example: "Telegram (@asilbek2706) orqali.",
-                  },
-                  order: { type: "integer", example: 1 },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          201: { description: "Yangi FAQ muvaffaqiyatli yaratildi." },
-          403: {
-            description:
-              "Siz SuperAdmin emassiz, buzib o'zgartirish taqiqlanadi!",
-          },
-          401: { description: "Avtorizatsiyadan o'tilmagan, kuki topilmadi." },
-        },
+const listSchema = {
+  type: "object",
+  required: ["success", "count", "data"],
+  properties: {
+    success: { type: "boolean", example: true },
+    count: { type: "integer", minimum: 0 },
+    data: { type: "array", items: schemaRef("FAQ") },
+  },
+};
+
+const paths = {
+  "/api/faq": {
+    get: {
+      tags: ["FAQ"],
+      summary: "FAQ ro‘yxatini olish",
+      operationId: "getFAQs",
+      responses: {
+        200: response("Tartiblangan FAQ ro‘yxati.", listSchema),
+        500: { $ref: "#/components/responses/InternalServerError" },
       },
     },
-    "/api/faq/{id}": {
-      put: {
-        summary:
-          "FAQ savol-javobini ID bo'yicha tahrirlash (🔒 Faqat SuperAdmin)",
-        tags: ["FAQ"],
-        security: [{ cookieAuth: [] }],
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            description: "Tahrirlanmoqchi bo'lgan FAQ hujjati IDsi",
-            schema: { type: "string", example: "64a58d41d804b6f53d7de2fa" },
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  question: {
-                    type: "string",
-                    example: "Masofadan (Remote) ishlaysizmi? (Yangilandi)",
-                  },
-                  answer: {
-                    type: "string",
-                    example:
-                      "Ha, dunyoning istalgan nuqtasidan remote ishlashga tayyorman.",
-                  },
-                  order: { type: "integer", example: 1 },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: { description: "FAQ muvaffaqiyatli yangilandi." },
-          404: { description: "FAQ topilmadi." },
-        },
+    post: {
+      tags: ["FAQ"],
+      summary: "FAQ yaratish",
+      operationId: "createFAQ",
+      security: authSecurity,
+      requestBody: jsonBody(schemaRef("FAQCreate")),
+      responses: {
+        201: response(
+          "FAQ yaratildi.",
+          dataResponse("FAQCreateResponse", schemaRef("FAQ"), {
+            message: { type: "string" },
+          }),
+        ),
+        ...standardErrorResponses,
       },
-      delete: {
-        summary:
-          "FAQ savol-javobini ID bo'yicha o'chirish (🔒 Faqat SuperAdmin)",
-        tags: ["FAQ"],
-        security: [{ cookieAuth: [] }],
-        parameters: [
-          {
-            name: "id",
-            in: "path",
-            required: true,
-            description: "O'chirilmoqchi bo'lgan FAQ hujjati IDsi",
-            schema: { type: "string", example: "64a58d41d804b6f53d7de2fa" },
+    },
+  },
+  "/api/faq/{id}": {
+    put: {
+      tags: ["FAQ"],
+      summary: "FAQni yangilash",
+      operationId: "updateFAQ",
+      security: authSecurity,
+      parameters: [idParameter("FAQ identifikatori.")],
+      requestBody: jsonBody(schemaRef("FAQUpdate")),
+      responses: {
+        200: response(
+          "FAQ yangilandi.",
+          dataResponse("FAQUpdateResponse", schemaRef("FAQ"), {
+            message: { type: "string" },
+          }),
+        ),
+        404: { $ref: "#/components/responses/NotFound" },
+        ...standardErrorResponses,
+      },
+    },
+    delete: {
+      tags: ["FAQ"],
+      summary: "FAQni o‘chirish",
+      operationId: "deleteFAQ",
+      security: authSecurity,
+      parameters: [idParameter("FAQ identifikatori.")],
+      responses: {
+        200: response("FAQ o‘chirildi.", {
+          type: "object",
+          required: ["success", "message"],
+          properties: {
+            success: { type: "boolean", example: true },
+            message: { type: "string" },
           },
-        ],
-        responses: {
-          200: { description: "FAQ muvaffaqiyatli o'chirildi." },
-          404: { description: "FAQ topilmadi." },
-        },
+        }),
+        404: { $ref: "#/components/responses/NotFound" },
+        ...standardErrorResponses,
       },
     },
   },
 };
+
+module.exports = { schemas, paths };

@@ -1,207 +1,252 @@
-module.exports = {
-  // 💾 1. SCHEMA DEFINITION (Admin Modeli)
-  schema: {
+const {
+  authSecurity,
+  dataResponse,
+  idParameter,
+  jsonBody,
+  messageResponse,
+  paginationParameters,
+  response,
+  schemaRef,
+  standardErrorResponses,
+} = require("./common");
+
+const credentials = {
+  username: { type: "string", minLength: 3, maxLength: 50, example: "admin" },
+  password: {
+    type: "string",
+    format: "password",
+    minLength: 8,
+    maxLength: 128,
+  },
+};
+
+const schemas = {
+  Admin: {
     type: "object",
-    required: ["username", "email", "password"],
+    required: ["username", "email", "role"],
     properties: {
-      _id: { type: "string", example: "64a58d41d804b6f53d7de2c7" },
-      username: { type: "string", example: "asilbek_admin" },
-      email: { type: "string", example: "admin@portfolio.uz" },
-      role: { type: "string", enum: ["admin", "superadmin"], default: "admin" },
+      _id: schemaRef("ObjectId"),
+      username: credentials.username,
+      email: {
+        type: "string",
+        format: "email",
+        maxLength: 254,
+        example: "admin@example.com",
+      },
+      role: { type: "string", enum: ["admin", "superadmin"] },
       createdAt: { type: "string", format: "date-time" },
       updatedAt: { type: "string", format: "date-time" },
     },
   },
+  LoginRequest: {
+    type: "object",
+    required: ["username", "password"],
+    additionalProperties: false,
+    properties: credentials,
+  },
+  InviteAdminRequest: {
+    type: "object",
+    required: ["username", "email", "password"],
+    additionalProperties: false,
+    properties: {
+      ...credentials,
+      email: { type: "string", format: "email", maxLength: 254 },
+    },
+  },
+  UpdateProfileRequest: {
+    type: "object",
+    minProperties: 1,
+    additionalProperties: false,
+    properties: {
+      username: credentials.username,
+      email: { type: "string", format: "email", maxLength: 254 },
+      password: credentials.password,
+    },
+  },
+  UpdateAdminRequest: {
+    type: "object",
+    required: ["username", "email", "role"],
+    additionalProperties: false,
+    properties: {
+      username: credentials.username,
+      email: { type: "string", format: "email", maxLength: 254 },
+      role: { type: "string", enum: ["admin", "superadmin"] },
+    },
+  },
+};
 
-  // 🌐 2. PATHS / ENDPOINTS
-  paths: {
-    "/api/auth/me": {
-      get: {
-        summary: "Joriy kirgan admin ma'lumotlarini olish",
-        tags: ["Auth"],
-        security: [{ cookieAuth: [] }],
-        responses: {
-          200: {
-            description: "Admin ma'lumotlari muvaffaqiyatli qaytarildi.",
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  properties: {
-                    username: { type: "string", example: "asilbek_admin" },
-                    email: { type: "string", example: "admin@portfolio.uz" },
-                    role: { type: "string", example: "superadmin" },
-                  },
-                },
+const adminList = {
+  type: "object",
+  required: ["success", "count", "pagination", "data"],
+  properties: {
+    success: { type: "boolean", example: true },
+    message: { type: "string" },
+    count: { type: "integer", minimum: 0 },
+    pagination: schemaRef("Pagination"),
+    data: { type: "array", items: schemaRef("Admin") },
+  },
+};
+
+const paths = {
+  "/api/auth/login": {
+    post: {
+      tags: ["Authentication"],
+      summary: "Admin sifatida kirish",
+      operationId: "loginAdmin",
+      requestBody: jsonBody(schemaRef("LoginRequest")),
+      responses: {
+        200: response("JWT HttpOnly cookie o‘rnatildi.", {
+          type: "object",
+          required: ["message", "role", "user"],
+          properties: {
+            message: { type: "string" },
+            role: { type: "string", enum: ["admin", "superadmin"] },
+            user: {
+              type: "object",
+              required: ["username", "email"],
+              properties: {
+                username: { type: "string" },
+                email: { type: "string", format: "email" },
               },
             },
           },
-          401: {
-            description:
-              "Avtorizatsiyadan o'tilmagan (Token yaroqsiz yoki yo'q).",
-          },
-        },
+        }),
+        400: { $ref: "#/components/responses/BadRequest" },
+        429: { $ref: "#/components/responses/TooManyRequests" },
+        500: { $ref: "#/components/responses/InternalServerError" },
       },
     },
-    "/api/auth/admins": {
-      get: {
-        summary:
-          "Barcha ro'yxatdan o'tgan adminlar ro'yxati (🛡️ Faqat SuperAdmin)",
-        tags: ["Auth"],
-        security: [{ cookieAuth: [] }],
-        responses: {
-          200: {
-            description: "Barcha adminlar ro'yxati muvaffaqiyatli yuklandi.",
-          },
-        },
+  },
+  "/api/auth/logout": {
+    post: {
+      tags: ["Authentication"],
+      summary: "Sessiyadan chiqish",
+      operationId: "logoutAdmin",
+      security: authSecurity,
+      responses: {
+        200: response(
+          "Auth cookie tozalandi.",
+          messageResponse("LogoutResponse"),
+        ),
+        401: { $ref: "#/components/responses/Unauthorized" },
+        403: { $ref: "#/components/responses/Forbidden" },
       },
     },
-    "/api/auth/login": {
-      post: {
-        summary: "Tizimga kirish (Login)",
-        tags: ["Auth"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                // 🔥 YANGILANDI: email o'rniga username va password majburiy qilindi
-                required: ["username", "password"],
-                properties: {
-                  username: { type: "string", example: "asilbek_admin" }, // 🔥 Postmandagi kabi username
-                  password: { type: "string", example: "parol123" },
-                },
-              },
-            },
+  },
+  "/api/auth/me": {
+    get: {
+      tags: ["Authentication"],
+      summary: "Joriy admin profilini olish",
+      operationId: "getMe",
+      security: authSecurity,
+      responses: {
+        200: response("Joriy adminning public profili.", {
+          type: "object",
+          required: ["username", "email", "role"],
+          properties: {
+            username: { type: "string" },
+            email: { type: "string", format: "email" },
+            role: { type: "string", enum: ["admin", "superadmin"] },
           },
-        },
-        responses: {
-          200: {
-            description: "Muvaffaqiyatli kirdi va Kuki (JWT) o'rnatildi.",
-          },
-          401: { description: "Username yoki parol xato." }, // 📝 Xabarnoma ham moslandi
-        },
+        }),
+        404: { $ref: "#/components/responses/NotFound" },
+        ...standardErrorResponses,
       },
     },
-    "/api/auth/logout": {
-      post: {
-        summary: "Tizimdan chiqish (Logout)",
-        tags: ["Auth"],
-        security: [{ cookieAuth: [] }],
-        responses: {
-          200: { description: "Kuki muvaffaqueiyatli tozalandi." },
-          401: {
-            description: "Token topilmadi / Avtorizatsiyadan o'tilmagan.",
-          },
-        },
+  },
+  "/api/auth/update": {
+    patch: {
+      tags: ["Authentication"],
+      summary: "Joriy admin profilini qisman yangilash",
+      description:
+        "Parol o‘zgarsa eski sessiyalar bekor qilinadi va joriy cookie yangilanadi.",
+      operationId: "updateMe",
+      security: authSecurity,
+      requestBody: jsonBody(schemaRef("UpdateProfileRequest")),
+      responses: {
+        200: response(
+          "Profil yangilandi.",
+          dataResponse("ProfileUpdateResponse", schemaRef("Admin"), {
+            message: { type: "string" },
+          }),
+        ),
+        404: { $ref: "#/components/responses/NotFound" },
+        ...standardErrorResponses,
       },
     },
-    "/api/auth/invite": {
-      post: {
-        summary: "Yangi admin taklif qilish (🛡️ Faqat SuperAdmin)",
-        tags: ["Auth"],
-        security: [{ cookieAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                required: ["username", "email", "password"],
-                properties: {
-                  username: { type: "string", example: "yangi_admin" },
-                  email: { type: "string", example: "manager@portfolio.uz" },
-                  password: { type: "string", example: "securePass123" },
-                  role: {
-                    type: "string",
-                    enum: ["admin", "superadmin"],
-                    default: "admin",
-                  },
-                },
-              },
-            },
+  },
+  "/api/auth/invite": {
+    post: {
+      tags: ["Admin management"],
+      summary: "Oddiy admin yaratish",
+      operationId: "inviteAdmin",
+      security: authSecurity,
+      requestBody: jsonBody(schemaRef("InviteAdminRequest")),
+      responses: {
+        201: response("Admin yaratildi.", {
+          type: "object",
+          required: ["message", "admin"],
+          properties: {
+            message: { type: "string" },
+            admin: schemaRef("Admin"),
           },
-        },
-        responses: {
-          201: { description: "Yangi admin muvaffaqiyatli yaratildi." },
-          403: { description: "Ruxsat berilmagan (Siz SuperAdmin emassiz)." },
-        },
+        }),
+        ...standardErrorResponses,
       },
     },
-    "/api/auth/update": {
-      patch: {
-        summary: "Admin o'z shaxsiy profilini tahrirlashi",
-        tags: ["Auth"],
-        security: [{ cookieAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  username: { type: "string", example: "yangi_login" },
-                  email: {
-                    type: "string",
-                    example: "yangi_email@portfolio.uz",
-                  },
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          200: { description: "Profil muvaffaqiyatli yangilandi." },
-        },
+  },
+  "/api/auth/admins": {
+    get: {
+      tags: ["Admin management"],
+      summary: "Adminlar ro‘yxatini olish",
+      operationId: "getAllAdmins",
+      security: authSecurity,
+      parameters: paginationParameters(20, 50),
+      responses: {
+        200: response("Adminlar ro‘yxati.", adminList),
+        ...standardErrorResponses,
       },
     },
-    "/api/auth/update/{id}": {
-      put: {
-        summary:
-          "Boshqa adminni ID orqali to'liq yangilash (🛡️ Faqat SuperAdmin)",
-        tags: ["Auth"],
-        security: [{ cookieAuth: [] }],
-        parameters: [
-          {
-            in: "path",
-            name: "id",
-            required: true,
-            schema: { type: "string" },
-            description: "Admin IDsi",
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/Admin" },
-            },
-          },
-        },
-        responses: {
-          200: { description: "Admin ma'lumotlari to'liq yangilandi." },
-        },
+  },
+  "/api/auth/update/{id}": {
+    put: {
+      tags: ["Admin management"],
+      summary: "Adminni to‘liq yangilash",
+      description: "SuperAdmin rolini pasaytirish taqiqlangan.",
+      operationId: "updateAdminBySuper",
+      security: authSecurity,
+      parameters: [idParameter("Yangilanadigan admin identifikatori.")],
+      requestBody: jsonBody(schemaRef("UpdateAdminRequest")),
+      responses: {
+        200: response(
+          "Admin yangilandi.",
+          dataResponse("AdminUpdateResponse", schemaRef("Admin"), {
+            message: { type: "string" },
+          }),
+        ),
+        404: { $ref: "#/components/responses/NotFound" },
+        ...standardErrorResponses,
       },
     },
-    "/api/auth/admins/{id}": {
-      delete: {
-        summary: "Adminni tizimdan o'chirish (🛡️ Faqat SuperAdmin)",
-        tags: ["Auth"],
-        security: [{ cookieAuth: [] }],
-        parameters: [
-          {
-            in: "path",
-            name: "id",
-            required: true,
-            schema: { type: "string" },
-            description: "O'chirilishi kerak bo'lgan Admin IDsi",
-          },
-        ],
-        responses: {
-          200: { description: "Admin muvaffaqiyatli o'chirildi." },
-        },
+  },
+  "/api/auth/admins/{id}": {
+    delete: {
+      tags: ["Admin management"],
+      summary: "Oddiy adminni o‘chirish",
+      description: "SuperAdmin hisobini o‘chirish mumkin emas.",
+      operationId: "deleteAdmin",
+      security: authSecurity,
+      parameters: [idParameter("O‘chiriladigan admin identifikatori.")],
+      responses: {
+        200: response(
+          "Admin o‘chirildi.",
+          messageResponse("AdminDeleteResponse"),
+        ),
+        404: { $ref: "#/components/responses/NotFound" },
+        ...standardErrorResponses,
       },
     },
   },
 };
+
+module.exports = { schemas, paths };
