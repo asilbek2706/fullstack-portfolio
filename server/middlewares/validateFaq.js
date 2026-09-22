@@ -4,6 +4,19 @@ const allowedFields = new Set([
   "order",
 ]);
 
+const textRules = {
+  question: {
+    min: 3,
+    max: 300,
+    label: "Savol",
+  },
+  answer: {
+    min: 2,
+    max: 3000,
+    label: "Javob",
+  },
+};
+
 const validateTextField = (body, field) => {
   if (!Object.hasOwn(body, field)) return null;
 
@@ -15,6 +28,18 @@ const validateTextField = (body, field) => {
 
   if (!value) {
     return `${field} bo'sh bo'lishi mumkin emas.`;
+  }
+
+  const rule = textRules[field];
+
+  if (
+    value.length < rule.min ||
+    value.length > rule.max
+  ) {
+    return (
+      `${rule.label} uzunligi ${rule.min}–${rule.max} ` +
+      "belgi oralig'ida bo'lishi kerak."
+    );
   }
 
   body[field] = value;
