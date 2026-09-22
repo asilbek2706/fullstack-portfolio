@@ -16,6 +16,21 @@ const logger = require("../utils/logger");
 // =========================
 
 // technologies ni arrayga aylantirish
+const toPublicProject = (project) => {
+  if (!project) return project;
+
+  if (typeof project.toJSON === "function") {
+    return project.toJSON();
+  }
+
+  const {
+    createdBy,
+    ...publicProject
+  } = project;
+
+  return publicProject;
+};
+
 const parseTechnologies = (technologies) => {
   if (!technologies) return [];
 
@@ -162,12 +177,14 @@ exports.createProject = async (req, res, next) => {
       createdBy: req.user._id,
     });
 
-    emitRealtimeEvent("projectCreated", project);
+    const publicProject = toPublicProject(project);
+
+    emitRealtimeEvent("projectCreated", publicProject);
 
     return res.status(201).json({
       success: true,
       message: "Loyiha muvaffaqiyatli yaratildi.",
-      data: project,
+      data: publicProject,
     });
   } catch (error) {
     if (req.file) {
@@ -226,16 +243,31 @@ exports.updateProject = async (req, res, next) => {
       runValidators: true,
     });
 
+    if (!updatedProject) {
+      if (req.file) {
+        await deleteImage(
+          `/uploads/projects/${req.file.filename}`,
+        );
+      }
+
+      return res.status(404).json({
+        success: false,
+        message: "Loyiha yangilash vaqtida topilmadi.",
+      });
+    }
+
     if (req.file) {
       await deleteImage(oldImage);
     }
 
-    emitRealtimeEvent("projectUpdated", updatedProject);
+    const publicProject = toPublicProject(updatedProject);
+
+    emitRealtimeEvent("projectUpdated", publicProject);
 
     return res.status(200).json({
       success: true,
       message: "Loyiha muvaffaqiyatli yangilandi.",
-      data: updatedProject,
+      data: publicProject,
     });
   } catch (error) {
     if (req.file) {
@@ -301,16 +333,31 @@ exports.patchProject = async (req, res, next) => {
       runValidators: true,
     });
 
+    if (!updatedProject) {
+      if (req.file) {
+        await deleteImage(
+          `/uploads/projects/${req.file.filename}`,
+        );
+      }
+
+      return res.status(404).json({
+        success: false,
+        message: "Loyiha yangilash vaqtida topilmadi.",
+      });
+    }
+
     if (req.file) {
       await deleteImage(oldImage);
     }
 
-    emitRealtimeEvent("projectUpdated", updatedProject);
+    const publicProject = toPublicProject(updatedProject);
+
+    emitRealtimeEvent("projectUpdated", publicProject);
 
     return res.status(200).json({
       success: true,
       message: "Loyiha qisman yangilandi.",
-      data: updatedProject,
+      data: publicProject,
     });
   } catch (error) {
     if (req.file) {
