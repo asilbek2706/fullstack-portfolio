@@ -35,19 +35,46 @@ exports.updateAbout = async (req, res, next) => {
       "experienceYears",
     ];
 
+    const body =
+      req.body &&
+      typeof req.body === "object" &&
+      !Array.isArray(req.body)
+        ? req.body
+        : {};
+
+    const unknownFields = Object.keys(body).filter(
+      (field) => !allowedFields.includes(field),
+    );
+
+    if (unknownFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message:
+          `Ruxsat etilmagan maydonlar: ${unknownFields.join(", ")}`,
+      });
+    }
+
+    if (Object.keys(body).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Yangilash uchun kamida bitta maydon yuboring.",
+      });
+    }
+
     const updateData = {};
 
     for (const field of allowedFields) {
-      if (!Object.hasOwn(req.body, field)) continue;
+      if (!Object.hasOwn(body, field)) continue;
 
-      if (typeof req.body[field] !== "string") {
+      if (typeof body[field] !== "string") {
         return res.status(400).json({
           success: false,
           message: `${field} matn ko'rinishida bo'lishi kerak.`,
         });
       }
 
-      const value = req.body[field].trim();
+      const value = body[field].trim();
 
       if (!value) {
         return res.status(400).json({
