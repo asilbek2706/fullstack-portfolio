@@ -78,6 +78,10 @@ const errorHandler = (error, req, res, next) => {
   ) {
     statusCode = 400;
     message = "So'rov to'liq yoki to'g'ri yuborilmadi.";
+  } else if (error.code === "UNSUPPORTED_IMAGE_TYPE") {
+    statusCode = 415;
+    message =
+      "Faqat JPG, PNG yoki WEBP rasmlarini yuklash mumkin.";
   } else if (error.name === "MulterError") {
     const multerError = getMulterErrorDetails(error);
     statusCode = multerError.statusCode;
