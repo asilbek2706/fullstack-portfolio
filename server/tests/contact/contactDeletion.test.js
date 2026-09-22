@@ -13,22 +13,19 @@ const {
   clearAllContacts,
 } = require("../../controllers/contactController");
 
-const originalFindByIdAndDelete =
-  Contact.findByIdAndDelete;
+const originalFindByIdAndDelete = Contact.findByIdAndDelete;
 const originalDeleteMany = Contact.deleteMany;
 const originalAdminFindById = Admin.findById;
 const originalBcryptCompare = bcrypt.compare;
 
 afterEach(() => {
-  Contact.findByIdAndDelete =
-    originalFindByIdAndDelete;
+  Contact.findByIdAndDelete = originalFindByIdAndDelete;
   Contact.deleteMany = originalDeleteMany;
   Admin.findById = originalAdminFindById;
   bcrypt.compare = originalBcryptCompare;
 });
 
-const validContactId =
-  "507f1f77bcf86cd799439011";
+const validContactId = "507f1f77bcf86cd799439011";
 
 const createResponse = () => ({
   statusCode: 200,
@@ -86,14 +83,11 @@ test("Contact delete rejects invalid ID before database query", async () => {
     databaseCalled = true;
   };
 
-  const result = await runController(
-    deleteContact,
-    {
-      params: {
-        id: "not-valid-id",
-      },
+  const result = await runController(deleteContact, {
+    params: {
+      id: "not-valid-id",
     },
-  );
+  });
 
   assert.equal(result.res.statusCode, 400);
   assert.equal(result.res.body.success, false);
@@ -107,14 +101,11 @@ test("Contact delete returns 404 when contact does not exist", async () => {
     return null;
   };
 
-  const result = await runController(
-    deleteContact,
-    {
-      params: {
-        id: validContactId,
-      },
+  const result = await runController(deleteContact, {
+    params: {
+      id: validContactId,
     },
-  );
+  });
 
   assert.equal(result.res.statusCode, 404);
   assert.equal(result.res.body.success, false);
@@ -129,47 +120,33 @@ test("Contact delete removes an existing contact", async () => {
     message: "Test message",
   };
 
-  Contact.findByIdAndDelete = async () =>
-    deletedContact;
+  Contact.findByIdAndDelete = async () => deletedContact;
 
-  const result = await runController(
-    deleteContact,
-    {
-      params: {
-        id: validContactId,
-      },
+  const result = await runController(deleteContact, {
+    params: {
+      id: validContactId,
     },
-  );
+  });
 
   assert.equal(result.res.statusCode, 200);
   assert.equal(result.res.body.success, true);
-  assert.equal(
-    result.res.body.data,
-    deletedContact,
-  );
-  assert.match(
-    result.res.body.message,
-    /Test User/,
-  );
+  assert.equal(result.res.body.data, deletedContact);
+  assert.match(result.res.body.message, /Test User/);
   assert.equal(result.nextCalled, false);
 });
 
 test("Contact delete forwards database errors", async () => {
-  const databaseError =
-    new Error("Delete query failed");
+  const databaseError = new Error("Delete query failed");
 
   Contact.findByIdAndDelete = async () => {
     throw databaseError;
   };
 
-  const result = await runController(
-    deleteContact,
-    {
-      params: {
-        id: validContactId,
-      },
+  const result = await runController(deleteContact, {
+    params: {
+      id: validContactId,
     },
-  );
+  });
 
   assert.equal(result.nextCalled, true);
   assert.equal(result.nextError, databaseError);
@@ -188,15 +165,12 @@ test("Clear contacts requires exact confirmation", async () => {
     deleteCalled = true;
   };
 
-  const result = await runController(
-    clearAllContacts,
-    {
-      body: {
-        confirmation: "DELETE_CONTACTS",
-        password: "correct-password",
-      },
+  const result = await runController(clearAllContacts, {
+    body: {
+      confirmation: "DELETE_CONTACTS",
+      password: "correct-password",
     },
-  );
+  });
 
   assert.equal(result.res.statusCode, 400);
   assert.equal(result.res.body.success, false);
@@ -216,21 +190,13 @@ test("Clear contacts rejects invalid password input", async () => {
     deleteCalled = true;
   };
 
-  for (const password of [
-    "",
-    null,
-    12345678,
-    "A".repeat(129),
-  ]) {
-    const result = await runController(
-      clearAllContacts,
-      {
-        body: {
-          confirmation: "DELETE_ALL_CONTACTS",
-          password,
-        },
+  for (const password of ["", null, 12345678, "A".repeat(129)]) {
+    const result = await runController(clearAllContacts, {
+      body: {
+        confirmation: "DELETE_ALL_CONTACTS",
+        password,
       },
-    );
+    });
 
     assert.equal(result.res.statusCode, 400);
     assert.equal(result.res.body.success, false);
@@ -255,15 +221,12 @@ test("Clear contacts rejects missing admin account", async () => {
     deleteCalled = true;
   };
 
-  const result = await runController(
-    clearAllContacts,
-    {
-      body: {
-        confirmation: "DELETE_ALL_CONTACTS",
-        password: "correct-password",
-      },
+  const result = await runController(clearAllContacts, {
+    body: {
+      confirmation: "DELETE_ALL_CONTACTS",
+      password: "correct-password",
     },
-  );
+  });
 
   assert.equal(selectedFields, "+password");
   assert.equal(result.res.statusCode, 401);
@@ -283,18 +246,9 @@ test("Clear contacts rejects incorrect admin password", async () => {
     },
   });
 
-  bcrypt.compare = async (
-    plainPassword,
-    storedPassword,
-  ) => {
-    assert.equal(
-      plainPassword,
-      "wrong-password",
-    );
-    assert.equal(
-      storedPassword,
-      "$2b$10$stored-hash",
-    );
+  bcrypt.compare = async (plainPassword, storedPassword) => {
+    assert.equal(plainPassword, "wrong-password");
+    assert.equal(storedPassword, "$2b$10$stored-hash");
     return false;
   };
 
@@ -302,15 +256,12 @@ test("Clear contacts rejects incorrect admin password", async () => {
     deleteCalled = true;
   };
 
-  const result = await runController(
-    clearAllContacts,
-    {
-      body: {
-        confirmation: "DELETE_ALL_CONTACTS",
-        password: "wrong-password",
-      },
+  const result = await runController(clearAllContacts, {
+    body: {
+      confirmation: "DELETE_ALL_CONTACTS",
+      password: "wrong-password",
     },
-  );
+  });
 
   assert.equal(result.res.statusCode, 403);
   assert.equal(result.res.body.success, false);
@@ -346,20 +297,14 @@ test("Clear contacts deletes all records after password verification", async () 
     };
   };
 
-  const result = await runController(
-    clearAllContacts,
-    {
-      body: {
-        confirmation: "DELETE_ALL_CONTACTS",
-        password: "correct-password",
-      },
+  const result = await runController(clearAllContacts, {
+    body: {
+      confirmation: "DELETE_ALL_CONTACTS",
+      password: "correct-password",
     },
-  );
+  });
 
-  assert.equal(
-    receivedAdminId,
-    "507f1f77bcf86cd799439012",
-  );
+  assert.equal(receivedAdminId, "507f1f77bcf86cd799439012");
   assert.deepEqual(receivedDeleteFilter, {});
 
   assert.equal(result.res.statusCode, 200);
@@ -369,8 +314,7 @@ test("Clear contacts deletes all records after password verification", async () 
 });
 
 test("Clear contacts forwards deletion errors", async () => {
-  const deletionError =
-    new Error("Delete many failed");
+  const deletionError = new Error("Delete many failed");
 
   Admin.findById = () => ({
     async select() {
@@ -386,15 +330,12 @@ test("Clear contacts forwards deletion errors", async () => {
     throw deletionError;
   };
 
-  const result = await runController(
-    clearAllContacts,
-    {
-      body: {
-        confirmation: "DELETE_ALL_CONTACTS",
-        password: "correct-password",
-      },
+  const result = await runController(clearAllContacts, {
+    body: {
+      confirmation: "DELETE_ALL_CONTACTS",
+      password: "correct-password",
     },
-  );
+  });
 
   assert.equal(result.nextCalled, true);
   assert.equal(result.nextError, deletionError);

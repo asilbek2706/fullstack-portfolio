@@ -26,13 +26,8 @@ const createUnsupportedImageError = () => {
 };
 
 const createImageUpload = (uploadPath) => {
-  if (
-    typeof uploadPath !== "string" ||
-    !path.isAbsolute(uploadPath)
-  ) {
-    throw new TypeError(
-      "Upload destination mutlaq path bo'lishi kerak.",
-    );
+  if (typeof uploadPath !== "string" || !path.isAbsolute(uploadPath)) {
+    throw new TypeError("Upload destination mutlaq path bo'lishi kerak.");
   }
 
   fs.mkdirSync(uploadPath, {
@@ -45,28 +40,19 @@ const createImageUpload = (uploadPath) => {
     },
 
     filename: (req, file, callback) => {
-      const extension =
-        extensionByMime[file.mimetype];
+      const extension = extensionByMime[file.mimetype];
 
       if (!extension) {
-        return callback(
-          createUnsupportedImageError(),
-        );
+        return callback(createUnsupportedImageError());
       }
 
-      return callback(
-        null,
-        `${crypto.randomUUID()}${extension}`,
-      );
+      return callback(null, `${crypto.randomUUID()}${extension}`);
     },
   });
 
   const fileFilter = (req, file, callback) => {
     if (!extensionByMime[file.mimetype]) {
-      return callback(
-        createUnsupportedImageError(),
-        false,
-      );
+      return callback(createUnsupportedImageError(), false);
     }
 
     return callback(null, true);

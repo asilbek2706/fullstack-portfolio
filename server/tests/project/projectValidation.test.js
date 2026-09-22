@@ -4,9 +4,7 @@ process.env.LOG_LEVEL = "silent";
 const test = require("node:test");
 const assert = require("node:assert/strict");
 
-const {
-  validateProjectInput,
-} = require("../../middlewares/projectMiddleware");
+const { validateProjectInput } = require("../../middlewares/projectMiddleware");
 
 const createResponse = () => ({
   statusCode: 200,
@@ -29,11 +27,7 @@ const validProject = () => ({
   demoLink: "https://example.com",
 });
 
-const runValidation = ({
-  method = "POST",
-  body,
-  file,
-} = {}) => {
+const runValidation = ({ method = "POST", body, file } = {}) => {
   const req = {
     method,
     body,
@@ -73,10 +67,7 @@ test("Project rejects unknown fields", () => {
 
   assert.equal(res.statusCode, 400);
   assert.equal(nextCalled, false);
-  assert.equal(
-    res.body.message,
-    "Ruxsat etilmagan maydonlar: createdBy",
-  );
+  assert.equal(res.body.message, "Ruxsat etilmagan maydonlar: createdBy");
 });
 
 test("Project rejects non-string title", () => {
@@ -116,13 +107,7 @@ test("Project rejects malformed technologies JSON", () => {
 
 test("Project rejects more than four technologies", () => {
   const body = validProject();
-  body.technologies = [
-    "Node.js",
-    "Express",
-    "MongoDB",
-    "Socket.IO",
-    "Pino",
-  ];
+  body.technologies = ["Node.js", "Express", "MongoDB", "Socket.IO", "Pino"];
 
   const { res, nextCalled } = runValidation({ body });
 
@@ -210,10 +195,7 @@ test("Project parses and normalizes technologies JSON", () => {
   assert.equal(res.statusCode, 200);
   assert.equal(nextCalled, true);
   assert.equal(req.body.title, "Test Project");
-  assert.deepEqual(req.body.technologies, [
-    "Node.js",
-    "Express",
-  ]);
+  assert.deepEqual(req.body.technologies, ["Node.js", "Express"]);
 });
 
 test("Project parses comma-separated technologies", () => {
@@ -224,9 +206,5 @@ test("Project parses comma-separated technologies", () => {
 
   assert.equal(res.statusCode, 200);
   assert.equal(nextCalled, true);
-  assert.deepEqual(req.body.technologies, [
-    "Node.js",
-    "Express",
-    "MongoDB",
-  ]);
+  assert.deepEqual(req.body.technologies, ["Node.js", "Express", "MongoDB"]);
 });

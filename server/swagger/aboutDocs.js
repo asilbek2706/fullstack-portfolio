@@ -46,7 +46,8 @@ module.exports = {
         },
       }, // <- get metodi bu yerda xavfsiz yopildi
       put: {
-        summary: "Men haqimda ma'lumotlarini yangilash (🔒 Faqat SuperAdmin, Kuki orqali)",
+        summary:
+          "Men haqimda ma'lumotlarini yangilash (🔒 Faqat SuperAdmin, Kuki orqali)",
         tags: ["About"],
         security: [{ cookieAuth: [] }],
         requestBody: {
@@ -60,11 +61,13 @@ module.exports = {
                   title: { type: "string", example: "Frontend Developer" },
                   avatar: {
                     type: "string",
-                    example: "https://res.cloudinary.com/demo/image/upload/v1/profile.png",
+                    example:
+                      "https://res.cloudinary.com/demo/image/upload/v1/profile.png",
                   },
                   bio: {
                     type: "string",
-                    example: "7+ oydan beri intensiv frontend texnologiyalarini o'rganib kelyapman.",
+                    example:
+                      "7+ oydan beri intensiv frontend texnologiyalarini o'rganib kelyapman.",
                   },
                   experienceYears: { type: "string", example: "7+ oy" },
                 },
@@ -77,7 +80,8 @@ module.exports = {
             description: "Ma'lumotlar daxshatli xavfsiz holatda yangilandi.",
           },
           403: {
-            description: "Siz SuperAdmin emassiz, buzib o'zgartirish taqiqlanadi!",
+            description:
+              "Siz SuperAdmin emassiz, buzib o'zgartirish taqiqlanadi!",
           },
           401: { description: "Avtorizatsiyadan o'tilmagan, kuki topilmadi." },
         },

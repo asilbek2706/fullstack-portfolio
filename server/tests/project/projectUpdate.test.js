@@ -6,27 +6,18 @@ const assert = require("node:assert/strict");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const fs = require("node:fs").promises;
-const {
-  after,
-  afterEach,
-} = require("node:test");
+const { after, afterEach } = require("node:test");
 
 const Project = require("../../models/Project");
 const realtime = require("../../services/realtime");
 
 const originalFindById = Project.findById;
-const originalFindByIdAndUpdate =
-  Project.findByIdAndUpdate;
-const originalEmitRealtimeEvent =
-  realtime.emitRealtimeEvent;
+const originalFindByIdAndUpdate = Project.findByIdAndUpdate;
+const originalEmitRealtimeEvent = realtime.emitRealtimeEvent;
 
-const projectId =
-  "507f1f77bcf86cd799439011";
+const projectId = "507f1f77bcf86cd799439011";
 
-const projectsRoot = path.resolve(
-  __dirname,
-  "../../uploads/projects",
-);
+const projectsRoot = path.resolve(__dirname, "../../uploads/projects");
 
 const createdFiles = [];
 let emittedEvents = [];
@@ -42,26 +33,23 @@ const {
 
 afterEach(async () => {
   Project.findById = originalFindById;
-  Project.findByIdAndUpdate =
-    originalFindByIdAndUpdate;
+  Project.findByIdAndUpdate = originalFindByIdAndUpdate;
 
   emittedEvents = [];
 
   await Promise.all(
-    createdFiles.splice(0).map(
-      (filePath) =>
-        fs.unlink(filePath).catch((error) => {
-          if (error.code !== "ENOENT") {
-            throw error;
-          }
-        }),
+    createdFiles.splice(0).map((filePath) =>
+      fs.unlink(filePath).catch((error) => {
+        if (error.code !== "ENOENT") {
+          throw error;
+        }
+      }),
     ),
   );
 });
 
 after(() => {
-  realtime.emitRealtimeEvent =
-    originalEmitRealtimeEvent;
+  realtime.emitRealtimeEvent = originalEmitRealtimeEvent;
 });
 
 const createResponse = () => ({
@@ -84,47 +72,30 @@ const createImage = async (label) => {
     recursive: true,
   });
 
-  const filename =
-    `${label}-${crypto.randomUUID()}.png`;
+  const filename = `${label}-${crypto.randomUUID()}.png`;
 
-  const filePath = path.join(
-    projectsRoot,
-    filename,
-  );
+  const filePath = path.join(projectsRoot, filename);
 
-  await fs.writeFile(
-    filePath,
-    Buffer.from(`temporary ${label} image`),
-  );
+  await fs.writeFile(filePath, Buffer.from(`temporary ${label} image`));
 
   createdFiles.push(filePath);
 
   return {
     filename,
     filePath,
-    publicPath:
-      `/uploads/projects/${filename}`,
+    publicPath: `/uploads/projects/${filename}`,
   };
 };
 
 const validPutBody = () => ({
   title: "Updated portfolio",
-  description:
-    "Bu loyiha PUT lifecycle testi orqali yangilandi.",
-  technologies:
-    '["Node.js","Express","MongoDB"]',
-  githubLink:
-    "https://github.com/asilbek2706/updated-portfolio",
+  description: "Bu loyiha PUT lifecycle testi orqali yangilandi.",
+  technologies: '["Node.js","Express","MongoDB"]',
+  githubLink: "https://github.com/asilbek2706/updated-portfolio",
   demoLink: "https://example.com/updated",
 });
 
-const runController = async (
-  controller,
-  {
-    body = {},
-    file,
-  } = {},
-) => {
+const runController = async (controller, { body = {}, file } = {}) => {
   const req = {
     params: {
       id: projectId,
@@ -155,11 +126,9 @@ const runController = async (
 };
 
 test("PUT replaces old image and emits public project", async () => {
-  const oldImage =
-    await createImage("put-old");
+  const oldImage = await createImage("put-old");
 
-  const newImage =
-    await createImage("put-new");
+  const newImage = await createImage("put-new");
 
   let receivedId;
   let receivedUpdate;
@@ -176,11 +145,7 @@ test("PUT replaces old image and emits public project", async () => {
     image: newImage.publicPath,
   };
 
-  Project.findByIdAndUpdate = async (
-    id,
-    update,
-    options,
-  ) => {
+  Project.findByIdAndUpdate = async (id, update, options) => {
     receivedId = id;
     receivedUpdate = update;
     receivedOptions = options;
@@ -197,31 +162,21 @@ test("PUT replaces old image and emits public project", async () => {
     };
   };
 
-  const result = await runController(
-    updateProject,
-    {
-      body: validPutBody(),
-      file: {
-        filename: newImage.filename,
-      },
+  const result = await runController(updateProject, {
+    body: validPutBody(),
+    file: {
+      filename: newImage.filename,
     },
-  );
+  });
 
   assert.equal(receivedId, projectId);
 
   assert.deepEqual(receivedUpdate, {
     title: "Updated portfolio",
-    description:
-      "Bu loyiha PUT lifecycle testi orqali yangilandi.",
-    technologies: [
-      "Node.js",
-      "Express",
-      "MongoDB",
-    ],
-    githubLink:
-      "https://github.com/asilbek2706/updated-portfolio",
-    demoLink:
-      "https://example.com/updated",
+    description: "Bu loyiha PUT lifecycle testi orqali yangilandi.",
+    technologies: ["Node.js", "Express", "MongoDB"],
+    githubLink: "https://github.com/asilbek2706/updated-portfolio",
+    demoLink: "https://example.com/updated",
     image: newImage.publicPath,
   });
 
@@ -233,32 +188,15 @@ test("PUT replaces old image and emits public project", async () => {
   assert.equal(result.res.statusCode, 200);
   assert.equal(result.res.body.success, true);
 
-  assert.deepEqual(
-    result.res.body.data,
-    publicProject,
-  );
+  assert.deepEqual(result.res.body.data, publicProject);
 
-  assert.equal(
-    Object.hasOwn(
-      result.res.body.data,
-      "createdBy",
-    ),
-    false,
-  );
+  assert.equal(Object.hasOwn(result.res.body.data, "createdBy"), false);
 
-  assert.deepEqual(emittedEvents, [
-    [
-      "projectUpdated",
-      publicProject,
-    ],
-  ]);
+  assert.deepEqual(emittedEvents, [["projectUpdated", publicProject]]);
 
-  await assert.rejects(
-    fs.access(oldImage.filePath),
-    {
-      code: "ENOENT",
-    },
-  );
+  await assert.rejects(fs.access(oldImage.filePath), {
+    code: "ENOENT",
+  });
 
   await fs.access(newImage.filePath);
 
@@ -266,8 +204,7 @@ test("PUT replaces old image and emits public project", async () => {
 });
 
 test("PUT without new image preserves old image", async () => {
-  const oldImagePath =
-    "/uploads/projects/existing-image.png";
+  const oldImagePath = "/uploads/projects/existing-image.png";
 
   let receivedUpdate;
 
@@ -276,10 +213,7 @@ test("PUT without new image preserves old image", async () => {
     image: oldImagePath,
   });
 
-  Project.findByIdAndUpdate = async (
-    id,
-    update,
-  ) => {
+  Project.findByIdAndUpdate = async (id, update) => {
     receivedUpdate = update;
 
     return {
@@ -297,43 +231,26 @@ test("PUT without new image preserves old image", async () => {
     };
   };
 
-  const result = await runController(
-    updateProject,
-    {
-      body: validPutBody(),
-    },
-  );
+  const result = await runController(updateProject, {
+    body: validPutBody(),
+  });
 
-  assert.equal(
-    receivedUpdate.image,
-    oldImagePath,
-  );
+  assert.equal(receivedUpdate.image, oldImagePath);
 
   assert.equal(result.res.statusCode, 200);
-  assert.equal(
-    result.res.body.data.image,
-    oldImagePath,
-  );
+  assert.equal(result.res.body.data.image, oldImagePath);
 
-  assert.deepEqual(emittedEvents, [
-    [
-      "projectUpdated",
-      result.res.body.data,
-    ],
-  ]);
+  assert.deepEqual(emittedEvents, [["projectUpdated", result.res.body.data]]);
 
   assert.equal(result.nextCalled, false);
 });
 
 test("PUT database failure deletes new image and preserves old image", async () => {
-  const oldImage =
-    await createImage("put-error-old");
+  const oldImage = await createImage("put-error-old");
 
-  const newImage =
-    await createImage("put-error-new");
+  const newImage = await createImage("put-error-new");
 
-  const databaseError =
-    new Error("Project update failed");
+  const databaseError = new Error("Project update failed");
 
   Project.findById = async () => ({
     _id: projectId,
@@ -344,89 +261,66 @@ test("PUT database failure deletes new image and preserves old image", async () 
     throw databaseError;
   };
 
-  const result = await runController(
-    updateProject,
-    {
-      body: validPutBody(),
-      file: {
-        filename: newImage.filename,
-      },
+  const result = await runController(updateProject, {
+    body: validPutBody(),
+    file: {
+      filename: newImage.filename,
     },
-  );
+  });
 
   assert.equal(result.nextCalled, true);
-  assert.equal(
-    result.nextError,
-    databaseError,
-  );
+  assert.equal(result.nextError, databaseError);
 
   assert.equal(result.res.body, undefined);
   assert.equal(emittedEvents.length, 0);
 
   await fs.access(oldImage.filePath);
 
-  await assert.rejects(
-    fs.access(newImage.filePath),
-    {
-      code: "ENOENT",
-    },
-  );
+  await assert.rejects(fs.access(newImage.filePath), {
+    code: "ENOENT",
+  });
 });
 
 test("PATCH race condition returns 404 and deletes new image", async () => {
-  const oldImage =
-    await createImage("patch-race-old");
+  const oldImage = await createImage("patch-race-old");
 
-  const newImage =
-    await createImage("patch-race-new");
+  const newImage = await createImage("patch-race-new");
 
   Project.findById = async () => ({
     _id: projectId,
     image: oldImage.publicPath,
   });
 
-  Project.findByIdAndUpdate =
-    async () => null;
+  Project.findByIdAndUpdate = async () => null;
 
-  const result = await runController(
-    patchProject,
-    {
-      body: {
-        title: "Race update",
-      },
-      file: {
-        filename: newImage.filename,
-      },
+  const result = await runController(patchProject, {
+    body: {
+      title: "Race update",
     },
-  );
+    file: {
+      filename: newImage.filename,
+    },
+  });
 
   assert.equal(result.res.statusCode, 404);
   assert.equal(result.res.body.success, false);
 
-  assert.equal(
-    result.res.body.message,
-    "Loyiha yangilash vaqtida topilmadi.",
-  );
+  assert.equal(result.res.body.message, "Loyiha yangilash vaqtida topilmadi.");
 
   assert.equal(result.nextCalled, false);
   assert.equal(emittedEvents.length, 0);
 
   await fs.access(oldImage.filePath);
 
-  await assert.rejects(
-    fs.access(newImage.filePath),
-    {
-      code: "ENOENT",
-    },
-  );
+  await assert.rejects(fs.access(newImage.filePath), {
+    code: "ENOENT",
+  });
 });
 
 test("PATCH image-only update removes old image and hides createdBy", async () => {
-  const oldImage =
-    await createImage("patch-old");
+  const oldImage = await createImage("patch-old");
 
-  const newImage =
-    await createImage("patch-new");
+  const newImage = await createImage("patch-new");
 
   let receivedUpdate;
 
@@ -435,10 +329,7 @@ test("PATCH image-only update removes old image and hides createdBy", async () =
     image: oldImage.publicPath,
   });
 
-  Project.findByIdAndUpdate = async (
-    id,
-    update,
-  ) => {
+  Project.findByIdAndUpdate = async (id, update) => {
     receivedUpdate = update;
 
     return {
@@ -449,15 +340,12 @@ test("PATCH image-only update removes old image and hides createdBy", async () =
     };
   };
 
-  const result = await runController(
-    patchProject,
-    {
-      body: {},
-      file: {
-        filename: newImage.filename,
-      },
+  const result = await runController(patchProject, {
+    body: {},
+    file: {
+      filename: newImage.filename,
     },
-  );
+  });
 
   assert.deepEqual(receivedUpdate, {
     image: newImage.publicPath,
@@ -466,40 +354,17 @@ test("PATCH image-only update removes old image and hides createdBy", async () =
   assert.equal(result.res.statusCode, 200);
   assert.equal(result.res.body.success, true);
 
-  assert.equal(
-    result.res.body.data.image,
-    newImage.publicPath,
-  );
+  assert.equal(result.res.body.data.image, newImage.publicPath);
 
-  assert.equal(
-    Object.hasOwn(
-      result.res.body.data,
-      "createdBy",
-    ),
-    false,
-  );
+  assert.equal(Object.hasOwn(result.res.body.data, "createdBy"), false);
 
-  assert.equal(
-    Object.hasOwn(
-      emittedEvents[0][1],
-      "createdBy",
-    ),
-    false,
-  );
+  assert.equal(Object.hasOwn(emittedEvents[0][1], "createdBy"), false);
 
-  assert.deepEqual(emittedEvents, [
-    [
-      "projectUpdated",
-      result.res.body.data,
-    ],
-  ]);
+  assert.deepEqual(emittedEvents, [["projectUpdated", result.res.body.data]]);
 
-  await assert.rejects(
-    fs.access(oldImage.filePath),
-    {
-      code: "ENOENT",
-    },
-  );
+  await assert.rejects(fs.access(oldImage.filePath), {
+    code: "ENOENT",
+  });
 
   await fs.access(newImage.filePath);
 

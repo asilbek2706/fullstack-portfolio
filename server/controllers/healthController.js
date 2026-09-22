@@ -18,8 +18,7 @@ exports.getHealth = (req, res) => {
 exports.getReadiness = (req, res) => {
   setNoStore(res);
 
-  const databaseReady =
-    mongoose.connection.readyState === 1;
+  const databaseReady = mongoose.connection.readyState === 1;
 
   return res.status(databaseReady ? 200 : 503).json({
     success: databaseReady,

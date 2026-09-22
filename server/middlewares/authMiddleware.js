@@ -1,9 +1,7 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 const { env } = require("../config/env");
-const {
-  isOriginAllowed,
-} = require("../config/cors");
+const { isOriginAllowed } = require("../config/cors");
 
 // 1. Token va qurilmani tekshirish (Kuki tizimida avtomatik)
 const protect = async (req, res, next) => {
@@ -14,16 +12,11 @@ const protect = async (req, res, next) => {
     if (req.cookies && req.cookies.token) {
       token = req.cookies.token;
 
-      const unsafeMethod = !["GET", "HEAD", "OPTIONS"].includes(
-        req.method,
-      );
+      const unsafeMethod = !["GET", "HEAD", "OPTIONS"].includes(req.method);
 
       const requestOrigin = req.get("origin");
 
-      if (
-        unsafeMethod &&
-        (!requestOrigin || !isOriginAllowed(requestOrigin))
-      ) {
+      if (unsafeMethod && (!requestOrigin || !isOriginAllowed(requestOrigin))) {
         return res.status(403).json({
           message: "So'rov manbasi tasdiqlanmadi.",
         });
@@ -54,8 +47,7 @@ const protect = async (req, res, next) => {
     });
 
     // Admin har bir requestda bazadan qayta tekshiriladi.
-    const admin = await Admin.findById(decoded.id)
-      .select("+tokenVersion");
+    const admin = await Admin.findById(decoded.id).select("+tokenVersion");
 
     if (!admin) {
       return res
@@ -68,8 +60,7 @@ const protect = async (req, res, next) => {
       decoded.tokenVersion !== admin.tokenVersion
     ) {
       return res.status(401).json({
-        message:
-          "Sessiya bekor qilingan. Iltimos, qayta tizimga kiring.",
+        message: "Sessiya bekor qilingan. Iltimos, qayta tizimga kiring.",
       });
     }
 
@@ -78,7 +69,7 @@ const protect = async (req, res, next) => {
     req.user = admin;
 
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({
       message: "Token yaroqsiz yoki muddati o'tgan!",
     });

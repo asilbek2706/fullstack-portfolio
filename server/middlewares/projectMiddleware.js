@@ -43,10 +43,7 @@ const validateHttpUrl = (value, { githubOnly = false } = {}) => {
     if (githubOnly) {
       const hostname = url.hostname.toLowerCase();
 
-      if (
-        hostname !== "github.com" &&
-        hostname !== "www.github.com"
-      ) {
+      if (hostname !== "github.com" && hostname !== "www.github.com") {
         return false;
       }
     }
@@ -59,9 +56,7 @@ const validateHttpUrl = (value, { githubOnly = false } = {}) => {
 
 const validateProjectInput = (req, res, next) => {
   const body =
-    req.body &&
-    typeof req.body === "object" &&
-    !Array.isArray(req.body)
+    req.body && typeof req.body === "object" && !Array.isArray(req.body)
       ? req.body
       : {};
 
@@ -76,15 +71,9 @@ const validateProjectInput = (req, res, next) => {
     });
   }
 
-  const isFullRequest =
-    req.method === "POST" || req.method === "PUT";
+  const isFullRequest = req.method === "POST" || req.method === "PUT";
 
-  const requiredFields = [
-    "title",
-    "description",
-    "technologies",
-    "githubLink",
-  ];
+  const requiredFields = ["title", "description", "technologies", "githubLink"];
 
   if (isFullRequest) {
     const missingFields = requiredFields.filter(
@@ -94,17 +83,12 @@ const validateProjectInput = (req, res, next) => {
     if (missingFields.length > 0) {
       return res.status(400).json({
         success: false,
-        message:
-          `Majburiy maydonlar yetishmayapti: ${missingFields.join(", ")}`,
+        message: `Majburiy maydonlar yetishmayapti: ${missingFields.join(", ")}`,
       });
     }
   }
 
-  if (
-    req.method === "PATCH" &&
-    Object.keys(body).length === 0 &&
-    !req.file
-  ) {
+  if (req.method === "PATCH" && Object.keys(body).length === 0 && !req.file) {
     return res.status(400).json({
       success: false,
       message: "Yangilash uchun kamida bitta maydon yuboring.",
@@ -141,8 +125,7 @@ const validateProjectInput = (req, res, next) => {
     if (value.length < rule.min || value.length > rule.max) {
       return res.status(400).json({
         success: false,
-        message:
-          `${rule.label} uzunligi ${rule.min}–${rule.max} belgi oralig'ida bo'lishi kerak.`,
+        message: `${rule.label} uzunligi ${rule.min}–${rule.max} belgi oralig'ida bo'lishi kerak.`,
       });
     }
 
@@ -150,8 +133,7 @@ const validateProjectInput = (req, res, next) => {
   }
 
   if (Object.hasOwn(body, "technologies")) {
-    const technologies =
-      parseTechnologiesInput(body.technologies);
+    const technologies = parseTechnologiesInput(body.technologies);
 
     if (
       !Array.isArray(technologies) ||
@@ -179,8 +161,7 @@ const validateProjectInput = (req, res, next) => {
       if (value.length < 1 || value.length > 40) {
         return res.status(400).json({
           success: false,
-          message:
-            "Texnologiya nomi 1–40 belgi oralig'ida bo'lishi kerak.",
+          message: "Texnologiya nomi 1–40 belgi oralig'ida bo'lishi kerak.",
         });
       }
 
@@ -188,15 +169,10 @@ const validateProjectInput = (req, res, next) => {
     }
 
     const uniqueTechnologies = new Set(
-      normalizedTechnologies.map((item) =>
-        item.toLowerCase(),
-      ),
+      normalizedTechnologies.map((item) => item.toLowerCase()),
     );
 
-    if (
-      uniqueTechnologies.size !==
-      normalizedTechnologies.length
-    ) {
+    if (uniqueTechnologies.size !== normalizedTechnologies.length) {
       return res.status(400).json({
         success: false,
         message: "Technologies ichida takroriy qiymat bor.",
@@ -233,10 +209,7 @@ const validateProjectInput = (req, res, next) => {
 
     const demoLink = body.demoLink.trim();
 
-    if (
-      demoLink.length > 2048 ||
-      (demoLink && !validateHttpUrl(demoLink))
-    ) {
+    if (demoLink.length > 2048 || (demoLink && !validateHttpUrl(demoLink))) {
       return res.status(400).json({
         success: false,
         message: "Demo havolasi to'g'ri http/https URL bo'lishi kerak.",
@@ -273,8 +246,7 @@ const checkProjectOwnerOrSuper = async (req, res, next) => {
       });
     }
 
-    const project = await Project.findById(id)
-      .select("+createdBy");
+    const project = await Project.findById(id).select("+createdBy");
 
     if (!project) {
       return res.status(404).json({

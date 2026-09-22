@@ -80,8 +80,7 @@ const errorHandler = (error, req, res, next) => {
     message = "So'rov to'liq yoki to'g'ri yuborilmadi.";
   } else if (error.code === "UNSUPPORTED_IMAGE_TYPE") {
     statusCode = 415;
-    message =
-      "Faqat JPG, PNG yoki WEBP rasmlarini yuklash mumkin.";
+    message = "Faqat JPG, PNG yoki WEBP rasmlarini yuklash mumkin.";
   } else if (error.name === "MulterError") {
     const multerError = getMulterErrorDetails(error);
     statusCode = multerError.statusCode;
@@ -89,8 +88,7 @@ const errorHandler = (error, req, res, next) => {
   } else if (error.name === "ValidationError") {
     statusCode = 400;
     message =
-      getValidationMessage(error) ||
-      "Yuborilgan ma'lumotlar noto'g'ri.";
+      getValidationMessage(error) || "Yuborilgan ma'lumotlar noto'g'ri.";
   } else if (error.name === "CastError") {
     statusCode = 400;
     message = "Yuborilgan identifikator formati noto'g'ri.";
@@ -100,11 +98,7 @@ const errorHandler = (error, req, res, next) => {
   } else {
     const httpStatus = error.statusCode || error.status;
 
-    if (
-      Number.isInteger(httpStatus) &&
-      httpStatus >= 400 &&
-      httpStatus < 600
-    ) {
+    if (Number.isInteger(httpStatus) && httpStatus >= 400 && httpStatus < 600) {
       statusCode = httpStatus;
       message =
         statusCode >= 500
@@ -129,10 +123,7 @@ const errorHandler = (error, req, res, next) => {
       "So'rovni bajarishda server xatoligi.",
     );
   } else {
-    logger.warn(
-      logData,
-      "So'rov noto'g'ri ma'lumot sababli rad etildi.",
-    );
+    logger.warn(logData, "So'rov noto'g'ri ma'lumot sababli rad etildi.");
   }
 
   return res.status(statusCode).json({

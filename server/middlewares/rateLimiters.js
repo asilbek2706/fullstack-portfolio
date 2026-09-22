@@ -1,7 +1,6 @@
 const rateLimit = require("express-rate-limit");
 
-const isTelegramWebhook = (req) =>
-  req.path === "/api/contact/telegram-webhook";
+const isTelegramWebhook = (req) => req.path === "/api/contact/telegram-webhook";
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -11,8 +10,7 @@ const globalLimiter = rateLimit({
   skip: isTelegramWebhook,
   message: {
     success: false,
-    message:
-      "So'rovlar juda ko'p, iltimos 15 daqiqadan keyin urinib ko'ring.",
+    message: "So'rovlar juda ko'p, iltimos 15 daqiqadan keyin urinib ko'ring.",
   },
 });
 
@@ -23,8 +21,7 @@ const contactLimiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
-    message:
-      "Xabar yuborish limiti tugadi. Iltimos, keyinroq qayta urining.",
+    message: "Xabar yuborish limiti tugadi. Iltimos, keyinroq qayta urining.",
   },
 });
 

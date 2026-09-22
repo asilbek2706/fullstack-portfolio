@@ -1,6 +1,4 @@
-const {
-  disconnectDatabase,
-} = require("../config/database");
+const { disconnectDatabase } = require("../config/database");
 const logger = require("../utils/logger");
 const {
   disconnectRealtimeClients,
@@ -14,10 +12,7 @@ const registerShutdownHandlers = (server) => {
     if (isShuttingDown) return;
     isShuttingDown = true;
 
-    logger.info(
-      { signal },
-      "Server yopilmoqda.",
-    );
+    logger.info({ signal }, "Server yopilmoqda.");
 
     try {
       disconnectRealtimeClients();
@@ -36,10 +31,7 @@ const registerShutdownHandlers = (server) => {
       logger.info("Server muvaffaqiyatli yopildi.");
       process.exit(0);
     } catch (error) {
-      logger.error(
-        { err: error },
-        "Serverni yopishda xatolik.",
-      );
+      logger.error({ err: error }, "Serverni yopishda xatolik.");
       process.exit(1);
     }
   };

@@ -179,18 +179,9 @@ test("Contact validates recaptcha and normalizes input", async () => {
   );
 
   assert.ok(capturedCall[1] instanceof URLSearchParams);
-  assert.equal(
-    capturedCall[1].get("secret"),
-    env.recaptchaSecretKey,
-  );
-  assert.equal(
-    capturedCall[1].get("response"),
-    "a".repeat(32),
-  );
-  assert.equal(
-    capturedCall[1].get("remoteip"),
-    "127.0.0.1",
-  );
+  assert.equal(capturedCall[1].get("secret"), env.recaptchaSecretKey);
+  assert.equal(capturedCall[1].get("response"), "a".repeat(32));
+  assert.equal(capturedCall[1].get("remoteip"), "127.0.0.1");
 
   assert.equal(new URL(capturedCall[0]).search, "");
   assert.equal(capturedCall[2].timeout, 5000);

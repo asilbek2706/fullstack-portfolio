@@ -9,41 +9,31 @@ const fs = require("node:fs").promises;
 const { EventEmitter } = require("node:events");
 const { afterEach } = require("node:test");
 
-const cleanupFailedUpload =
-  require("../../middlewares/cleanupFailedUpload");
+const cleanupFailedUpload = require("../../middlewares/cleanupFailedUpload");
 
 const temporaryDirectories = [];
 
 afterEach(async () => {
   await Promise.all(
-    temporaryDirectories.splice(0).map(
-      (directory) =>
-        fs.rm(directory, {
-          recursive: true,
-          force: true,
-        }),
+    temporaryDirectories.splice(0).map((directory) =>
+      fs.rm(directory, {
+        recursive: true,
+        force: true,
+      }),
     ),
   );
 });
 
-const createTemporaryFile = async (
-  filename = "uploaded.png",
-) => {
+const createTemporaryFile = async (filename = "uploaded.png") => {
   const directory = await fs.mkdtemp(
     path.join(os.tmpdir(), "portfolio-cleanup-test-"),
   );
 
   temporaryDirectories.push(directory);
 
-  const filePath = path.join(
-    directory,
-    filename,
-  );
+  const filePath = path.join(directory, filename);
 
-  await fs.writeFile(
-    filePath,
-    Buffer.from("temporary upload"),
-  );
+  await fs.writeFile(filePath, Buffer.from("temporary upload"));
 
   return {
     directory,
@@ -74,9 +64,7 @@ const waitForDeletion = async (filePath) => {
     });
   }
 
-  assert.fail(
-    `Fayl belgilangan vaqtda o‘chirilmadi: ${filePath}`,
-  );
+  assert.fail(`Fayl belgilangan vaqtda o‘chirilmadi: ${filePath}`);
 };
 
 test("Cleanup skips request without uploaded file", () => {
@@ -90,15 +78,11 @@ test("Cleanup skips request without uploaded file", () => {
   });
 
   assert.equal(nextCount, 1);
-  assert.equal(
-    res.listenerCount("finish"),
-    0,
-  );
+  assert.equal(res.listenerCount("finish"), 0);
 });
 
 test("Cleanup preserves file after successful response", async () => {
-  const { filePath } =
-    await createTemporaryFile();
+  const { filePath } = await createTemporaryFile();
 
   const req = {
     file: {
@@ -115,10 +99,7 @@ test("Cleanup preserves file after successful response", async () => {
   });
 
   assert.equal(nextCount, 1);
-  assert.equal(
-    res.listenerCount("finish"),
-    1,
-  );
+  assert.equal(res.listenerCount("finish"), 1);
 
   res.emit("finish");
 
@@ -130,8 +111,7 @@ test("Cleanup preserves file after successful response", async () => {
 });
 
 test("Cleanup deletes file after failed response", async () => {
-  const { filePath } =
-    await createTemporaryFile();
+  const { filePath } = await createTemporaryFile();
 
   const req = {
     file: {
@@ -147,29 +127,18 @@ test("Cleanup deletes file after failed response", async () => {
 
   await waitForDeletion(filePath);
 
-  await assert.rejects(
-    fs.access(filePath),
-    {
-      code: "ENOENT",
-    },
-  );
+  await assert.rejects(fs.access(filePath), {
+    code: "ENOENT",
+  });
 });
 
 test("Cleanup deletes originally captured upload path", async () => {
-  const {
-    directory,
-    filePath: originalPath,
-  } = await createTemporaryFile("original.png");
+  const { directory, filePath: originalPath } =
+    await createTemporaryFile("original.png");
 
-  const replacementPath = path.join(
-    directory,
-    "replacement.png",
-  );
+  const replacementPath = path.join(directory, "replacement.png");
 
-  await fs.writeFile(
-    replacementPath,
-    Buffer.from("replacement upload"),
-  );
+  await fs.writeFile(replacementPath, Buffer.from("replacement upload"));
 
   const req = {
     file: {
@@ -187,12 +156,9 @@ test("Cleanup deletes originally captured upload path", async () => {
 
   await waitForDeletion(originalPath);
 
-  await assert.rejects(
-    fs.access(originalPath),
-    {
-      code: "ENOENT",
-    },
-  );
+  await assert.rejects(fs.access(originalPath), {
+    code: "ENOENT",
+  });
 
   await fs.access(replacementPath);
 });
@@ -204,10 +170,7 @@ test("Cleanup safely ignores already missing file", async () => {
 
   temporaryDirectories.push(directory);
 
-  const missingPath = path.join(
-    directory,
-    "already-missing.png",
-  );
+  const missingPath = path.join(directory, "already-missing.png");
 
   const req = {
     file: {

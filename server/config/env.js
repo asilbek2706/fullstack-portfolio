@@ -4,11 +4,9 @@ const rawPort = process.env.PORT;
 
 const env = {
   nodeEnv: process.env.NODE_ENV || "development",
-  logLevel: process.env.LOG_LEVEL || (
-    process.env.NODE_ENV === "production"
-      ? "info"
-      : "debug"
-  ),
+  logLevel:
+    process.env.LOG_LEVEL ||
+    (process.env.NODE_ENV === "production" ? "info" : "debug"),
   port: rawPort === undefined ? 8080 : Number(rawPort),
   mongoUri: process.env.MONGO_URI,
   jwtSecret: process.env.JWT_SECRET,
@@ -49,9 +47,7 @@ const validateEnv = () => {
   }
 
   if (env.jwtSecret.length < 32) {
-    throw new Error(
-      "JWT_SECRET kamida 32 ta belgidan iborat bo'lishi kerak.",
-    );
+    throw new Error("JWT_SECRET kamida 32 ta belgidan iborat bo'lishi kerak.");
   }
 
   if (!["development", "test", "production"].includes(env.nodeEnv)) {
@@ -76,11 +72,7 @@ const validateEnv = () => {
     );
   }
 
-  if (
-    !Number.isInteger(env.port) ||
-    env.port < 1 ||
-    env.port > 65535
-  ) {
+  if (!Number.isInteger(env.port) || env.port < 1 || env.port > 65535) {
     throw new Error("PORT 1 va 65535 oralig'idagi butun son bo'lishi kerak.");
   }
 
@@ -103,8 +95,7 @@ const validateEnv = () => {
     throw new Error("RECAPTCHA_ACTION formati noto'g'ri.");
   }
 
-  env.recaptchaHostname =
-    env.recaptchaHostname || clientUrl.hostname;
+  env.recaptchaHostname = env.recaptchaHostname || clientUrl.hostname;
 
   if (
     !Number.isFinite(env.recaptchaMinScore) ||

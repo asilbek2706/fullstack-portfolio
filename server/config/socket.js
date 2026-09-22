@@ -2,9 +2,7 @@ const { Server } = require("socket.io");
 
 const { corsOptions } = require("./cors");
 const logger = require("../utils/logger");
-const {
-  setRealtimeServer,
-} = require("../services/realtime");
+const { setRealtimeServer } = require("../services/realtime");
 
 const createSocketServer = (httpServer) => {
   const io = new Server(httpServer, {
@@ -15,10 +13,7 @@ const createSocketServer = (httpServer) => {
   });
 
   io.on("connection", (socket) => {
-    logger.debug(
-      { socketId: socket.id },
-      "Socket foydalanuvchisi ulandi.",
-    );
+    logger.debug({ socketId: socket.id }, "Socket foydalanuvchisi ulandi.");
 
     socket.on("disconnect", (reason) => {
       logger.debug(

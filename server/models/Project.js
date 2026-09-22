@@ -16,10 +16,7 @@ const isValidHttpUrl = (value, { githubOnly = false } = {}) => {
     if (githubOnly) {
       const hostname = url.hostname.toLowerCase();
 
-      return (
-        hostname === "github.com" ||
-        hostname === "www.github.com"
-      );
+      return hostname === "github.com" || hostname === "www.github.com";
     }
 
     return true;
@@ -66,18 +63,14 @@ const projectSchema = new mongoose.Schema(
       validate: [
         {
           validator: (values) =>
-            Array.isArray(values) &&
-            values.length >= 1 &&
-            values.length <= 4,
+            Array.isArray(values) && values.length >= 1 && values.length <= 4,
           message: "Texnologiyalar soni 1 tadan 4 tagacha bo'lishi kerak",
         },
         {
           validator: (values) => {
             if (!Array.isArray(values)) return false;
 
-            const normalized = values.map((value) =>
-              value.toLowerCase(),
-            );
+            const normalized = values.map((value) => value.toLowerCase());
 
             return new Set(normalized).size === normalized.length;
           },
@@ -92,8 +85,7 @@ const projectSchema = new mongoose.Schema(
       trim: true,
       maxlength: [2048, "Github havolasi juda uzun"],
       validate: {
-        validator: (value) =>
-          isValidHttpUrl(value, { githubOnly: true }),
+        validator: (value) => isValidHttpUrl(value, { githubOnly: true }),
         message: "Github havolasi github.com URL bo'lishi kerak",
       },
     },
@@ -104,8 +96,7 @@ const projectSchema = new mongoose.Schema(
       default: "",
       maxlength: [2048, "Demo havolasi juda uzun"],
       validate: {
-        validator: (value) =>
-          value === "" || isValidHttpUrl(value),
+        validator: (value) => value === "" || isValidHttpUrl(value),
         message: "Demo havolasi to'g'ri http/https URL bo'lishi kerak",
       },
     },

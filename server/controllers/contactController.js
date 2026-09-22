@@ -5,14 +5,9 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const mongoose = require("mongoose");
 const logger = require("../utils/logger");
-const {
-  emitRealtimeEvent,
-} = require("../services/realtime");
+const { emitRealtimeEvent } = require("../services/realtime");
 const { env } = require("../config/env");
-const {
-  parsePagination,
-  buildPaginationMeta,
-} = require("../utils/pagination");
+const { parsePagination, buildPaginationMeta } = require("../utils/pagination");
 
 const escapeTelegramHtml = (value) =>
   String(value)
@@ -20,20 +15,13 @@ const escapeTelegramHtml = (value) =>
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 
-const createTrackingToken = () =>
-  crypto.randomBytes(32).toString("base64url");
+const createTrackingToken = () => crypto.randomBytes(32).toString("base64url");
 
 const hashTrackingToken = (token) =>
-  crypto
-    .createHash("sha256")
-    .update(token)
-    .digest("hex");
+  crypto.createHash("sha256").update(token).digest("hex");
 
 const safeSecretEqual = (received, expected) => {
-  if (
-    typeof received !== "string" ||
-    typeof expected !== "string"
-  ) {
+  if (typeof received !== "string" || typeof expected !== "string") {
     return false;
   }
 
@@ -44,10 +32,7 @@ const safeSecretEqual = (received, expected) => {
     return false;
   }
 
-  return crypto.timingSafeEqual(
-    receivedBuffer,
-    expectedBuffer,
-  );
+  return crypto.timingSafeEqual(receivedBuffer, expectedBuffer);
 };
 
 // 1. YANGI KONTAKT YARATISH (OMMAVIY)
@@ -73,8 +58,7 @@ exports.createContact = async (req, res, next) => {
     phone = phone.toString().trim().replace(/\s+/g, "");
 
     const trackingToken = createTrackingToken();
-    const trackingTokenHash =
-      hashTrackingToken(trackingToken);
+    const trackingTokenHash = hashTrackingToken(trackingToken);
 
     const newContact = new Contact({
       name,
@@ -109,8 +93,7 @@ exports.createContact = async (req, res, next) => {
         },
       );
 
-      const telegramMessageId =
-        telegramResponse.data?.result?.message_id;
+      const telegramMessageId = telegramResponse.data?.result?.message_id;
 
       if (!Number.isInteger(telegramMessageId)) {
         throw new Error("Telegram message ID qaytarmadi.");
@@ -200,10 +183,7 @@ exports.getContactAnswer = async (req, res, next) => {
   try {
     const { token } = req.params;
 
-    if (
-      typeof token !== "string" ||
-      !/^[A-Za-z0-9_-]{43}$/.test(token)
-    ) {
+    if (typeof token !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(token)) {
       return res.status(400).json({
         success: false,
         message: "Tracking token formati noto'g'ri.",
@@ -240,14 +220,10 @@ exports.getContactAnswer = async (req, res, next) => {
 // 3. TELEGRAM WEBHOOK HANDLER
 exports.handleTelegramWebhook = async (req, res) => {
   try {
-    const telegramToken =
-      req.headers["x-telegram-bot-api-secret-token"];
+    const telegramToken = req.headers["x-telegram-bot-api-secret-token"];
 
     if (!safeSecretEqual(telegramToken, env.webhookSecretToken)) {
-      logger.warn(
-        { ip: req.ip },
-        "Noto'g'ri Telegram webhook tokeni.",
-      );
+      logger.warn({ ip: req.ip }, "Noto'g'ri Telegram webhook tokeni.");
 
       return res.status(403).json({
         success: false,
@@ -258,10 +234,7 @@ exports.handleTelegramWebhook = async (req, res) => {
     const { message } = req.body || {};
 
     if (message?.reply_to_message && message?.text) {
-      if (
-        String(message.chat?.id) !==
-        String(env.telegramChatId)
-      ) {
+      if (String(message.chat?.id) !== String(env.telegramChatId)) {
         logger.warn(
           {
             chatId: message.chat?.id,
@@ -273,14 +246,12 @@ exports.handleTelegramWebhook = async (req, res) => {
         return res.status(200).send("OK");
       }
 
-      const originalMessageId =
-        message.reply_to_message.message_id;
+      const originalMessageId = message.reply_to_message.message_id;
       const answerText =
-        typeof message.text === "string"
-          ? message.text.trim()
-          : "";
+        typeof message.text === "string" ? message.text.trim() : "";
 
       const forbiddenControlCharacters =
+        // eslint-disable-next-line no-control-regex
         /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 
       if (
@@ -316,10 +287,7 @@ exports.handleTelegramWebhook = async (req, res) => {
 
     return res.status(200).send("OK");
   } catch (error) {
-    logger.error(
-      { err: error },
-      "Telegram webhook xatoligi.",
-    );
+    logger.error({ err: error }, "Telegram webhook xatoligi.");
     return res.status(200).send("OK");
   }
 };
@@ -365,9 +333,7 @@ exports.getContactAnswers = async (req, res, next) => {
 exports.setContactPublication = async (req, res, next) => {
   try {
     const body =
-      req.body &&
-      typeof req.body === "object" &&
-      !Array.isArray(req.body)
+      req.body && typeof req.body === "object" && !Array.isArray(req.body)
         ? req.body
         : {};
 
@@ -396,8 +362,7 @@ exports.setContactPublication = async (req, res, next) => {
     if (body.isPublic && !contact.isAnswered) {
       return res.status(409).json({
         success: false,
-        message:
-          "Javob berilmagan murojaatni public qilish mumkin emas.",
+        message: "Javob berilmagan murojaatni public qilish mumkin emas.",
       });
     }
 
@@ -473,8 +438,7 @@ exports.clearAllContacts = async (req, res, next) => {
     if (confirmation !== "DELETE_ALL_CONTACTS") {
       return res.status(400).json({
         success: false,
-        message:
-          "Tasdiqlash uchun DELETE_ALL_CONTACTS qiymatini yuboring.",
+        message: "Tasdiqlash uchun DELETE_ALL_CONTACTS qiymatini yuboring.",
       });
     }
 
@@ -489,8 +453,7 @@ exports.clearAllContacts = async (req, res, next) => {
       });
     }
 
-    const admin = await Admin.findById(req.admin._id)
-      .select("+password");
+    const admin = await Admin.findById(req.admin._id).select("+password");
 
     if (!admin) {
       return res.status(401).json({
@@ -499,10 +462,7 @@ exports.clearAllContacts = async (req, res, next) => {
       });
     }
 
-    const passwordMatches = await bcrypt.compare(
-      password,
-      admin.password,
-    );
+    const passwordMatches = await bcrypt.compare(password, admin.password);
 
     if (!passwordMatches) {
       return res.status(403).json({

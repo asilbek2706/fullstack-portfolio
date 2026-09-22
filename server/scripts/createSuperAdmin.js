@@ -21,9 +21,7 @@ const validateUsername = async (value) => {
 
   const existingAdmin = await Admin.exists({ username });
 
-  return existingAdmin
-    ? "Bu username allaqachon band."
-    : true;
+  return existingAdmin ? "Bu username allaqachon band." : true;
 };
 
 const validateEmail = async (value) => {
@@ -35,9 +33,7 @@ const validateEmail = async (value) => {
 
   const existingAdmin = await Admin.exists({ email });
 
-  return existingAdmin
-    ? "Bu email allaqachon ro'yxatdan o'tgan."
-    : true;
+  return existingAdmin ? "Bu email allaqachon ro'yxatdan o'tgan." : true;
 };
 
 const validatePassword = (value) => {
@@ -55,9 +51,7 @@ const validatePassword = (value) => {
 const main = async () => {
   try {
     if (!env.mongoUri) {
-      throw new Error(
-        ".env faylida MONGO_URI topilmadi.",
-      );
+      throw new Error(".env faylida MONGO_URI topilmadi.");
     }
 
     await mongoose.connect(env.mongoUri, {
@@ -110,22 +104,15 @@ const main = async () => {
         message: "Parolni takrorlang:",
         mask: "*",
         validate: (value) =>
-          value === passwordAnswer.password ||
-          "Parollar bir xil emas.",
+          value === passwordAnswer.password || "Parollar bir xil emas.",
       },
     ]);
 
-    if (
-      confirmation.passwordConfirmation !==
-      passwordAnswer.password
-    ) {
+    if (confirmation.passwordConfirmation !== passwordAnswer.password) {
       throw new Error("Parol tasdiqlanmadi.");
     }
 
-    const hashedPassword = await bcrypt.hash(
-      passwordAnswer.password,
-      12,
-    );
+    const hashedPassword = await bcrypt.hash(passwordAnswer.password, 12);
 
     const superAdmin = await Admin.create({
       username: identity.username,
@@ -138,10 +125,7 @@ const main = async () => {
       `SuperAdmin "${superAdmin.username}" muvaffaqiyatli yaratildi.`,
     );
   } catch (error) {
-    console.error(
-      "SuperAdmin yaratishda xatolik:",
-      error.message,
-    );
+    console.error("SuperAdmin yaratishda xatolik:", error.message);
     process.exitCode = 1;
   } finally {
     await mongoose.disconnect().catch(() => {});

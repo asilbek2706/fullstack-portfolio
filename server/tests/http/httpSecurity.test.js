@@ -8,9 +8,7 @@ const request = require("supertest");
 const app = require("../../app");
 
 test("GET /health returns healthy response", async () => {
-  const response = await request(app)
-    .get("/health")
-    .expect(200);
+  const response = await request(app).get("/health").expect(200);
 
   assert.equal(response.body.success, true);
   assert.equal(response.body.status, "healthy");
@@ -18,37 +16,22 @@ test("GET /health returns healthy response", async () => {
 });
 
 test("GET /ready returns 503 without database connection", async () => {
-  const response = await request(app)
-    .get("/ready")
-    .expect(503);
+  const response = await request(app).get("/ready").expect(503);
 
   assert.equal(response.body.success, false);
   assert.equal(response.body.status, "not_ready");
-  assert.equal(
-    response.body.checks.database,
-    "disconnected",
-  );
+  assert.equal(response.body.checks.database, "disconnected");
 });
 
 test("security headers are attached", async () => {
-  const response = await request(app)
-    .get("/health")
-    .expect(200);
+  const response = await request(app).get("/health").expect(200);
 
-  assert.equal(
-    response.headers["x-content-type-options"],
-    "nosniff",
-  );
-  assert.equal(
-    response.headers["x-frame-options"],
-    "SAMEORIGIN",
-  );
+  assert.equal(response.headers["x-content-type-options"], "nosniff");
+  assert.equal(response.headers["x-frame-options"], "SAMEORIGIN");
 });
 
 test("unknown endpoint returns safe 404 response", async () => {
-  const response = await request(app)
-    .get("/api/mavjud-emas")
-    .expect(404);
+  const response = await request(app).get("/api/mavjud-emas").expect(404);
 
   assert.deepEqual(response.body, {
     success: false,
@@ -67,10 +50,7 @@ test("denied CORS origin returns 403", async () => {
     message: "So'rov manbasi tasdiqlanmadi.",
   });
 
-  assert.equal(
-    response.headers["access-control-allow-origin"],
-    undefined,
-  );
+  assert.equal(response.headers["access-control-allow-origin"], undefined);
 });
 
 test("allowed CORS preflight returns 204", async () => {
@@ -84,10 +64,7 @@ test("allowed CORS preflight returns 204", async () => {
     response.headers["access-control-allow-origin"],
     "http://localhost:5173",
   );
-  assert.equal(
-    response.headers["access-control-allow-credentials"],
-    "true",
-  );
+  assert.equal(response.headers["access-control-allow-credentials"], "true");
 });
 
 test("malformed JSON returns safe 400 response", async () => {
@@ -113,8 +90,7 @@ test("oversized JSON body returns 413", async () => {
 
   assert.deepEqual(response.body, {
     success: false,
-    message:
-      "So'rov hajmi belgilangan limitdan oshib ketdi.",
+    message: "So'rov hajmi belgilangan limitdan oshib ketdi.",
   });
 });
 

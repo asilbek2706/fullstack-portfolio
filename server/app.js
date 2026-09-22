@@ -12,9 +12,7 @@ const { corsOptions } = require("./config/cors");
 
 const requestLogger = require("./middlewares/requestLogger");
 const sanitizeRequest = require("./middlewares/sanitizeRequest");
-const {
-  globalLimiter,
-} = require("./middlewares/rateLimiters");
+const { globalLimiter } = require("./middlewares/rateLimiters");
 
 const apiRoutes = require("./routes");
 const systemRoutes = require("./routes/systemRoutes");
@@ -56,10 +54,7 @@ app.use(
     immutable: true,
     setHeaders: (res) => {
       res.setHeader("X-Content-Type-Options", "nosniff");
-      res.setHeader(
-        "Cross-Origin-Resource-Policy",
-        "cross-origin",
-      );
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     },
   }),
 );
@@ -71,11 +66,7 @@ app.use(systemRoutes);
 
 app.use(globalLimiter);
 
-app.use(
-  "/swagger",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec),
-);
+app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api", apiRoutes);
 

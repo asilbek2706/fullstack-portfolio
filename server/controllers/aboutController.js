@@ -3,9 +3,7 @@ const About = require("../models/About");
 // 🌐 1. "Men haqimda" ma'lumotlarini olish (Ommaviy)
 exports.getAbout = async (req, res, next) => {
   try {
-    const aboutData = await About.findOne()
-      .select("-updatedBy")
-      .lean();
+    const aboutData = await About.findOne().select("-updatedBy").lean();
 
     if (!aboutData) {
       return res.status(404).json({
@@ -36,9 +34,7 @@ exports.updateAbout = async (req, res, next) => {
     ];
 
     const body =
-      req.body &&
-      typeof req.body === "object" &&
-      !Array.isArray(req.body)
+      req.body && typeof req.body === "object" && !Array.isArray(req.body)
         ? req.body
         : {};
 
@@ -49,16 +45,14 @@ exports.updateAbout = async (req, res, next) => {
     if (unknownFields.length > 0) {
       return res.status(400).json({
         success: false,
-        message:
-          `Ruxsat etilmagan maydonlar: ${unknownFields.join(", ")}`,
+        message: `Ruxsat etilmagan maydonlar: ${unknownFields.join(", ")}`,
       });
     }
 
     if (Object.keys(body).length === 0) {
       return res.status(400).json({
         success: false,
-        message:
-          "Yangilash uchun kamida bitta maydon yuboring.",
+        message: "Yangilash uchun kamida bitta maydon yuboring.",
       });
     }
 

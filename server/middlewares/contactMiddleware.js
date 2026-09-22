@@ -4,11 +4,7 @@ const { env } = require("../config/env");
 
 const validateContactAndRecaptcha = async (req, res, next) => {
   try {
-    if (
-      !req.body ||
-      typeof req.body !== "object" ||
-      Array.isArray(req.body)
-    ) {
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
       return res.status(400).json({
         success: false,
         message: "So'rov body qismi obyekt bo'lishi kerak.",
@@ -57,7 +53,9 @@ const validateContactAndRecaptcha = async (req, res, next) => {
       });
     }
 
-    const forbiddenControlCharacters = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
+    const forbiddenControlCharacters =
+      // eslint-disable-next-line no-control-regex
+      /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
 
     if (
       forbiddenControlCharacters.test(name) ||

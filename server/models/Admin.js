@@ -9,10 +9,7 @@ const AdminSchema = new mongoose.Schema(
       trim: true,
       minlength: [3, "Username kamida 3 ta belgidan iborat bo'lishi kerak"],
       maxlength: [32, "Username 32 ta belgidan oshmasligi kerak"],
-      match: [
-        /^[A-Za-z0-9._-]+$/,
-        "Username formati noto'g'ri",
-      ],
+      match: [/^[A-Za-z0-9._-]+$/, "Username formati noto'g'ri"],
     },
     email: {
       type: String,

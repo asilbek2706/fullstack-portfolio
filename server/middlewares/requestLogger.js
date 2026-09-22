@@ -3,9 +3,7 @@ const pinoHttp = require("pino-http");
 
 const logger = require("../utils/logger");
 
-const isHealthCheck = (req) =>
-  req.url === "/health" ||
-  req.url === "/ready";
+const isHealthCheck = (req) => req.url === "/health" || req.url === "/ready";
 
 const requestLogger = pinoHttp({
   logger,
@@ -49,13 +47,9 @@ const requestLogger = pinoHttp({
   },
 
   customSuccessMessage: (req, res) => {
-    const outcome =
-      res.statusCode >= 400 ? "rejected" : "completed";
+    const outcome = res.statusCode >= 400 ? "rejected" : "completed";
 
-    return (
-      `${req.method} ${req.originalUrl || req.url} ` +
-      outcome
-    );
+    return `${req.method} ${req.originalUrl || req.url} ` + outcome;
   },
 
   customErrorMessage: (req) =>

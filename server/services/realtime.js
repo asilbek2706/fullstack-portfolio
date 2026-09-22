@@ -8,10 +8,7 @@ const setRealtimeServer = (io) => {
 
 const emitRealtimeEvent = (eventName, payload) => {
   if (!socketServer) {
-    logger.warn(
-      { eventName },
-      "Realtime server hali ishga tushmagan.",
-    );
+    logger.warn({ eventName }, "Realtime server hali ishga tushmagan.");
     return false;
   }
 
@@ -19,10 +16,7 @@ const emitRealtimeEvent = (eventName, payload) => {
     socketServer.emit(eventName, payload);
     return true;
   } catch (error) {
-    logger.error(
-      { err: error, eventName },
-      "Realtime event yuborilmadi.",
-    );
+    logger.error({ err: error, eventName }, "Realtime event yuborilmadi.");
     return false;
   }
 };

@@ -23,9 +23,7 @@ const AboutSchema = new mongoose.Schema(
       maxlength: [2048, "Profil rasmi URL manzili juda uzun"],
       validate: {
         validator: (value) => {
-          if (
-            /^\/uploads\/[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(value)
-          ) {
+          if (/^\/uploads\/[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(value)) {
             return true;
           }
 
@@ -54,7 +52,7 @@ const AboutSchema = new mongoose.Schema(
       trim: true,
       maxlength: [50, "Tajriba qiymati 50 ta belgidan oshmasligi kerak"],
     },
-    
+
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Admin",

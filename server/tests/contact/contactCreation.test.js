@@ -8,9 +8,7 @@ const { afterEach } = require("node:test");
 
 const axios = require("axios");
 const Contact = require("../../models/Contact");
-const {
-  createContact,
-} = require("../../controllers/contactController");
+const { createContact } = require("../../controllers/contactController");
 
 const originalAxiosPost = axios.post;
 const originalContactSave = Contact.prototype.save;
@@ -87,39 +85,26 @@ test("Contact creation stores hashed tracking token", async () => {
   assert.equal(result.nextCalled, false);
   assert.equal(saveCount, 2);
 
-  const trackingToken =
-    result.res.body.data.trackingToken;
+  const trackingToken = result.res.body.data.trackingToken;
 
   assert.match(trackingToken, /^[A-Za-z0-9_-]{43}$/);
-  assert.match(
-    savedContact.trackingTokenHash,
-    /^[a-f0-9]{64}$/,
-  );
+  assert.match(savedContact.trackingTokenHash, /^[a-f0-9]{64}$/);
 
   const expectedHash = crypto
     .createHash("sha256")
     .update(trackingToken)
     .digest("hex");
 
-  assert.equal(
-    savedContact.trackingTokenHash,
-    expectedHash,
-  );
-  assert.notEqual(
-    savedContact.trackingTokenHash,
-    trackingToken,
-  );
+  assert.equal(savedContact.trackingTokenHash, expectedHash);
+  assert.notEqual(savedContact.trackingTokenHash, trackingToken);
 
   assert.equal(savedContact.telegramMessageId, 12345);
-  assert.equal(
-    savedContact.telegramDeliveryStatus,
-    "sent",
-  );
+  assert.equal(savedContact.telegramDeliveryStatus, "sent");
 
-  assert.deepEqual(
-    Object.keys(result.res.body.data).sort(),
-    ["deliveryStatus", "trackingToken"],
-  );
+  assert.deepEqual(Object.keys(result.res.body.data).sort(), [
+    "deliveryStatus",
+    "trackingToken",
+  ]);
 });
 
 test("Contact creation escapes Telegram HTML safely", async () => {
@@ -148,18 +133,12 @@ test("Contact creation escapes Telegram HTML safely", async () => {
 
   const [url, payload, options] = telegramCall;
 
-  assert.match(
-    url,
-    /^https:\/\/api\.telegram\.org\/bot.+\/sendMessage$/,
-  );
+  assert.match(url, /^https:\/\/api\.telegram\.org\/bot.+\/sendMessage$/);
   assert.equal(payload.parse_mode, "HTML");
   assert.equal(options.timeout, 10000);
 
   assert.match(payload.text, /Asilbek &amp; Co/);
-  assert.match(
-    payload.text,
-    /Hello world &amp; portfolio test/,
-  );
+  assert.match(payload.text, /Hello world &amp; portfolio test/);
   assert.doesNotMatch(payload.text, /<b>world<\/b>/);
 });
 
@@ -183,18 +162,9 @@ test("Contact remains stored when Telegram delivery fails", async () => {
 
   assert.equal(result.res.statusCode, 202);
   assert.equal(result.res.body.success, true);
-  assert.equal(
-    result.res.body.data.deliveryStatus,
-    "failed",
-  );
-  assert.match(
-    result.res.body.data.trackingToken,
-    /^[A-Za-z0-9_-]{43}$/,
-  );
-  assert.equal(
-    savedContact.telegramDeliveryStatus,
-    "failed",
-  );
+  assert.equal(result.res.body.data.deliveryStatus, "failed");
+  assert.match(result.res.body.data.trackingToken, /^[A-Za-z0-9_-]{43}$/);
+  assert.equal(savedContact.telegramDeliveryStatus, "failed");
   assert.equal(saveCount, 2);
   assert.equal(result.nextCalled, false);
 });
@@ -217,19 +187,12 @@ test("Missing Telegram message ID is treated as failed delivery", async () => {
   const result = await runCreateContact(validBody());
 
   assert.equal(result.res.statusCode, 202);
-  assert.equal(
-    result.res.body.data.deliveryStatus,
-    "failed",
-  );
-  assert.equal(
-    savedContact.telegramDeliveryStatus,
-    "failed",
-  );
+  assert.equal(result.res.body.data.deliveryStatus, "failed");
+  assert.equal(savedContact.telegramDeliveryStatus, "failed");
 });
 
 test("Database save errors are forwarded to error handler", async () => {
-  const databaseError =
-    new Error("Database write failed");
+  const databaseError = new Error("Database write failed");
 
   let telegramCalled = false;
 

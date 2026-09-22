@@ -1,10 +1,7 @@
 process.env.NODE_ENV = "test";
 process.env.LOG_LEVEL = "silent";
 
-const {
-  test,
-  afterEach,
-} = require("node:test");
+const { test, afterEach } = require("node:test");
 const assert = require("node:assert/strict");
 
 const About = require("../../models/About");
@@ -40,14 +37,10 @@ const runUpdateAbout = async (body) => {
   let nextError;
   let nextCalled = false;
 
-  await aboutController.updateAbout(
-    req,
-    res,
-    (error) => {
-      nextCalled = true;
-      nextError = error;
-    },
-  );
+  await aboutController.updateAbout(req, res, (error) => {
+    nextCalled = true;
+    nextError = error;
+  });
 
   return {
     req,
@@ -64,10 +57,7 @@ test("About update rejects unknown fields", async () => {
 
   assert.equal(res.statusCode, 400);
   assert.equal(nextCalled, false);
-  assert.equal(
-    res.body.message,
-    "Ruxsat etilmagan maydonlar: role",
-  );
+  assert.equal(res.body.message, "Ruxsat etilmagan maydonlar: role");
 });
 
 test("About update rejects empty body", async () => {
@@ -95,10 +85,7 @@ test("About update rejects non-string field", async () => {
 
   assert.equal(res.statusCode, 400);
   assert.equal(nextCalled, false);
-  assert.equal(
-    res.body.message,
-    "fullName matn ko'rinishida bo'lishi kerak.",
-  );
+  assert.equal(res.body.message, "fullName matn ko'rinishida bo'lishi kerak.");
 });
 
 test("About update rejects whitespace-only field", async () => {
@@ -108,10 +95,7 @@ test("About update rejects whitespace-only field", async () => {
 
   assert.equal(res.statusCode, 400);
   assert.equal(nextCalled, false);
-  assert.equal(
-    res.body.message,
-    "bio bo'sh bo'lishi mumkin emas.",
-  );
+  assert.equal(res.body.message, "bio bo'sh bo'lishi mumkin emas.");
 });
 
 test("About partial update trims input and hides updatedBy", async () => {
@@ -141,21 +125,14 @@ test("About partial update trims input and hides updatedBy", async () => {
 
   About.findOne = async () => aboutDocument;
 
-  const { res, nextCalled, nextError } =
-    await runUpdateAbout({
-      fullName: "  Asilbek Karomatov  ",
-    });
+  const { res, nextCalled, nextError } = await runUpdateAbout({
+    fullName: "  Asilbek Karomatov  ",
+  });
 
   assert.equal(nextCalled, false);
   assert.equal(nextError, undefined);
   assert.equal(saveCalled, true);
   assert.equal(res.statusCode, 200);
-  assert.equal(
-    res.body.data.fullName,
-    "Asilbek Karomatov",
-  );
-  assert.equal(
-    Object.hasOwn(res.body.data, "updatedBy"),
-    false,
-  );
+  assert.equal(res.body.data.fullName, "Asilbek Karomatov");
+  assert.equal(Object.hasOwn(res.body.data, "updatedBy"), false);
 });

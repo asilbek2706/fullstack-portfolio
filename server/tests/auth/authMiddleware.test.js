@@ -1,10 +1,7 @@
 process.env.NODE_ENV = "test";
 process.env.LOG_LEVEL = "silent";
 
-const {
-  test,
-  afterEach,
-} = require("node:test");
+const { test, afterEach } = require("node:test");
 const assert = require("node:assert/strict");
 const jwt = require("jsonwebtoken");
 
@@ -25,16 +22,12 @@ const createToken = ({
   id = "507f1f77bcf86cd799439011",
   tokenVersion = 0,
 } = {}) =>
-  jwt.sign(
-    { id, tokenVersion },
-    env.jwtSecret,
-    {
-      algorithm: "HS256",
-      expiresIn: "5m",
-      issuer: "portfolio-api",
-      audience: "portfolio-admin",
-    },
-  );
+  jwt.sign({ id, tokenVersion }, env.jwtSecret, {
+    algorithm: "HS256",
+    expiresIn: "5m",
+    issuer: "portfolio-api",
+    audience: "portfolio-admin",
+  });
 
 const mockAdminLookup = (admin) => {
   Admin.findById = () => ({
@@ -60,10 +53,7 @@ const createRequest = ({
 
   return {
     method,
-    cookies:
-      token && useCookie
-        ? { token }
-        : {},
+    cookies: token && useCookie ? { token } : {},
     get(name) {
       return headers[name.toLowerCase()];
     },

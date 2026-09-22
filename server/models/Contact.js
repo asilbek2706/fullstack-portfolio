@@ -55,8 +55,7 @@ const contactSchema = new mongoose.Schema(
       default: null,
       min: [1, "Telegram message ID musbat son bo'lishi kerak"],
       validate: {
-        validator: (value) =>
-          value === null || Number.isInteger(value),
+        validator: (value) => value === null || Number.isInteger(value),
         message: "Telegram message ID butun son bo'lishi kerak",
       },
       select: false,

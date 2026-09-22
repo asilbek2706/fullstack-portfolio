@@ -3,9 +3,7 @@ process.env.LOG_LEVEL = "silent";
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const {
-  afterEach,
-} = require("node:test");
+const { afterEach } = require("node:test");
 
 const Admin = require("../../models/Admin");
 const bcrypt = require("bcryptjs");
@@ -65,10 +63,7 @@ const createResponse = () => ({
   },
 });
 
-const runController = async (
-  controller,
-  req,
-) => {
+const runController = async (controller, req) => {
   const res = createResponse();
 
   await controller(req, res);
@@ -125,18 +120,12 @@ test("Login rejects missing credentials", async () => {
     databaseCalled = true;
   };
 
-  const res = await runController(
-    loginAdmin,
-    {
-      body: {},
-    },
-  );
+  const res = await runController(loginAdmin, {
+    body: {},
+  });
 
   assert.equal(res.statusCode, 400);
-  assert.equal(
-    res.body.message,
-    "Login va parolni kiriting!",
-  );
+  assert.equal(res.body.message, "Login va parolni kiriting!");
 
   assert.equal(databaseCalled, false);
   assert.equal(res.cookies.length, 0);
@@ -145,30 +134,21 @@ test("Login rejects missing credentials", async () => {
 test("Login rejects unknown admin safely", async () => {
   const query = mockFindOne(null);
 
-  const res = await runController(
-    loginAdmin,
-    {
-      body: {
-        username: "  asilbek  ",
-        password: "secure-password",
-      },
+  const res = await runController(loginAdmin, {
+    body: {
+      username: "  asilbek  ",
+      password: "secure-password",
     },
-  );
+  });
 
   assert.deepEqual(query.getFilter(), {
     username: "asilbek",
   });
 
-  assert.equal(
-    query.getSelect(),
-    "+password +tokenVersion",
-  );
+  assert.equal(query.getSelect(), "+password +tokenVersion");
 
   assert.equal(res.statusCode, 400);
-  assert.equal(
-    res.body.message,
-    "Login yoki parol noto'g'ri!",
-  );
+  assert.equal(res.body.message, "Login yoki parol noto'g'ri!");
 
   assert.equal(res.cookies.length, 0);
 });
@@ -185,36 +165,24 @@ test("Login rejects incorrect password safely", async () => {
   let comparedPassword;
   let comparedHash;
 
-  bcrypt.compare = async (
-    password,
-    hash,
-  ) => {
+  bcrypt.compare = async (password, hash) => {
     comparedPassword = password;
     comparedHash = hash;
     return false;
   };
 
-  const res = await runController(
-    loginAdmin,
-    {
-      body: {
-        username: "asilbek",
-        password: "wrong-password",
-      },
+  const res = await runController(loginAdmin, {
+    body: {
+      username: "asilbek",
+      password: "wrong-password",
     },
-  );
+  });
 
-  assert.equal(
-    comparedPassword,
-    "wrong-password",
-  );
+  assert.equal(comparedPassword, "wrong-password");
   assert.equal(comparedHash, "stored-hash");
 
   assert.equal(res.statusCode, 400);
-  assert.equal(
-    res.body.message,
-    "Login yoki parol noto'g'ri!",
-  );
+  assert.equal(res.body.message, "Login yoki parol noto'g'ri!");
 
   assert.equal(res.cookies.length, 0);
 });
@@ -237,11 +205,7 @@ test("Login creates secure session without exposing token", async () => {
   let tokenSecret;
   let tokenOptions;
 
-  jwt.sign = (
-    payload,
-    secret,
-    options,
-  ) => {
+  jwt.sign = (payload, secret, options) => {
     tokenPayload = payload;
     tokenSecret = secret;
     tokenOptions = options;
@@ -249,25 +213,19 @@ test("Login creates secure session without exposing token", async () => {
     return "signed-session-token";
   };
 
-  const res = await runController(
-    loginAdmin,
-    {
-      body: {
-        username: "asilbek",
-        password: "correct-password",
-      },
+  const res = await runController(loginAdmin, {
+    body: {
+      username: "asilbek",
+      password: "correct-password",
     },
-  );
+  });
 
   assert.deepEqual(tokenPayload, {
     id: "admin-id",
     tokenVersion: 3,
   });
 
-  assert.equal(
-    typeof tokenSecret,
-    "string",
-  );
+  assert.equal(typeof tokenSecret, "string");
   assert.ok(tokenSecret.length >= 32);
 
   assert.deepEqual(tokenOptions, {
@@ -278,43 +236,22 @@ test("Login creates secure session without exposing token", async () => {
   });
 
   assert.equal(res.cookies.length, 1);
-  assert.equal(
-    res.cookies[0].name,
-    "token",
-  );
-  assert.equal(
-    res.cookies[0].value,
-    "signed-session-token",
-  );
+  assert.equal(res.cookies[0].name, "token");
+  assert.equal(res.cookies[0].value, "signed-session-token");
 
-  assert.equal(
-    res.cookies[0].options.httpOnly,
-    true,
-  );
-  assert.equal(
-    res.cookies[0].options.path,
-    "/",
-  );
-  assert.equal(
-    res.cookies[0].options.maxAge,
-    24 * 60 * 60 * 1000,
-  );
+  assert.equal(res.cookies[0].options.httpOnly, true);
+  assert.equal(res.cookies[0].options.path, "/");
+  assert.equal(res.cookies[0].options.maxAge, 24 * 60 * 60 * 1000);
 
   assert.equal(res.statusCode, 200);
-  assert.equal(
-    Object.hasOwn(res.body, "token"),
-    false,
-  );
+  assert.equal(Object.hasOwn(res.body, "token"), false);
 
   assert.deepEqual(res.body.user, {
     username: "asilbek",
     email: "asilbek@mail.ru",
   });
 
-  assert.equal(
-    res.body.role,
-    "superadmin",
-  );
+  assert.equal(res.body.role, "superadmin");
 });
 
 test("Login uses zero tokenVersion when field is missing", async () => {
@@ -335,15 +272,12 @@ test("Login uses zero tokenVersion when field is missing", async () => {
     return "legacy-token";
   };
 
-  const res = await runController(
-    loginAdmin,
-    {
-      body: {
-        username: "legacy",
-        password: "correct-password",
-      },
+  const res = await runController(loginAdmin, {
+    body: {
+      username: "legacy",
+      password: "correct-password",
     },
-  );
+  });
 
   assert.deepEqual(tokenPayload, {
     id: "legacy-admin-id",
@@ -354,8 +288,7 @@ test("Login uses zero tokenVersion when field is missing", async () => {
 });
 
 test("Login returns safe 500 response after database error", async () => {
-  const databaseError =
-    new Error("Sensitive database error");
+  const databaseError = new Error("Sensitive database error");
 
   Admin.findOne = () => ({
     async select() {
@@ -363,26 +296,20 @@ test("Login returns safe 500 response after database error", async () => {
     },
   });
 
-  const res = await runController(
-    loginAdmin,
-    {
-      body: {
-        username: "asilbek",
-        password: "correct-password",
-      },
+  const res = await runController(loginAdmin, {
+    body: {
+      username: "asilbek",
+      password: "correct-password",
     },
-  );
+  });
 
   assert.equal(res.statusCode, 500);
   assert.deepEqual(res.body, {
-    message:
-      "Serverda ichki xatolik yuz berdi.",
+    message: "Serverda ichki xatolik yuz berdi.",
   });
 
   assert.equal(
-    JSON.stringify(res.body).includes(
-      "Sensitive database error",
-    ),
+    JSON.stringify(res.body).includes("Sensitive database error"),
     false,
   );
 
@@ -390,36 +317,18 @@ test("Login returns safe 500 response after database error", async () => {
 });
 
 test("Logout clears authentication cookie", async () => {
-  const res = await runController(
-    logoutAdmin,
-    {},
-  );
+  const res = await runController(logoutAdmin, {});
 
-  assert.equal(
-    res.clearedCookies.length,
-    1,
-  );
+  assert.equal(res.clearedCookies.length, 1);
 
-  assert.equal(
-    res.clearedCookies[0].name,
-    "token",
-  );
+  assert.equal(res.clearedCookies[0].name, "token");
 
-  assert.equal(
-    res.clearedCookies[0].options.httpOnly,
-    true,
-  );
+  assert.equal(res.clearedCookies[0].options.httpOnly, true);
 
-  assert.equal(
-    res.clearedCookies[0].options.path,
-    "/",
-  );
+  assert.equal(res.clearedCookies[0].options.path, "/");
 
   assert.equal(res.statusCode, 200);
-  assert.equal(
-    res.body.message,
-    "Tizimdan muvaffaqiyatli chiqdingiz! 🚪",
-  );
+  assert.equal(res.body.message, "Tizimdan muvaffaqiyatli chiqdingiz! 🚪");
 });
 
 test("Get me rejects request without authenticated identity", async () => {
@@ -429,45 +338,27 @@ test("Get me rejects request without authenticated identity", async () => {
     databaseCalled = true;
   };
 
-  const res = await runController(
-    getMe,
-    {},
-  );
+  const res = await runController(getMe, {});
 
   assert.equal(res.statusCode, 401);
-  assert.equal(
-    res.body.message,
-    "Siz tizimga kirmagansiz!",
-  );
+  assert.equal(res.body.message, "Siz tizimga kirmagansiz!");
   assert.equal(databaseCalled, false);
 });
 
 test("Get me returns 404 when admin no longer exists", async () => {
   const query = mockFindById(null);
 
-  const res = await runController(
-    getMe,
-    {
-      user: {
-        id: "missing-admin-id",
-      },
+  const res = await runController(getMe, {
+    user: {
+      id: "missing-admin-id",
     },
-  );
+  });
 
-  assert.equal(
-    query.getId(),
-    "missing-admin-id",
-  );
-  assert.equal(
-    query.getSelect(),
-    "-password",
-  );
+  assert.equal(query.getId(), "missing-admin-id");
+  assert.equal(query.getSelect(), "-password");
 
   assert.equal(res.statusCode, 404);
-  assert.equal(
-    res.body.message,
-    "Admin topilmadi!",
-  );
+  assert.equal(res.body.message, "Admin topilmadi!");
 });
 
 test("Get me returns only public admin profile", async () => {
@@ -480,19 +371,13 @@ test("Get me returns only public admin profile", async () => {
     tokenVersion: 4,
   });
 
-  const res = await runController(
-    getMe,
-    {
-      admin: {
-        id: "admin-id",
-      },
+  const res = await runController(getMe, {
+    admin: {
+      id: "admin-id",
     },
-  );
+  });
 
-  assert.equal(
-    query.getId(),
-    "admin-id",
-  );
+  assert.equal(query.getId(), "admin-id");
 
   assert.deepEqual(res.body, {
     username: "asilbek",
@@ -500,42 +385,27 @@ test("Get me returns only public admin profile", async () => {
     email: "asilbek@mail.ru",
   });
 
-  assert.equal(
-    Object.hasOwn(res.body, "password"),
-    false,
-  );
+  assert.equal(Object.hasOwn(res.body, "password"), false);
 
-  assert.equal(
-    Object.hasOwn(
-      res.body,
-      "tokenVersion",
-    ),
-    false,
-  );
+  assert.equal(Object.hasOwn(res.body, "tokenVersion"), false);
 });
 
 test("Get me returns safe 500 after database error", async () => {
   Admin.findById = () => ({
     async select() {
-      throw new Error(
-        "Sensitive lookup failure",
-      );
+      throw new Error("Sensitive lookup failure");
     },
   });
 
-  const res = await runController(
-    getMe,
-    {
-      user: {
-        id: "admin-id",
-      },
+  const res = await runController(getMe, {
+    user: {
+      id: "admin-id",
     },
-  );
+  });
 
   assert.equal(res.statusCode, 500);
 
   assert.deepEqual(res.body, {
-    message:
-      "Serverda ichki xatolik yuz berdi.",
+    message: "Serverda ichki xatolik yuz berdi.",
   });
 });

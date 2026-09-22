@@ -2,13 +2,8 @@ const Project = require("../models/Project");
 const mongoose = require("mongoose");
 const fs = require("fs").promises;
 const path = require("path");
-const {
-  emitRealtimeEvent,
-} = require("../services/realtime");
-const {
-  parsePagination,
-  buildPaginationMeta,
-} = require("../utils/pagination");
+const { emitRealtimeEvent } = require("../services/realtime");
+const { parsePagination, buildPaginationMeta } = require("../utils/pagination");
 const logger = require("../utils/logger");
 
 // =========================
@@ -23,10 +18,8 @@ const toPublicProject = (project) => {
     return project.toJSON();
   }
 
-  const {
-    createdBy,
-    ...publicProject
-  } = project;
+  const publicProject = { ...project };
+  delete publicProject.createdBy;
 
   return publicProject;
 };
@@ -43,7 +36,9 @@ const parseTechnologies = (technologies) => {
       if (Array.isArray(parsed)) {
         return parsed;
       }
-    } catch (_) {}
+    } catch {
+      // JSON bo'lmasa, quyida vergul bilan ajratilgan qiymat sifatida o'qiladi.
+    }
 
     return technologies
       .split(",")
@@ -188,9 +183,7 @@ exports.createProject = async (req, res, next) => {
     });
   } catch (error) {
     if (req.file) {
-      await deleteImage(
-        `/uploads/projects/${req.file.filename}`,
-      );
+      await deleteImage(`/uploads/projects/${req.file.filename}`);
     }
 
     return next(error);
@@ -245,9 +238,7 @@ exports.updateProject = async (req, res, next) => {
 
     if (!updatedProject) {
       if (req.file) {
-        await deleteImage(
-          `/uploads/projects/${req.file.filename}`,
-        );
+        await deleteImage(`/uploads/projects/${req.file.filename}`);
       }
 
       return res.status(404).json({
@@ -271,9 +262,7 @@ exports.updateProject = async (req, res, next) => {
     });
   } catch (error) {
     if (req.file) {
-      await deleteImage(
-        `/uploads/projects/${req.file.filename}`,
-      );
+      await deleteImage(`/uploads/projects/${req.file.filename}`);
     }
 
     return next(error);
@@ -313,9 +302,7 @@ exports.patchProject = async (req, res, next) => {
     ];
 
     const updateData = Object.fromEntries(
-      Object.entries(req.body).filter(([key]) =>
-        allowedFields.includes(key),
-      ),
+      Object.entries(req.body).filter(([key]) => allowedFields.includes(key)),
     );
 
     if (req.body.technologies) {
@@ -335,9 +322,7 @@ exports.patchProject = async (req, res, next) => {
 
     if (!updatedProject) {
       if (req.file) {
-        await deleteImage(
-          `/uploads/projects/${req.file.filename}`,
-        );
+        await deleteImage(`/uploads/projects/${req.file.filename}`);
       }
 
       return res.status(404).json({
@@ -361,9 +346,7 @@ exports.patchProject = async (req, res, next) => {
     });
   } catch (error) {
     if (req.file) {
-      await deleteImage(
-        `/uploads/projects/${req.file.filename}`,
-      );
+      await deleteImage(`/uploads/projects/${req.file.filename}`);
     }
 
     return next(error);

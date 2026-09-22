@@ -4,10 +4,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const logger = require("../utils/logger");
 const { env } = require("../config/env");
-const {
-  parsePagination,
-  buildPaginationMeta,
-} = require("../utils/pagination");
+const { parsePagination, buildPaginationMeta } = require("../utils/pagination");
 
 const getAuthCookieOptions = () => {
   const isProduction = env.nodeEnv === "production";
@@ -42,12 +39,8 @@ const setAuthCookie = (res, token) => {
   });
 };
 
-
 const sendServerError = (res, error) => {
-  logger.error(
-    { err: error },
-    "Auth controller xatoligi.",
-  );
+  logger.error({ err: error }, "Auth controller xatoligi.");
 
   return res.status(500).json({
     message: "Serverda ichki xatolik yuz berdi.",
@@ -113,8 +106,7 @@ exports.inviteAdmin = async (req, res) => {
       password.length < 8
     ) {
       return res.status(400).json({
-        message:
-          "Username, email va kamida 8 belgilik parolni kiriting!",
+        message: "Username, email va kamida 8 belgilik parolni kiriting!",
       });
     }
 
@@ -179,8 +171,7 @@ exports.getAllAdmins = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message:
-        "Barcha adminlar ro'yxati muvaffaqiyatli yuklandi.",
+      message: "Barcha adminlar ro'yxati muvaffaqiyatli yuklandi.",
       count: admins.length,
       pagination: buildPaginationMeta({
         ...pagination,
@@ -231,11 +222,10 @@ exports.updateMe = async (req, res) => {
       };
     }
 
-    let updateQuery = Admin.findByIdAndUpdate(
-      adminId,
-      updateOperation,
-      { new: true, runValidators: true },
-    );
+    let updateQuery = Admin.findByIdAndUpdate(adminId, updateOperation, {
+      new: true,
+      runValidators: true,
+    });
 
     if (passwordChanged) {
       updateQuery = updateQuery.select("+tokenVersion");
@@ -294,13 +284,9 @@ exports.updateAdminBySuper = async (req, res) => {
       });
     }
 
-    if (
-      adminToUpdate.role === "superadmin" &&
-      role !== "superadmin"
-    ) {
+    if (adminToUpdate.role === "superadmin" && role !== "superadmin") {
       return res.status(403).json({
-        message:
-          "SuperAdmin rolini pasaytirish taqiqlangan.",
+        message: "SuperAdmin rolini pasaytirish taqiqlangan.",
       });
     }
 

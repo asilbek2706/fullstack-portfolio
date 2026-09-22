@@ -15,7 +15,7 @@ module.exports = {
 
   // 🌐 2. PATHS / ENDPOINTS
   paths: {
-     "/api/auth/me": {
+    "/api/auth/me": {
       get: {
         summary: "Joriy kirgan admin ma'lumotlarini olish",
         tags: ["Auth"],
@@ -43,7 +43,7 @@ module.exports = {
         },
       },
     },
-       "/api/auth/admins": {
+    "/api/auth/admins": {
       get: {
         summary:
           "Barcha ro'yxatdan o'tgan adminlar ro'yxati (🛡️ Faqat SuperAdmin)",
@@ -129,7 +129,7 @@ module.exports = {
         },
       },
     },
-      "/api/auth/update": {
+    "/api/auth/update": {
       patch: {
         summary: "Admin o'z shaxsiy profilini tahrirlashi",
         tags: ["Auth"],

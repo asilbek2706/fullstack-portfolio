@@ -3,15 +3,12 @@ process.env.LOG_LEVEL = "silent";
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const {
-  afterEach,
-} = require("node:test");
+const { afterEach } = require("node:test");
 
 const Contact = require("../../models/Contact");
 
 const originalFind = Contact.find;
-const originalCountDocuments =
-  Contact.countDocuments;
+const originalCountDocuments = Contact.countDocuments;
 
 const {
   getAllQuestionsAnswers,
@@ -19,8 +16,7 @@ const {
 
 afterEach(() => {
   Contact.find = originalFind;
-  Contact.countDocuments =
-    originalCountDocuments;
+  Contact.countDocuments = originalCountDocuments;
 });
 
 const createResponse = () => ({
@@ -38,11 +34,7 @@ const createResponse = () => ({
   },
 });
 
-const runList = async ({
-  query = {},
-  admin,
-  user,
-} = {}) => {
+const runList = async ({ query = {}, admin, user } = {}) => {
   const req = {
     query,
   };
@@ -60,14 +52,10 @@ const runList = async ({
   let nextCalled = false;
   let nextError;
 
-  await getAllQuestionsAnswers(
-    req,
-    res,
-    (error) => {
-      nextCalled = true;
-      nextError = error;
-    },
-  );
+  await getAllQuestionsAnswers(req, res, (error) => {
+    nextCalled = true;
+    nextError = error;
+  });
 
   return {
     res,
@@ -76,10 +64,7 @@ const runList = async ({
   };
 };
 
-const mockContactList = ({
-  contacts,
-  total,
-}) => {
+const mockContactList = ({ contacts, total }) => {
   const calls = {};
 
   Contact.find = () => ({
@@ -104,8 +89,7 @@ const mockContactList = ({
     },
   });
 
-  Contact.countDocuments =
-    async () => total;
+  Contact.countDocuments = async () => total;
 
   return calls;
 };
@@ -145,20 +129,14 @@ test("Contact admin list uses default pagination", async () => {
   assert.equal(result.res.body.success, true);
   assert.equal(result.res.body.count, 2);
 
-  assert.deepEqual(
-    result.res.body.pagination,
-    {
-      page: 1,
-      limit: 20,
-      total: 2,
-      totalPages: 1,
-    },
-  );
+  assert.deepEqual(result.res.body.pagination, {
+    page: 1,
+    limit: 20,
+    total: 2,
+    totalPages: 1,
+  });
 
-  assert.deepEqual(
-    result.res.body.data,
-    contacts,
-  );
+  assert.deepEqual(result.res.body.data, contacts);
 
   assert.equal(result.nextCalled, false);
 });
@@ -189,15 +167,12 @@ test("Contact admin list applies requested pagination", async () => {
   assert.equal(calls.skip, 4);
   assert.equal(calls.limit, 2);
 
-  assert.deepEqual(
-    result.res.body.pagination,
-    {
-      page: 3,
-      limit: 2,
-      total: 5,
-      totalPages: 3,
-    },
-  );
+  assert.deepEqual(result.res.body.pagination, {
+    page: 3,
+    limit: 2,
+    total: 5,
+    totalPages: 3,
+  });
 
   assert.equal(result.res.body.count, 1);
   assert.equal(result.nextCalled, false);
@@ -222,10 +197,7 @@ test("Contact admin list rejects invalid pagination before database query", asyn
   });
 
   assert.equal(result.nextCalled, true);
-  assert.equal(
-    result.nextError.statusCode,
-    400,
-  );
+  assert.equal(result.nextError.statusCode, 400);
 
   assert.equal(
     result.nextError.message,
@@ -237,8 +209,7 @@ test("Contact admin list rejects invalid pagination before database query", asyn
 });
 
 test("Contact admin list forwards database errors", async () => {
-  const databaseError =
-    new Error("Contact list failed");
+  const databaseError = new Error("Contact list failed");
 
   Contact.find = () => ({
     sort() {
@@ -258,16 +229,12 @@ test("Contact admin list forwards database errors", async () => {
     },
   });
 
-  Contact.countDocuments =
-    async () => 0;
+  Contact.countDocuments = async () => 0;
 
   const result = await runList();
 
   assert.equal(result.nextCalled, true);
-  assert.equal(
-    result.nextError,
-    databaseError,
-  );
+  assert.equal(result.nextError, databaseError);
 
   assert.equal(result.res.body, undefined);
 });

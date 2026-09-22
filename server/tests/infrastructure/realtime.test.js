@@ -3,9 +3,7 @@ process.env.LOG_LEVEL = "silent";
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const {
-  afterEach,
-} = require("node:test");
+const { afterEach } = require("node:test");
 
 const {
   setRealtimeServer,
@@ -19,12 +17,9 @@ afterEach(() => {
 });
 
 test("Realtime emit returns false before server initialization", () => {
-  const result = emitRealtimeEvent(
-    "projectCreated",
-    {
-      id: "project-id",
-    },
-  );
+  const result = emitRealtimeEvent("projectCreated", {
+    id: "project-id",
+  });
 
   assert.equal(result, false);
 });
@@ -34,10 +29,7 @@ test("Realtime emit forwards event and payload", () => {
 
   setRealtimeServer({
     emit(eventName, payload) {
-      emitted.push([
-        eventName,
-        payload,
-      ]);
+      emitted.push([eventName, payload]);
     },
   });
 
@@ -46,36 +38,23 @@ test("Realtime emit forwards event and payload", () => {
     title: "Portfolio",
   };
 
-  const result = emitRealtimeEvent(
-    "projectCreated",
-    payload,
-  );
+  const result = emitRealtimeEvent("projectCreated", payload);
 
   assert.equal(result, true);
 
-  assert.deepEqual(emitted, [
-    [
-      "projectCreated",
-      payload,
-    ],
-  ]);
+  assert.deepEqual(emitted, [["projectCreated", payload]]);
 });
 
 test("Realtime emit safely handles socket errors", () => {
   setRealtimeServer({
     emit() {
-      throw new Error(
-        "Socket transport failed",
-      );
+      throw new Error("Socket transport failed");
     },
   });
 
-  const result = emitRealtimeEvent(
-    "projectUpdated",
-    {
-      id: "project-id",
-    },
-  );
+  const result = emitRealtimeEvent("projectUpdated", {
+    id: "project-id",
+  });
 
   assert.equal(result, false);
 });
@@ -91,9 +70,7 @@ test("Realtime disconnect closes every connected client", () => {
 
   disconnectRealtimeClients();
 
-  assert.deepEqual(calls, [
-    true,
-  ]);
+  assert.deepEqual(calls, [true]);
 });
 
 test("Cleared realtime server no longer emits or disconnects", () => {
@@ -112,13 +89,7 @@ test("Cleared realtime server no longer emits or disconnects", () => {
 
   clearRealtimeServer();
 
-  assert.equal(
-    emitRealtimeEvent(
-      "contactPublished",
-      {},
-    ),
-    false,
-  );
+  assert.equal(emitRealtimeEvent("contactPublished", {}), false);
 
   disconnectRealtimeClients();
 

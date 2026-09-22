@@ -19,10 +19,7 @@ const createResponse = () => ({
   },
 });
 
-const runValidation = ({
-  method = "POST",
-  body,
-} = {}) => {
+const runValidation = ({ method = "POST", body } = {}) => {
   const req = {
     method,
     body,
@@ -64,10 +61,7 @@ test("FAQ rejects unknown fields", () => {
 
   assert.equal(res.statusCode, 400);
   assert.equal(nextCalled, false);
-  assert.equal(
-    res.body.message,
-    "Ruxsat etilmagan maydonlar: createdBy",
-  );
+  assert.equal(res.body.message, "Ruxsat etilmagan maydonlar: createdBy");
 });
 
 test("FAQ rejects non-string question", () => {
@@ -82,10 +76,7 @@ test("FAQ rejects non-string question", () => {
 
   assert.equal(res.statusCode, 400);
   assert.equal(nextCalled, false);
-  assert.equal(
-    res.body.message,
-    "question matn ko'rinishida bo'lishi kerak.",
-  );
+  assert.equal(res.body.message, "question matn ko'rinishida bo'lishi kerak.");
 });
 
 test("FAQ rejects too short question", () => {

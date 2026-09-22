@@ -14,9 +14,7 @@ const pinoLogLevels = new Set([
 const fallbackLogLevel = isProduction ? "info" : "debug";
 
 const logger = pino({
-  level: pinoLogLevels.has(env.logLevel)
-    ? env.logLevel
-    : fallbackLogLevel,
+  level: pinoLogLevels.has(env.logLevel) ? env.logLevel : fallbackLogLevel,
 
   base: {
     service: "portfolio-api",

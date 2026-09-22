@@ -1,10 +1,7 @@
 process.env.NODE_ENV = "test";
 process.env.LOG_LEVEL = "silent";
 
-const {
-  test,
-  afterEach,
-} = require("node:test");
+const { test, afterEach } = require("node:test");
 const assert = require("node:assert/strict");
 
 const Project = require("../../models/Project");
@@ -49,11 +46,7 @@ const mockProjectError = (error) => {
   });
 };
 
-const runOwnershipCheck = async ({
-  id = projectId,
-  user,
-  admin,
-} = {}) => {
+const runOwnershipCheck = async ({ id = projectId, user, admin } = {}) => {
   const req = {
     params: { id },
     user,
@@ -63,14 +56,10 @@ const runOwnershipCheck = async ({
   let nextCalled = false;
   let nextError;
 
-  await checkProjectOwnerOrSuper(
-    req,
-    res,
-    (error) => {
-      nextCalled = true;
-      nextError = error;
-    },
-  );
+  await checkProjectOwnerOrSuper(req, res, (error) => {
+    nextCalled = true;
+    nextError = error;
+  });
 
   return {
     req,
@@ -95,8 +84,7 @@ test("ownership rejects invalid project ID", async () => {
 });
 
 test("ownership requires authenticated admin", async () => {
-  const { res, nextCalled } =
-    await runOwnershipCheck();
+  const { res, nextCalled } = await runOwnershipCheck();
 
   assert.equal(res.statusCode, 401);
   assert.equal(nextCalled, false);
@@ -124,13 +112,12 @@ test("superadmin can manage every project", async () => {
     createdBy: anotherAdminId,
   });
 
-  const { res, nextCalled, nextError } =
-    await runOwnershipCheck({
-      user: {
-        _id: ownerId,
-        role: "superadmin",
-      },
-    });
+  const { res, nextCalled, nextError } = await runOwnershipCheck({
+    user: {
+      _id: ownerId,
+      role: "superadmin",
+    },
+  });
 
   assert.equal(res.statusCode, 200);
   assert.equal(nextCalled, true);
@@ -179,13 +166,12 @@ test("ordinary admin can manage own project", async () => {
     createdBy: ownerId,
   });
 
-  const { res, nextCalled, nextError } =
-    await runOwnershipCheck({
-      user: {
-        _id: ownerId,
-        role: "admin",
-      },
-    });
+  const { res, nextCalled, nextError } = await runOwnershipCheck({
+    user: {
+      _id: ownerId,
+      role: "admin",
+    },
+  });
 
   assert.equal(res.statusCode, 200);
   assert.equal(nextCalled, true);
@@ -193,19 +179,16 @@ test("ordinary admin can manage own project", async () => {
 });
 
 test("ownership forwards database errors", async () => {
-  const databaseError = new Error(
-    "Simulated database failure",
-  );
+  const databaseError = new Error("Simulated database failure");
 
   mockProjectError(databaseError);
 
-  const { res, nextCalled, nextError } =
-    await runOwnershipCheck({
-      user: {
-        _id: ownerId,
-        role: "admin",
-      },
-    });
+  const { res, nextCalled, nextError } = await runOwnershipCheck({
+    user: {
+      _id: ownerId,
+      role: "admin",
+    },
+  });
 
   assert.equal(res.statusCode, 200);
   assert.equal(nextCalled, true);

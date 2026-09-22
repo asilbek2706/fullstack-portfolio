@@ -3,17 +3,13 @@ process.env.LOG_LEVEL = "silent";
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const {
-  after,
-  afterEach,
-} = require("node:test");
+const { after, afterEach } = require("node:test");
 
 const Contact = require("../../models/Contact");
 const realtime = require("../../services/realtime");
 
 const originalFindById = Contact.findById;
-const originalEmitRealtimeEvent =
-  realtime.emitRealtimeEvent;
+const originalEmitRealtimeEvent = realtime.emitRealtimeEvent;
 
 let emittedEvents = [];
 
@@ -31,8 +27,7 @@ afterEach(() => {
 });
 
 after(() => {
-  realtime.emitRealtimeEvent =
-    originalEmitRealtimeEvent;
+  realtime.emitRealtimeEvent = originalEmitRealtimeEvent;
 });
 
 const createResponse = () => ({
@@ -76,10 +71,7 @@ const runPublication = async (body) => {
   };
 };
 
-const createContact = ({
-  isAnswered = true,
-  isPublic = false,
-} = {}) => ({
+const createContact = ({ isAnswered = true, isPublic = false } = {}) => ({
   _id: "contact-id",
   name: "Asilbek",
   phone: "+998901234567",
@@ -189,31 +181,10 @@ test("Publishing emits only public-safe contact data", async () => {
 
   const emittedPayload = emittedEvents[0][1];
 
-  assert.equal(
-    Object.hasOwn(emittedPayload, "phone"),
-    false,
-  );
-  assert.equal(
-    Object.hasOwn(
-      emittedPayload,
-      "trackingTokenHash",
-    ),
-    false,
-  );
-  assert.equal(
-    Object.hasOwn(
-      emittedPayload,
-      "telegramMessageId",
-    ),
-    false,
-  );
-  assert.equal(
-    Object.hasOwn(
-      emittedPayload,
-      "telegramDeliveryStatus",
-    ),
-    false,
-  );
+  assert.equal(Object.hasOwn(emittedPayload, "phone"), false);
+  assert.equal(Object.hasOwn(emittedPayload, "trackingTokenHash"), false);
+  assert.equal(Object.hasOwn(emittedPayload, "telegramMessageId"), false);
+  assert.equal(Object.hasOwn(emittedPayload, "telegramDeliveryStatus"), false);
 
   assert.deepEqual(result.res.body.data, {
     id: "contact-id",
@@ -249,8 +220,7 @@ test("Unpublishing emits only contact identifier", async () => {
 });
 
 test("Publication forwards database errors", async () => {
-  const databaseError =
-    new Error("Publication database failure");
+  const databaseError = new Error("Publication database failure");
 
   Contact.findById = async () => {
     throw databaseError;

@@ -2,10 +2,7 @@ const FAQ = require("../models/Faq");
 const mongoose = require("mongoose");
 
 const toPublicFAQ = (faq) => {
-  const data =
-    typeof faq.toObject === "function"
-      ? faq.toObject()
-      : { ...faq };
+  const data = typeof faq.toObject === "function" ? faq.toObject() : { ...faq };
 
   delete data.createdBy;
   return data;
@@ -43,7 +40,7 @@ exports.createFAQ = async (req, res, next) => {
       });
     }
 
-    const adminId = req.admin._id; 
+    const adminId = req.admin._id;
 
     const newFaq = await FAQ.create({
       question: question.trim(),

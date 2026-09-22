@@ -3,19 +3,14 @@ process.env.LOG_LEVEL = "silent";
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const {
-  afterEach,
-} = require("node:test");
+const { afterEach } = require("node:test");
 
 const About = require("../../models/About");
 
 const originalFindOne = About.findOne;
 const originalCreate = About.create;
 
-const {
-  getAbout,
-  updateAbout,
-} = require("../../controllers/aboutController");
+const { getAbout, updateAbout } = require("../../controllers/aboutController");
 
 afterEach(() => {
   About.findOne = originalFindOne;
@@ -93,23 +88,15 @@ test("About read returns public data", async () => {
     },
   });
 
-  const result = await runController(
-    getAbout,
-  );
+  const result = await runController(getAbout);
 
-  assert.equal(
-    receivedSelect,
-    "-updatedBy",
-  );
+  assert.equal(receivedSelect, "-updatedBy");
   assert.equal(leanCalled, true);
 
   assert.equal(result.res.statusCode, 200);
   assert.equal(result.res.body.success, true);
 
-  assert.deepEqual(
-    result.res.body.data,
-    aboutData,
-  );
+  assert.deepEqual(result.res.body.data, aboutData);
 
   assert.equal(result.nextCalled, false);
 });
@@ -125,9 +112,7 @@ test("About read returns 404 before initial setup", async () => {
     },
   });
 
-  const result = await runController(
-    getAbout,
-  );
+  const result = await runController(getAbout);
 
   assert.equal(result.res.statusCode, 404);
   assert.equal(result.res.body.success, false);
@@ -141,8 +126,7 @@ test("About read returns 404 before initial setup", async () => {
 });
 
 test("About read forwards database errors", async () => {
-  const databaseError =
-    new Error("About lookup failed");
+  const databaseError = new Error("About lookup failed");
 
   About.findOne = () => ({
     select() {
@@ -154,15 +138,10 @@ test("About read forwards database errors", async () => {
     },
   });
 
-  const result = await runController(
-    getAbout,
-  );
+  const result = await runController(getAbout);
 
   assert.equal(result.nextCalled, true);
-  assert.equal(
-    result.nextError,
-    databaseError,
-  );
+  assert.equal(result.nextError, databaseError);
   assert.equal(result.res.body, undefined);
 });
 
@@ -175,15 +154,12 @@ test("Initial About creation requires every field", async () => {
     createCalled = true;
   };
 
-  const result = await runController(
-    updateAbout,
-    {
-      body: {
-        fullName: "Asilbek Karomatov",
-        title: "Frontend Developer",
-      },
+  const result = await runController(updateAbout, {
+    body: {
+      fullName: "Asilbek Karomatov",
+      title: "Frontend Developer",
     },
-  );
+  });
 
   assert.equal(result.res.statusCode, 400);
   assert.equal(result.res.body.success, false);
@@ -214,33 +190,25 @@ test("Initial About creation normalizes fields and hides updatedBy", async () =>
           title: this.title,
           avatar: this.avatar,
           bio: this.bio,
-          experienceYears:
-            this.experienceYears,
+          experienceYears: this.experienceYears,
           updatedBy: this.updatedBy,
         };
       },
     };
   };
 
-  const result = await runController(
-    updateAbout,
-    {
-      admin: {
-        _id: "creator-admin-id",
-      },
-      body: {
-        fullName:
-          "  Asilbek Karomatov  ",
-        title:
-          "  Frontend Developer  ",
-        avatar:
-          "  /uploads/avatar.png  ",
-        bio:
-          "  Portfolio biography.  ",
-        experienceYears: "  2  ",
-      },
+  const result = await runController(updateAbout, {
+    admin: {
+      _id: "creator-admin-id",
     },
-  );
+    body: {
+      fullName: "  Asilbek Karomatov  ",
+      title: "  Frontend Developer  ",
+      avatar: "  /uploads/avatar.png  ",
+      bio: "  Portfolio biography.  ",
+      experienceYears: "  2  ",
+    },
+  });
 
   assert.deepEqual(receivedPayload, {
     fullName: "Asilbek Karomatov",
@@ -254,54 +222,37 @@ test("Initial About creation normalizes fields and hides updatedBy", async () =>
   assert.equal(result.res.statusCode, 200);
   assert.equal(result.res.body.success, true);
 
-  assert.equal(
-    Object.hasOwn(
-      result.res.body.data,
-      "updatedBy",
-    ),
-    false,
-  );
+  assert.equal(Object.hasOwn(result.res.body.data, "updatedBy"), false);
 
-  assert.equal(
-    result.res.body.data.fullName,
-    "Asilbek Karomatov",
-  );
+  assert.equal(result.res.body.data.fullName, "Asilbek Karomatov");
 });
 
 test("About creation forwards database errors", async () => {
   About.findOne = async () => null;
 
-  const databaseError =
-    new Error("About create failed");
+  const databaseError = new Error("About create failed");
 
   About.create = async () => {
     throw databaseError;
   };
 
-  const result = await runController(
-    updateAbout,
-    {
-      body: {
-        fullName: "Asilbek Karomatov",
-        title: "Frontend Developer",
-        avatar: "/uploads/avatar.png",
-        bio: "Portfolio biography.",
-        experienceYears: "2",
-      },
+  const result = await runController(updateAbout, {
+    body: {
+      fullName: "Asilbek Karomatov",
+      title: "Frontend Developer",
+      avatar: "/uploads/avatar.png",
+      bio: "Portfolio biography.",
+      experienceYears: "2",
     },
-  );
+  });
 
   assert.equal(result.nextCalled, true);
-  assert.equal(
-    result.nextError,
-    databaseError,
-  );
+  assert.equal(result.nextError, databaseError);
   assert.equal(result.res.body, undefined);
 });
 
 test("Existing About save errors are forwarded", async () => {
-  const databaseError =
-    new Error("About save failed");
+  const databaseError = new Error("About save failed");
 
   About.findOne = async () => ({
     fullName: "Old name",
@@ -315,19 +266,13 @@ test("Existing About save errors are forwarded", async () => {
     },
   });
 
-  const result = await runController(
-    updateAbout,
-    {
-      body: {
-        title: "Updated title",
-      },
+  const result = await runController(updateAbout, {
+    body: {
+      title: "Updated title",
     },
-  );
+  });
 
   assert.equal(result.nextCalled, true);
-  assert.equal(
-    result.nextError,
-    databaseError,
-  );
+  assert.equal(result.nextError, databaseError);
   assert.equal(result.res.body, undefined);
 });

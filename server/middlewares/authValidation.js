@@ -73,10 +73,7 @@ const sendValidationError = (res, message) =>
 
 const validateLogin = (req, res, next) => {
   const body = req.body || {};
-  const unknownError = rejectUnknownFields(body, [
-    "username",
-    "password",
-  ]);
+  const unknownError = rejectUnknownFields(body, ["username", "password"]);
 
   if (unknownError) {
     return sendValidationError(res, unknownError);
@@ -135,9 +132,7 @@ const validateUpdateMe = (req, res, next) => {
     return sendValidationError(res, unknownError);
   }
 
-  const suppliedFields = allowedFields.filter((field) =>
-    hasOwn(body, field),
-  );
+  const suppliedFields = allowedFields.filter((field) => hasOwn(body, field));
 
   if (suppliedFields.length === 0) {
     return sendValidationError(
@@ -168,11 +163,7 @@ const validateUpdateMe = (req, res, next) => {
 
 const validateAdminUpdate = (req, res, next) => {
   const body = req.body || {};
-  const unknownError = rejectUnknownFields(body, [
-    "username",
-    "email",
-    "role",
-  ]);
+  const unknownError = rejectUnknownFields(body, ["username", "email", "role"]);
 
   if (unknownError) {
     return sendValidationError(res, unknownError);

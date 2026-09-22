@@ -1,8 +1,4 @@
-const blockedKeys = new Set([
-  "__proto__",
-  "prototype",
-  "constructor",
-]);
+const blockedKeys = new Set(["__proto__", "prototype", "constructor"]);
 
 const sanitizeValue = (value) => {
   if (!value || typeof value !== "object") {
@@ -10,11 +6,7 @@ const sanitizeValue = (value) => {
   }
 
   for (const key of Object.keys(value)) {
-    if (
-      key.startsWith("$") ||
-      key.includes(".") ||
-      blockedKeys.has(key)
-    ) {
+    if (key.startsWith("$") || key.includes(".") || blockedKeys.has(key)) {
       delete value[key];
       continue;
     }

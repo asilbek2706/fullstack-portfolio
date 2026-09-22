@@ -1,9 +1,6 @@
 const { env } = require("./env");
 
-const allowedOrigins = [
-  env.clientUrl,
-  "http://localhost:5173",
-]
+const allowedOrigins = [env.clientUrl, "http://localhost:5173"]
   .filter(Boolean)
   .map((origin) => origin.replace(/\/$/, ""));
 
@@ -18,9 +15,7 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    const error = new Error(
-      "CORS tomonidan ruxsat berilmagan origin.",
-    );
+    const error = new Error("CORS tomonidan ruxsat berilmagan origin.");
     error.code = "CORS_ORIGIN_DENIED";
 
     return callback(error);

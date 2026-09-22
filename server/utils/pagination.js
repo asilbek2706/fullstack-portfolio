@@ -4,22 +4,10 @@ const createBadRequestError = (message) => {
   return error;
 };
 
-const parsePagination = (
-  query,
-  {
-    defaultLimit = 20,
-    maxLimit = 100,
-  } = {},
-) => {
-  const page =
-    query.page === undefined
-      ? 1
-      : Number(query.page);
+const parsePagination = (query, { defaultLimit = 20, maxLimit = 100 } = {}) => {
+  const page = query.page === undefined ? 1 : Number(query.page);
 
-  const limit =
-    query.limit === undefined
-      ? defaultLimit
-      : Number(query.limit);
+  const limit = query.limit === undefined ? defaultLimit : Number(query.limit);
 
   if (!Number.isInteger(page) || page < 1) {
     throw createBadRequestError(
@@ -27,11 +15,7 @@ const parsePagination = (
     );
   }
 
-  if (
-    !Number.isInteger(limit) ||
-    limit < 1 ||
-    limit > maxLimit
-  ) {
+  if (!Number.isInteger(limit) || limit < 1 || limit > maxLimit) {
     throw createBadRequestError(
       `limit 1 va ${maxLimit} oralig'idagi butun son bo'lishi kerak.`,
     );
@@ -44,11 +28,7 @@ const parsePagination = (
   };
 };
 
-const buildPaginationMeta = ({
-  page,
-  limit,
-  total,
-}) => ({
+const buildPaginationMeta = ({ page, limit, total }) => ({
   page,
   limit,
   total,

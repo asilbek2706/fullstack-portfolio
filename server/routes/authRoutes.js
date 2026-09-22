@@ -20,30 +20,18 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
   skipSuccessfulRequests: true,
   message: {
-    message:
-      "Login urinishlari juda ko'p. 15 daqiqadan keyin qayta urining.",
+    message: "Login urinishlari juda ko'p. 15 daqiqadan keyin qayta urining.",
   },
 });
 
 // 🔓 OCHIQ YO'LLAR (Hamma foydalanishi mumkin)
-router.post(
-  "/login",
-  loginLimiter,
-  validateLogin,
-  authController.loginAdmin,
-);
+router.post("/login", loginLimiter, validateLogin, authController.loginAdmin);
 
 // 🚪 TIZIMDAN CHIQISH (Faqat kirgan adminlar kuki faylini tozalashi uchun)
 router.post("/logout", protect, authController.logoutAdmin);
 
 // 🔒 ADMIN O'Z PROFILINI TAHRIRLASHI (Istalgan kirgan admin qila oladi)
-router.patch(
-  "/update",
-  protect,
-  validateUpdateMe,
-  authController.updateMe,
-);
-
+router.patch("/update", protect, validateUpdateMe, authController.updateMe);
 
 // 🛡️ ---- QUYIDAGI YO'LLAR FAQAT SUPERADMIN UCHUN HIMOYA QILINGAN ----
 
@@ -61,7 +49,7 @@ router.get(
   "/admins",
   protect,
   restrictToSuperAdmin,
-  authController.getAllAdmins
+  authController.getAllAdmins,
 );
 
 // Boshqa adminni ID orqali to'liq yangilash (Rolini o'zgartirish va h.k.)
@@ -78,9 +66,9 @@ router.delete(
   "/admins/:id",
   protect,
   restrictToSuperAdmin,
-  authController.deleteAdmin
+  authController.deleteAdmin,
 );
- 
+
 // Kirgan admin o'z ma'lumotlarini ko'rishi (ID, username, email, role)
 router.get("/me", protect, authController.getMe);
 

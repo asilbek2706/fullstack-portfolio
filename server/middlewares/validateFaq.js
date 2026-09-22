@@ -1,8 +1,4 @@
-const allowedFields = new Set([
-  "question",
-  "answer",
-  "order",
-]);
+const allowedFields = new Set(["question", "answer", "order"]);
 
 const textRules = {
   question: {
@@ -32,10 +28,7 @@ const validateTextField = (body, field) => {
 
   const rule = textRules[field];
 
-  if (
-    value.length < rule.min ||
-    value.length > rule.max
-  ) {
+  if (value.length < rule.min || value.length > rule.max) {
     return (
       `${rule.label} uzunligi ${rule.min}–${rule.max} ` +
       "belgi oralig'ida bo'lishi kerak."
@@ -48,9 +41,7 @@ const validateTextField = (body, field) => {
 
 const validateFaq = (req, res, next) => {
   const body =
-    req.body &&
-    typeof req.body === "object" &&
-    !Array.isArray(req.body)
+    req.body && typeof req.body === "object" && !Array.isArray(req.body)
       ? req.body
       : {};
 
@@ -69,8 +60,7 @@ const validateFaq = (req, res, next) => {
 
   if (
     isCreate &&
-    (!Object.hasOwn(body, "question") ||
-      !Object.hasOwn(body, "answer"))
+    (!Object.hasOwn(body, "question") || !Object.hasOwn(body, "answer"))
   ) {
     return res.status(400).json({
       success: false,
@@ -105,8 +95,7 @@ const validateFaq = (req, res, next) => {
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "order 0 dan 10000 gacha bo'lgan butun son bo'lishi kerak.",
+        message: "order 0 dan 10000 gacha bo'lgan butun son bo'lishi kerak.",
       });
     }
   }

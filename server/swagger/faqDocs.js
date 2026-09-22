@@ -25,7 +25,7 @@ module.exports = {
     "/api/faq": {
       get: {
         summary: "Barcha FAQ savol-javoblarini olish (Ommaviy)",
-        tags: ["FAQ"], 
+        tags: ["FAQ"],
         responses: {
           200: {
             description: "FAQ ro'yxati muvaffaqiyatli yuklandi.",
@@ -47,7 +47,8 @@ module.exports = {
         },
       },
       post: {
-        summary: "Yangi FAQ savol-javob qo'shish (🔒 Faqat SuperAdmin, Kuki orqali)",
+        summary:
+          "Yangi FAQ savol-javob qo'shish (🔒 Faqat SuperAdmin, Kuki orqali)",
         tags: ["FAQ"],
         security: [{ cookieAuth: [] }],
         requestBody: {
@@ -74,14 +75,18 @@ module.exports = {
         },
         responses: {
           201: { description: "Yangi FAQ muvaffaqiyatli yaratildi." },
-          403: { description: "Siz SuperAdmin emassiz, buzib o'zgartirish taqiqlanadi!" },
+          403: {
+            description:
+              "Siz SuperAdmin emassiz, buzib o'zgartirish taqiqlanadi!",
+          },
           401: { description: "Avtorizatsiyadan o'tilmagan, kuki topilmadi." },
         },
       },
     },
     "/api/faq/{id}": {
       put: {
-        summary: "FAQ savol-javobini ID bo'yicha tahrirlash (🔒 Faqat SuperAdmin)",
+        summary:
+          "FAQ savol-javobini ID bo'yicha tahrirlash (🔒 Faqat SuperAdmin)",
         tags: ["FAQ"],
         security: [{ cookieAuth: [] }],
         parameters: [
@@ -106,7 +111,8 @@ module.exports = {
                   },
                   answer: {
                     type: "string",
-                    example: "Ha, dunyoning istalgan nuqtasidan remote ishlashga tayyorman.",
+                    example:
+                      "Ha, dunyoning istalgan nuqtasidan remote ishlashga tayyorman.",
                   },
                   order: { type: "integer", example: 1 },
                 },
@@ -120,7 +126,8 @@ module.exports = {
         },
       },
       delete: {
-        summary: "FAQ savol-javobini ID bo'yicha o'chirish (🔒 Faqat SuperAdmin)",
+        summary:
+          "FAQ savol-javobini ID bo'yicha o'chirish (🔒 Faqat SuperAdmin)",
         tags: ["FAQ"],
         security: [{ cookieAuth: [] }],
         parameters: [

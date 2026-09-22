@@ -3,18 +3,14 @@ process.env.LOG_LEVEL = "silent";
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const {
-  after,
-  afterEach,
-} = require("node:test");
+const { after, afterEach } = require("node:test");
 
 const Contact = require("../../models/Contact");
 const { env } = require("../../config/env");
 const realtime = require("../../services/realtime");
 
 const originalFindOne = Contact.findOne;
-const originalEmitRealtimeEvent =
-  realtime.emitRealtimeEvent;
+const originalEmitRealtimeEvent = realtime.emitRealtimeEvent;
 
 let emittedEvents = [];
 
@@ -32,8 +28,7 @@ afterEach(() => {
 });
 
 after(() => {
-  realtime.emitRealtimeEvent =
-    originalEmitRealtimeEvent;
+  realtime.emitRealtimeEvent = originalEmitRealtimeEvent;
 });
 
 const createResponse = () => ({
@@ -58,8 +53,7 @@ const createResponse = () => ({
 
 const createValidRequest = () => ({
   headers: {
-    "x-telegram-bot-api-secret-token":
-      env.webhookSecretToken,
+    "x-telegram-bot-api-secret-token": env.webhookSecretToken,
   },
   ip: "127.0.0.1",
   body: {
@@ -96,9 +90,7 @@ test("Webhook rejects incorrect secret token", async () => {
 
   const req = createValidRequest();
 
-  req.headers[
-    "x-telegram-bot-api-secret-token"
-  ] = "incorrect-webhook-secret";
+  req.headers["x-telegram-bot-api-secret-token"] = "incorrect-webhook-secret";
 
   const result = await runWebhook(req);
 
@@ -177,22 +169,14 @@ test("Webhook stores a valid Telegram reply privately", async () => {
     };
   };
 
-  const result = await runWebhook(
-    createValidRequest(),
-  );
+  const result = await runWebhook(createValidRequest());
 
   assert.deepEqual(receivedFilter, {
     telegramMessageId: 9876,
   });
-  assert.equal(
-    selectedFields,
-    "+telegramMessageId",
-  );
+  assert.equal(selectedFields, "+telegramMessageId");
 
-  assert.equal(
-    contact.answer,
-    "Telegram orqali berilgan javob.",
-  );
+  assert.equal(contact.answer, "Telegram orqali berilgan javob.");
   assert.equal(contact.isAnswered, true);
   assert.equal(saveCount, 1);
 
@@ -213,9 +197,7 @@ test("Webhook safely accepts reply for unknown contact", async () => {
     },
   });
 
-  const result = await runWebhook(
-    createValidRequest(),
-  );
+  const result = await runWebhook(createValidRequest());
 
   assert.equal(result.res.statusCode, 200);
   assert.equal(result.res.body, "OK");
@@ -229,9 +211,7 @@ test("Webhook returns OK when database processing fails", async () => {
     },
   });
 
-  const result = await runWebhook(
-    createValidRequest(),
-  );
+  const result = await runWebhook(createValidRequest());
 
   assert.equal(result.res.statusCode, 200);
   assert.equal(result.res.body, "OK");

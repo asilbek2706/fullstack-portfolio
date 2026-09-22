@@ -1,16 +1,11 @@
 const http = require("http");
 
 const { env, validateEnv } = require("./config/env");
-const {
-  connectDatabase,
-  disconnectDatabase,
-} = require("./config/database");
+const { connectDatabase, disconnectDatabase } = require("./config/database");
 const { createSocketServer } = require("./config/socket");
 const logger = require("./utils/logger");
 const app = require("./app");
-const {
-  registerShutdownHandlers,
-} = require("./lifecycle/shutdown");
+const { registerShutdownHandlers } = require("./lifecycle/shutdown");
 
 const server = http.createServer(app);
 
@@ -36,8 +31,8 @@ server.on("clientError", (error, socket) => {
   if (socket.writable) {
     socket.end(
       "HTTP/1.1 400 Bad Request\r\n" +
-      "Connection: close\r\n" +
-      "Content-Length: 0\r\n\r\n",
+        "Connection: close\r\n" +
+        "Content-Length: 0\r\n\r\n",
     );
   }
 });
@@ -49,10 +44,7 @@ server.on("error", async (error) => {
       "Port boshqa process tomonidan ishlatilmoqda.",
     );
   } else {
-    logger.error(
-      { err: error },
-      "HTTP server xatoligi.",
-    );
+    logger.error({ err: error }, "HTTP server xatoligi.");
   }
 
   await disconnectDatabase().catch(() => {});
@@ -70,16 +62,10 @@ const startServer = async () => {
     }
 
     server.listen(env.port, () => {
-      logger.info(
-        { port: env.port },
-        "Server ishga tushdi.",
-      );
+      logger.info({ port: env.port }, "Server ishga tushdi.");
     });
   } catch (error) {
-    logger.fatal(
-      { err: error },
-      "Server ishga tushmadi.",
-    );
+    logger.fatal({ err: error }, "Server ishga tushmadi.");
     process.exit(1);
   }
 };

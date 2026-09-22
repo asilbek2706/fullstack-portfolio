@@ -3,30 +3,23 @@ process.env.LOG_LEVEL = "silent";
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const {
-  afterEach,
-} = require("node:test");
+const { afterEach } = require("node:test");
 
 const Admin = require("../../models/Admin");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const originalFindByIdAndUpdate =
-  Admin.findByIdAndUpdate;
+const originalFindByIdAndUpdate = Admin.findByIdAndUpdate;
 const originalGenSalt = bcrypt.genSalt;
 const originalHash = bcrypt.hash;
 const originalSign = jwt.sign;
 
-const {
-  updateMe,
-} = require("../../controllers/authController");
+const { updateMe } = require("../../controllers/authController");
 
-const adminId =
-  "507f1f77bcf86cd799439011";
+const adminId = "507f1f77bcf86cd799439011";
 
 afterEach(() => {
-  Admin.findByIdAndUpdate =
-    originalFindByIdAndUpdate;
+  Admin.findByIdAndUpdate = originalFindByIdAndUpdate;
   bcrypt.genSalt = originalGenSalt;
   bcrypt.hash = originalHash;
   jwt.sign = originalSign;
@@ -58,11 +51,7 @@ const createResponse = () => ({
   },
 });
 
-const runUpdateMe = async ({
-  body = {},
-  user,
-  admin,
-} = {}) => {
+const runUpdateMe = async ({ body = {}, user, admin } = {}) => {
   const req = {
     body,
   };
@@ -123,10 +112,7 @@ test("Profile update rejects short password before database query", async () => 
   assert.equal(res.statusCode, 400);
   assert.equal(databaseCalled, false);
 
-  assert.equal(
-    res.body.message,
-    "Parol kamida 8 ta belgi bo'lishi shart!",
-  );
+  assert.equal(res.body.message, "Parol kamida 8 ta belgi bo'lishi shart!");
 });
 
 test("Profile update normalizes username and email without revoking session", async () => {
@@ -141,11 +127,7 @@ test("Profile update normalizes username and email without revoking session", as
     role: "admin",
   };
 
-  Admin.findByIdAndUpdate = (
-    id,
-    operation,
-    options,
-  ) => {
+  Admin.findByIdAndUpdate = (id, operation, options) => {
     receivedId = id;
     receivedOperation = operation;
     receivedOptions = options;
@@ -189,8 +171,7 @@ test("Profile update normalizes username and email without revoking session", as
 });
 
 test("Profile update returns 404 when admin disappears", async () => {
-  Admin.findByIdAndUpdate =
-    () => Promise.resolve(null);
+  Admin.findByIdAndUpdate = () => Promise.resolve(null);
 
   const res = await runUpdateMe({
     user: {
@@ -202,10 +183,7 @@ test("Profile update returns 404 when admin disappears", async () => {
   });
 
   assert.equal(res.statusCode, 404);
-  assert.equal(
-    res.body.message,
-    "Admin topilmadi.",
-  );
+  assert.equal(res.body.message, "Admin topilmadi.");
 
   assert.equal(res.cookies.length, 0);
 });
@@ -216,14 +194,8 @@ test("Password update hashes password, revokes old sessions and renews current c
     return "profile-salt";
   };
 
-  bcrypt.hash = async (
-    password,
-    salt,
-  ) => {
-    assert.equal(
-      password,
-      "new-secure-password",
-    );
+  bcrypt.hash = async (password, salt) => {
+    assert.equal(password, "new-secure-password");
     assert.equal(salt, "profile-salt");
 
     return "new-password-hash";
@@ -242,11 +214,7 @@ test("Password update hashes password, revokes old sessions and renews current c
     tokenVersion: 6,
   };
 
-  Admin.findByIdAndUpdate = (
-    id,
-    operation,
-    options,
-  ) => {
+  Admin.findByIdAndUpdate = (id, operation, options) => {
     receivedId = id;
     receivedOperation = operation;
     receivedOptions = options;
@@ -262,11 +230,7 @@ test("Password update hashes password, revokes old sessions and renews current c
   let tokenPayload;
   let tokenOptions;
 
-  jwt.sign = (
-    payload,
-    secret,
-    options,
-  ) => {
+  jwt.sign = (payload, secret, options) => {
     assert.equal(typeof secret, "string");
     assert.ok(secret.length >= 32);
 
@@ -281,8 +245,7 @@ test("Password update hashes password, revokes old sessions and renews current c
       _id: adminId,
     },
     body: {
-      password:
-        "new-secure-password",
+      password: "new-secure-password",
     },
   });
 
@@ -302,10 +265,7 @@ test("Password update hashes password, revokes old sessions and renews current c
     runValidators: true,
   });
 
-  assert.equal(
-    receivedSelect,
-    "+tokenVersion",
-  );
+  assert.equal(receivedSelect, "+tokenVersion");
 
   assert.deepEqual(tokenPayload, {
     id: adminId,
@@ -320,47 +280,21 @@ test("Password update hashes password, revokes old sessions and renews current c
   });
 
   assert.equal(res.cookies.length, 1);
-  assert.equal(
-    res.cookies[0].name,
-    "token",
-  );
-  assert.equal(
-    res.cookies[0].value,
-    "renewed-session-token",
-  );
+  assert.equal(res.cookies[0].name, "token");
+  assert.equal(res.cookies[0].value, "renewed-session-token");
 
-  assert.equal(
-    res.cookies[0].options.httpOnly,
-    true,
-  );
-  assert.equal(
-    res.cookies[0].options.maxAge,
-    24 * 60 * 60 * 1000,
-  );
+  assert.equal(res.cookies[0].options.httpOnly, true);
+  assert.equal(res.cookies[0].options.maxAge, 24 * 60 * 60 * 1000);
 
   assert.equal(res.statusCode, 200);
-  assert.equal(
-    Object.hasOwn(
-      res.body.data,
-      "password",
-    ),
-    false,
-  );
+  assert.equal(Object.hasOwn(res.body.data, "password"), false);
 
-  assert.equal(
-    Object.hasOwn(
-      res.body.data,
-      "tokenVersion",
-    ),
-    false,
-  );
+  assert.equal(Object.hasOwn(res.body.data, "tokenVersion"), false);
 });
 
 test("Profile update returns safe response after database error", async () => {
   Admin.findByIdAndUpdate = () => {
-    throw new Error(
-      "Sensitive profile update failure",
-    );
+    throw new Error("Sensitive profile update failure");
   };
 
   const res = await runUpdateMe({
@@ -375,14 +309,11 @@ test("Profile update returns safe response after database error", async () => {
   assert.equal(res.statusCode, 500);
 
   assert.deepEqual(res.body, {
-    message:
-      "Serverda ichki xatolik yuz berdi.",
+    message: "Serverda ichki xatolik yuz berdi.",
   });
 
   assert.equal(
-    JSON.stringify(res.body).includes(
-      "Sensitive profile update failure",
-    ),
+    JSON.stringify(res.body).includes("Sensitive profile update failure"),
     false,
   );
 
