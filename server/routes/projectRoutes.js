@@ -8,6 +8,9 @@ const { protect } = require("../middlewares/authMiddleware");
 const upload = require("../middlewares/projectImage");
 const validateImageFile = require("../middlewares/validateImageFile");
 const cleanupFailedUpload = require("../middlewares/cleanupFailedUpload");
+const createImageKitUpload = require("../middlewares/uploadToImageKit");
+
+const uploadProjectToImageKit = createImageKitUpload("projects");
 
 const {
   validateProjectInput,
@@ -34,6 +37,7 @@ router.post(
   protect,
   upload.single("image"),
   validateImageFile,
+  uploadProjectToImageKit,
   cleanupFailedUpload,
   validateProjectInput,
   projectController.createProject,
@@ -46,6 +50,7 @@ router.put(
   checkProjectOwnerOrSuper,
   upload.single("image"),
   validateImageFile,
+  uploadProjectToImageKit,
   cleanupFailedUpload,
   validateProjectInput,
   projectController.updateProject,
@@ -58,6 +63,7 @@ router.patch(
   checkProjectOwnerOrSuper,
   upload.single("image"),
   validateImageFile,
+  uploadProjectToImageKit,
   cleanupFailedUpload,
   validateProjectInput,
   projectController.patchProject,

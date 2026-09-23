@@ -70,7 +70,8 @@ const schemas = {
       ...projectFields,
       image: {
         type: "string",
-        example: "/uploads/projects/123e4567-e89b-12d3-a456-426614174000.webp",
+        example:
+          "https://ik.imagekit.io/asilbekportfolio/fullstack-portfolio/projects/project.webp",
       },
       createdAt: { type: "string", format: "date-time" },
       updatedAt: { type: "string", format: "date-time" },

@@ -22,11 +22,32 @@ const AboutSchema = new mongoose.Schema(
       trim: true,
       maxlength: [2048, "Profil rasmi URL manzili juda uzun"],
       validate: {
-        validator: (value) =>
-          /^\/uploads\/(?:about\/)?[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(value),
+        validator: (value) => {
+          const localAvatar =
+            /^\/uploads\/(?:about\/)?[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(
+              value,
+            );
+
+          if (localAvatar) return true;
+
+          const endpoint = process.env.IMAGEKIT_URL_ENDPOINT?.replace(
+            /\/$/,
+            "",
+          );
+
+          return Boolean(
+            endpoint &&
+            value.startsWith(`${endpoint}/fullstack-portfolio/about/`),
+          );
+        },
         message:
-          "Avatar faqat serverga yuklangan JPG, PNG yoki WEBP rasm bo'lishi kerak.",
+          "Avatar faqat server yoki ImageKit'ga yuklangan rasm bo'lishi kerak.",
       },
+    },
+    avatarFileId: {
+      type: String,
+      trim: true,
+      maxlength: [200, "ImageKit file ID juda uzun"],
     },
     bio: {
       type: String,

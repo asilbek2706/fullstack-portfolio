@@ -24,6 +24,10 @@ const env = {
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
   telegramChatId: process.env.TELEGRAM_CHAT_ID,
   webhookSecretToken: process.env.WEBHOOK_SECRET_TOKEN,
+
+  imageKitUrlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+  imageKitPublicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  imageKitPrivateKey: process.env.IMAGEKIT_PRIVATE_KEY,
 };
 
 const validateEnv = () => {
@@ -36,6 +40,9 @@ const validateEnv = () => {
     TELEGRAM_BOT_TOKEN: env.telegramBotToken,
     TELEGRAM_CHAT_ID: env.telegramChatId,
     WEBHOOK_SECRET_TOKEN: env.webhookSecretToken,
+    IMAGEKIT_URL_ENDPOINT: env.imageKitUrlEndpoint,
+    IMAGEKIT_PUBLIC_KEY: env.imageKitPublicKey,
+    IMAGEKIT_PRIVATE_KEY: env.imageKitPrivateKey,
   };
 
   const missingValues = Object.entries(requiredValues)
@@ -89,6 +96,27 @@ const validateEnv = () => {
   if (!["http:", "https:"].includes(clientUrl.protocol)) {
     throw new Error("CLIENT_URL faqat http yoki https bo'lishi kerak.");
   }
+
+  let imageKitUrl;
+
+  try {
+    imageKitUrl = new URL(env.imageKitUrlEndpoint);
+  } catch {
+    throw new Error(
+      "IMAGEKIT_URL_ENDPOINT to'g'ri URL formatida bo'lishi kerak.",
+    );
+  }
+
+  if (
+    imageKitUrl.protocol !== "https:" ||
+    imageKitUrl.hostname !== "ik.imagekit.io"
+  ) {
+    throw new Error(
+      "IMAGEKIT_URL_ENDPOINT https://ik.imagekit.io manzilidan boshlanishi kerak.",
+    );
+  }
+
+  env.imageKitUrlEndpoint = imageKitUrl.href.replace(/\/$/, "");
 
   if (
     typeof env.recaptchaAction !== "string" ||

@@ -29,6 +29,7 @@
     "supertest": "^7.2.2"
   },
   "dependencies": {
+    "@imagekit/nodejs": "^7.12.1",
     "axios": "^1.18.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",

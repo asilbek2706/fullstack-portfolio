@@ -45,6 +45,9 @@ jobs:
       TELEGRAM_BOT_TOKEN: ci-telegram-bot-token
       TELEGRAM_CHAT_ID: ci-telegram-chat
       WEBHOOK_SECRET_TOKEN: ci-webhook-secret
+      IMAGEKIT_URL_ENDPOINT: https://ik.imagekit.io/ci-test
+      IMAGEKIT_PUBLIC_KEY: public_ci_test
+      IMAGEKIT_PRIVATE_KEY: private_ci_test
 
     defaults:
       run:

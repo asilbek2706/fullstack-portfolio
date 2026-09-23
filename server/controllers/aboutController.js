@@ -1,6 +1,7 @@
 const fs = require("fs/promises");
 const path = require("path");
 const About = require("../models/About");
+const imageKit = require("../services/imageKit");
 const logger = require("../utils/logger");
 
 const aboutUploadDirectory = path.resolve(__dirname, "../uploads/about");
@@ -37,10 +38,34 @@ const deleteLocalAvatar = async (avatar) => {
   }
 };
 
-// "Men haqimda" ma'lumotlarini olish
+const deleteAvatarAsset = async ({ avatar, fileId, uploadedFile }) => {
+  if (fileId) {
+    try {
+      await imageKit.deleteImage(fileId);
+
+      if (uploadedFile) {
+        uploadedFile.imageKitCleaned = true;
+      }
+
+      return;
+    } catch (error) {
+      logger.error(
+        { err: error, fileId },
+        "ImageKit About rasmini o'chirishda xatolik.",
+      );
+
+      return;
+    }
+  }
+
+  await deleteLocalAvatar(avatar);
+};
+
 exports.getAbout = async (req, res, next) => {
   try {
-    const aboutData = await About.findOne().select("-updatedBy").lean();
+    const aboutData = await About.findOne()
+      .select("-updatedBy -avatarFileId")
+      .lean();
 
     if (!aboutData) {
       return res.status(404).json({
@@ -58,12 +83,12 @@ exports.getAbout = async (req, res, next) => {
   }
 };
 
-// About ma'lumotlarini yaratish yoki yangilash
 exports.updateAbout = async (req, res, next) => {
+  let uploadedAvatar;
+
   try {
     const adminId = req.admin._id;
-    const textFields = ["fullName", "title", "bio", "experienceYears"];
-    const allowedFields = textFields;
+    const allowedFields = ["fullName", "title", "bio", "experienceYears"];
 
     const body =
       req.body && typeof req.body === "object" && !Array.isArray(req.body)
@@ -113,11 +138,21 @@ exports.updateAbout = async (req, res, next) => {
     }
 
     if (req.file) {
-      updateData.avatar = `/uploads/about/${req.file.filename}`;
+      uploadedAvatar = {
+        avatar: req.file.imageKitUrl || `/uploads/about/${req.file.filename}`,
+        fileId: req.file.imageKitFileId,
+      };
+
+      updateData.avatar = uploadedAvatar.avatar;
+
+      if (uploadedAvatar.fileId) {
+        updateData.avatarFileId = uploadedAvatar.fileId;
+      }
     }
 
     let aboutData = await About.findOne();
     const previousAvatar = aboutData?.avatar;
+    const previousAvatarFileId = aboutData?.avatarFileId;
 
     if (!aboutData) {
       const requiredFields = [
@@ -127,6 +162,7 @@ exports.updateAbout = async (req, res, next) => {
         "bio",
         "experienceYears",
       ];
+
       const missingFields = requiredFields.filter(
         (field) => !Object.hasOwn(updateData, field),
       );
@@ -152,11 +188,15 @@ exports.updateAbout = async (req, res, next) => {
     }
 
     if (req.file && previousAvatar && previousAvatar !== updateData.avatar) {
-      await deleteLocalAvatar(previousAvatar);
+      await deleteAvatarAsset({
+        avatar: previousAvatar,
+        fileId: previousAvatarFileId,
+      });
     }
 
     const responseData = aboutData.toObject();
     delete responseData.updatedBy;
+    delete responseData.avatarFileId;
 
     return res.status(200).json({
       success: true,
@@ -164,6 +204,14 @@ exports.updateAbout = async (req, res, next) => {
       data: responseData,
     });
   } catch (error) {
+    if (uploadedAvatar) {
+      await deleteAvatarAsset({
+        avatar: uploadedAvatar.avatar,
+        fileId: uploadedAvatar.fileId,
+        uploadedFile: req.file,
+      });
+    }
+
     return next(error);
   }
 };

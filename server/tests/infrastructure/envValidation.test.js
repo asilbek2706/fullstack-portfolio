@@ -17,6 +17,9 @@ const validEnvironment = {
   TELEGRAM_BOT_TOKEN: "test-telegram-token",
   TELEGRAM_CHAT_ID: "test-chat-id",
   WEBHOOK_SECRET_TOKEN: "test-webhook-secret",
+  IMAGEKIT_URL_ENDPOINT: "https://ik.imagekit.io/test-account",
+  IMAGEKIT_PUBLIC_KEY: "public_test",
+  IMAGEKIT_PRIVATE_KEY: "private_test",
 };
 
 const validationScript = `

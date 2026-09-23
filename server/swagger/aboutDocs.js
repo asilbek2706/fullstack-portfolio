@@ -18,7 +18,8 @@ const schemas = {
       avatar: {
         type: "string",
         readOnly: true,
-        example: "/uploads/about/123e4567-e89b-12d3-a456-426614174000.webp",
+        example:
+          "https://ik.imagekit.io/asilbekportfolio/fullstack-portfolio/about/avatar.webp",
       },
       bio: {
         type: "string",

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const removePrivateFields = (_document, result) => {
   delete result.createdBy;
+  delete result.imageFileId;
   return result;
 };
 
@@ -48,6 +49,12 @@ const projectSchema = new mongoose.Schema(
       required: [true, "Rasm yuklanishi shart"],
       trim: true,
       maxlength: [500, "Rasm yo'li 500 ta belgidan oshmasligi kerak"],
+    },
+
+    imageFileId: {
+      type: String,
+      trim: true,
+      maxlength: [200, "ImageKit file ID juda uzun"],
     },
 
     technologies: {

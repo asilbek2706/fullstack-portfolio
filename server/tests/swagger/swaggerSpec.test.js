@@ -143,3 +143,24 @@ test("Swagger exposes both supported authentication mechanisms", () => {
   assert.equal(schemes.cookieAuth.name, "token");
   assert.equal(schemes.bearerAuth.scheme, "bearer");
 });
+
+test("Swagger public image URLs use ImageKit CDN", () => {
+  const schemas = swaggerSpec.components.schemas;
+
+  const imageExamples = [
+    schemas.About.properties.avatar.example,
+    schemas.Project.properties.image.example,
+    schemas.UploadResponse.properties.url.example,
+  ];
+
+  for (const example of imageExamples) {
+    assert.match(
+      example,
+      /^https:\/\/ik\.imagekit\.io\/asilbekportfolio\/fullstack-portfolio\//,
+    );
+  }
+
+  assert.equal(Object.hasOwn(schemas.About.properties, "avatarFileId"), false);
+
+  assert.equal(Object.hasOwn(schemas.Project.properties, "imageFileId"), false);
+});

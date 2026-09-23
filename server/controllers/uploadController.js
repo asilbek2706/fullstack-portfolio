@@ -8,6 +8,6 @@ exports.uploadImage = (req, res) => {
 
   return res.status(201).json({
     success: true,
-    url: `/uploads/${req.file.filename}`,
+    url: req.file.imageKitUrl || `/uploads/${req.file.filename}`,
   });
 };

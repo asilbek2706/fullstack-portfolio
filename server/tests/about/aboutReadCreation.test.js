@@ -92,7 +92,7 @@ test("About read returns public data", async () => {
 
   const result = await runController(getAbout);
 
-  assert.equal(receivedSelect, "-updatedBy");
+  assert.equal(receivedSelect, "-updatedBy -avatarFileId");
   assert.equal(leanCalled, true);
 
   assert.equal(result.res.statusCode, 200);

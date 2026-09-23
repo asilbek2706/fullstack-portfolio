@@ -5,6 +5,7 @@ const path = require("path");
 const { emitRealtimeEvent } = require("../services/realtime");
 const { parsePagination, buildPaginationMeta } = require("../utils/pagination");
 const logger = require("../utils/logger");
+const imageKit = require("../services/imageKit");
 
 // =========================
 // HELPERLAR
@@ -20,6 +21,7 @@ const toPublicProject = (project) => {
 
   const publicProject = { ...project };
   delete publicProject.createdBy;
+  delete publicProject.imageFileId;
 
   return publicProject;
 };
@@ -78,6 +80,34 @@ const deleteImage = async (imagePath) => {
   }
 };
 
+const getUploadedImage = (file) => ({
+  url: file.imageKitUrl || `/uploads/projects/${file.filename}`,
+  fileId: file.imageKitFileId,
+});
+
+const deleteStoredImage = async ({ url, fileId }, uploadedFile) => {
+  if (fileId) {
+    try {
+      await imageKit.deleteImage(fileId);
+
+      if (uploadedFile) {
+        uploadedFile.imageKitCleaned = true;
+      }
+
+      return;
+    } catch (error) {
+      logger.error(
+        { err: error, fileId },
+        "ImageKit project rasmini o'chirishda xatolik.",
+      );
+
+      return;
+    }
+  }
+
+  await deleteImage(url);
+};
+
 // =========================
 // GET ALL PROJECTS
 // =========================
@@ -106,7 +136,7 @@ exports.getAllProjects = async (req, res, next) => {
         ...pagination,
         total,
       }),
-      data: projects,
+      data: projects.map(toPublicProject),
     });
   } catch (error) {
     return next(error);
@@ -140,7 +170,7 @@ exports.getProjectById = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       message: "Loyiha topildi.",
-      data: project,
+      data: toPublicProject(project),
     });
   } catch (error) {
     return next(error);
@@ -161,6 +191,7 @@ exports.createProject = async (req, res, next) => {
     }
 
     const technologies = parseTechnologies(req.body.technologies);
+    const uploadedImage = getUploadedImage(req.file);
 
     const project = await Project.create({
       title: req.body.title,
@@ -168,7 +199,10 @@ exports.createProject = async (req, res, next) => {
       technologies,
       githubLink: req.body.githubLink,
       demoLink: req.body.demoLink || "",
-      image: `/uploads/projects/${req.file.filename}`,
+      image: uploadedImage.url,
+      ...(uploadedImage.fileId && {
+        imageFileId: uploadedImage.fileId,
+      }),
       createdBy: req.user._id,
     });
 
@@ -183,7 +217,7 @@ exports.createProject = async (req, res, next) => {
     });
   } catch (error) {
     if (req.file) {
-      await deleteImage(`/uploads/projects/${req.file.filename}`);
+      await deleteStoredImage(getUploadedImage(req.file), req.file);
     }
 
     return next(error);
@@ -224,9 +258,16 @@ exports.updateProject = async (req, res, next) => {
     };
 
     const oldImage = project.image;
+    const oldImageFileId = project.imageFileId;
 
     if (req.file) {
-      updateData.image = `/uploads/projects/${req.file.filename}`;
+      const uploadedImage = getUploadedImage(req.file);
+
+      updateData.image = uploadedImage.url;
+
+      if (uploadedImage.fileId) {
+        updateData.imageFileId = uploadedImage.fileId;
+      }
     } else {
       updateData.image = project.image;
     }
@@ -248,7 +289,10 @@ exports.updateProject = async (req, res, next) => {
     }
 
     if (req.file) {
-      await deleteImage(oldImage);
+      await deleteStoredImage({
+        url: oldImage,
+        fileId: oldImageFileId,
+      });
     }
 
     const publicProject = toPublicProject(updatedProject);
@@ -262,7 +306,7 @@ exports.updateProject = async (req, res, next) => {
     });
   } catch (error) {
     if (req.file) {
-      await deleteImage(`/uploads/projects/${req.file.filename}`);
+      await deleteStoredImage(getUploadedImage(req.file), req.file);
     }
 
     return next(error);
@@ -310,9 +354,16 @@ exports.patchProject = async (req, res, next) => {
     }
 
     const oldImage = project.image;
+    const oldImageFileId = project.imageFileId;
 
     if (req.file) {
-      updateData.image = `/uploads/projects/${req.file.filename}`;
+      const uploadedImage = getUploadedImage(req.file);
+
+      updateData.image = uploadedImage.url;
+
+      if (uploadedImage.fileId) {
+        updateData.imageFileId = uploadedImage.fileId;
+      }
     }
 
     const updatedProject = await Project.findByIdAndUpdate(id, updateData, {
@@ -332,7 +383,10 @@ exports.patchProject = async (req, res, next) => {
     }
 
     if (req.file) {
-      await deleteImage(oldImage);
+      await deleteStoredImage({
+        url: oldImage,
+        fileId: oldImageFileId,
+      });
     }
 
     const publicProject = toPublicProject(updatedProject);
@@ -346,7 +400,7 @@ exports.patchProject = async (req, res, next) => {
     });
   } catch (error) {
     if (req.file) {
-      await deleteImage(`/uploads/projects/${req.file.filename}`);
+      await deleteStoredImage(getUploadedImage(req.file), req.file);
     }
 
     return next(error);
@@ -379,7 +433,10 @@ exports.deleteProject = async (req, res, next) => {
 
     await project.deleteOne();
 
-    await deleteImage(project.image);
+    await deleteStoredImage({
+      url: project.image,
+      fileId: project.imageFileId,
+    });
 
     emitRealtimeEvent("projectDeleted", {
       id: project._id,

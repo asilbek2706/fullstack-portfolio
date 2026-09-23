@@ -8,8 +8,10 @@ const schemas = {
       success: { type: "boolean", example: true },
       url: {
         type: "string",
-        pattern: "^/uploads/[0-9a-f-]{36}\\.(jpg|png|webp)$",
-        example: "/uploads/123e4567-e89b-12d3-a456-426614174000.webp",
+        format: "uri",
+        pattern: "^https://ik\\.imagekit\\.io/",
+        example:
+          "https://ik.imagekit.io/asilbekportfolio/fullstack-portfolio/uploads/image.webp",
       },
     },
   },

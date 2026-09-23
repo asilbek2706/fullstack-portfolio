@@ -4,6 +4,9 @@ const { uploadImage } = require("../controllers/uploadController");
 const upload = require("../middlewares/uploadMiddleware");
 const validateImageFile = require("../middlewares/validateImageFile");
 const cleanupFailedUpload = require("../middlewares/cleanupFailedUpload");
+const createImageKitUpload = require("../middlewares/uploadToImageKit");
+
+const uploadGeneralToImageKit = createImageKitUpload("uploads");
 const {
   protect,
   restrictToSuperAdmin,
@@ -15,6 +18,7 @@ router.post(
   restrictToSuperAdmin,
   upload.single("image"),
   validateImageFile,
+  uploadGeneralToImageKit,
   cleanupFailedUpload,
   uploadImage,
 );
