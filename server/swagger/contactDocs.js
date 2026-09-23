@@ -108,8 +108,51 @@ const schemas = {
   TelegramUpdate: {
     type: "object",
     description:
-      "Telegram Bot API update obyekti. Faqat bot tomonidan yuboriladi.",
-    additionalProperties: true,
+      "Telegram Bot API tomonidan webhook endpointga avtomatik yuboriladigan update. Swagger orqali odatda qo‘lda yuborilmaydi.",
+    required: ["update_id"],
+    properties: {
+      update_id: {
+        type: "integer",
+        example: 987654321,
+      },
+      message: {
+        type: "object",
+        required: ["message_id", "chat"],
+        properties: {
+          message_id: {
+            type: "integer",
+            example: 125,
+          },
+          chat: {
+            type: "object",
+            required: ["id"],
+            properties: {
+              id: {
+                type: "integer",
+                format: "int64",
+                example: 123456789,
+              },
+            },
+          },
+          text: {
+            type: "string",
+            example: "Murojaatingiz uchun rahmat.",
+          },
+          reply_to_message: {
+            type: "object",
+            required: ["message_id"],
+            properties: {
+              message_id: {
+                type: "integer",
+                example: 124,
+                description:
+                  "Bot yuborgan original murojaat xabarining Telegram message ID qiymati.",
+              },
+            },
+          },
+        },
+      },
+    },
   },
 };
 
@@ -131,7 +174,8 @@ const paths = {
       tags: ["Contacts"],
       summary: "Yangi murojaat yuborish",
       description:
-        "reCAPTCHA v3 tekshiriladi. Telegram ishlamasa murojaat saqlanadi va 202 qaytadi.",
+        "reCAPTCHA v3 tekshiriladi. Telegram ishlamasa murojaat saqlanadi va 202 qaytadi.\\n\\n" +
+        "This site is protected by reCAPTCHA and the [Google Privacy Policy](https://policies.google.com/privacy) and [Terms of Service](https://policies.google.com/terms) apply.",
       operationId: "createContact",
       requestBody: jsonBody(schemaRef("ContactCreate")),
       responses: {

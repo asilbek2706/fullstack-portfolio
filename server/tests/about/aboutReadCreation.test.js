@@ -36,6 +36,7 @@ const runController = async (
   controller,
   {
     body = {},
+    file,
     admin = {
       _id: "admin-id",
     },
@@ -43,6 +44,7 @@ const runController = async (
 ) => {
   const req = {
     body,
+    file,
     admin,
   };
 
@@ -68,7 +70,7 @@ test("About read returns public data", async () => {
     _id: "about-id",
     fullName: "Asilbek Karomatov",
     title: "Frontend Developer",
-    avatar: "/uploads/avatar.png",
+    avatar: "/uploads/about/123e4567-e89b-12d3-a456-426614174000.png",
     bio: "Portfolio biography.",
     experienceYears: "2",
   };
@@ -204,16 +206,18 @@ test("Initial About creation normalizes fields and hides updatedBy", async () =>
     body: {
       fullName: "  Asilbek Karomatov  ",
       title: "  Frontend Developer  ",
-      avatar: "  /uploads/avatar.png  ",
       bio: "  Portfolio biography.  ",
       experienceYears: "  2  ",
+    },
+    file: {
+      filename: "123e4567-e89b-12d3-a456-426614174000.png",
     },
   });
 
   assert.deepEqual(receivedPayload, {
     fullName: "Asilbek Karomatov",
     title: "Frontend Developer",
-    avatar: "/uploads/avatar.png",
+    avatar: "/uploads/about/123e4567-e89b-12d3-a456-426614174000.png",
     bio: "Portfolio biography.",
     experienceYears: "2",
     updatedBy: "creator-admin-id",
@@ -240,9 +244,11 @@ test("About creation forwards database errors", async () => {
     body: {
       fullName: "Asilbek Karomatov",
       title: "Frontend Developer",
-      avatar: "/uploads/avatar.png",
       bio: "Portfolio biography.",
       experienceYears: "2",
+    },
+    file: {
+      filename: "223e4567-e89b-12d3-a456-426614174000.webp",
     },
   });
 

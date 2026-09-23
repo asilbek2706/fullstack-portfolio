@@ -12,6 +12,7 @@ const env = {
   jwtSecret: process.env.JWT_SECRET,
   clientUrl: process.env.CLIENT_URL,
 
+  recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY,
   recaptchaSecretKey: process.env.RECAPTCHA_SECRET_KEY,
   recaptchaAction: process.env.RECAPTCHA_ACTION || "contact",
   recaptchaHostname: process.env.RECAPTCHA_HOSTNAME,
@@ -30,6 +31,7 @@ const validateEnv = () => {
     MONGO_URI: env.mongoUri,
     JWT_SECRET: env.jwtSecret,
     CLIENT_URL: env.clientUrl,
+    RECAPTCHA_SITE_KEY: env.recaptchaSiteKey,
     RECAPTCHA_SECRET_KEY: env.recaptchaSecretKey,
     TELEGRAM_BOT_TOKEN: env.telegramBotToken,
     TELEGRAM_CHAT_ID: env.telegramChatId,

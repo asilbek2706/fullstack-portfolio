@@ -37,6 +37,7 @@ jobs:
       MONGO_URI: mongodb://127.0.0.1:27017/portfolio_ci
       JWT_SECRET: ci-only-jwt-secret-at-least-32-characters-long
       CLIENT_URL: http://localhost:5173
+      RECAPTCHA_SITE_KEY: ci-recaptcha-site-key
       RECAPTCHA_SECRET_KEY: ci-recaptcha-secret
       RECAPTCHA_ACTION: contact
       RECAPTCHA_HOSTNAME: localhost

@@ -9,6 +9,7 @@ const validEnvironment = {
   MONGO_URI: "mongodb://127.0.0.1:27017/test",
   JWT_SECRET: "a-secure-test-secret-with-more-than-32-characters",
   CLIENT_URL: "http://localhost:5173",
+  RECAPTCHA_SITE_KEY: "test-recaptcha-site-key",
   RECAPTCHA_SECRET_KEY: "test-recaptcha-secret",
   RECAPTCHA_ACTION: "contact",
   RECAPTCHA_HOSTNAME: "",

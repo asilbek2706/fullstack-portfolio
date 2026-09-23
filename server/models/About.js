@@ -22,20 +22,10 @@ const AboutSchema = new mongoose.Schema(
       trim: true,
       maxlength: [2048, "Profil rasmi URL manzili juda uzun"],
       validate: {
-        validator: (value) => {
-          if (/^\/uploads\/[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(value)) {
-            return true;
-          }
-
-          try {
-            const url = new URL(value);
-            return ["http:", "https:"].includes(url.protocol);
-          } catch {
-            return false;
-          }
-        },
+        validator: (value) =>
+          /^\/uploads\/(?:about\/)?[0-9a-f-]{36}\.(jpg|png|webp)$/i.test(value),
         message:
-          "Avatar to'g'ri http/https URL yoki lokal upload yo'li bo'lishi kerak",
+          "Avatar faqat serverga yuklangan JPG, PNG yoki WEBP rasm bo'lishi kerak.",
       },
     },
     bio: {

@@ -1,6 +1,43 @@
+const fs = require("fs/promises");
+const path = require("path");
 const About = require("../models/About");
+const logger = require("../utils/logger");
 
-// 🌐 1. "Men haqimda" ma'lumotlarini olish (Ommaviy)
+const aboutUploadDirectory = path.resolve(__dirname, "../uploads/about");
+
+const getLocalAvatarPath = (avatar) => {
+  if (typeof avatar !== "string") return null;
+
+  const match = avatar.match(
+    /^\/uploads\/about\/([0-9a-f-]{36}\.(?:jpg|png|webp))$/i,
+  );
+
+  if (!match) return null;
+
+  const filePath = path.resolve(aboutUploadDirectory, match[1]);
+
+  if (!filePath.startsWith(`${aboutUploadDirectory}${path.sep}`)) {
+    return null;
+  }
+
+  return filePath;
+};
+
+const deleteLocalAvatar = async (avatar) => {
+  const filePath = getLocalAvatarPath(avatar);
+
+  if (!filePath) return;
+
+  try {
+    await fs.unlink(filePath);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      logger.warn({ err: error, filePath }, "Eski About rasmi o'chirilmadi.");
+    }
+  }
+};
+
+// "Men haqimda" ma'lumotlarini olish
 exports.getAbout = async (req, res, next) => {
   try {
     const aboutData = await About.findOne().select("-updatedBy").lean();
@@ -12,7 +49,7 @@ exports.getAbout = async (req, res, next) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       data: aboutData,
     });
@@ -21,17 +58,12 @@ exports.getAbout = async (req, res, next) => {
   }
 };
 
-// 🔒 2. Ma'lumotlarni yaratish yoki yangilash (⚠️ FAQAT SUPERADMIN)
+// About ma'lumotlarini yaratish yoki yangilash
 exports.updateAbout = async (req, res, next) => {
   try {
     const adminId = req.admin._id;
-    const allowedFields = [
-      "fullName",
-      "title",
-      "avatar",
-      "bio",
-      "experienceYears",
-    ];
+    const textFields = ["fullName", "title", "bio", "experienceYears"];
+    const allowedFields = textFields;
 
     const body =
       req.body && typeof req.body === "object" && !Array.isArray(req.body)
@@ -49,7 +81,7 @@ exports.updateAbout = async (req, res, next) => {
       });
     }
 
-    if (Object.keys(body).length === 0) {
+    if (Object.keys(body).length === 0 && !req.file) {
       return res.status(400).json({
         success: false,
         message: "Yangilash uchun kamida bitta maydon yuboring.",
@@ -80,10 +112,22 @@ exports.updateAbout = async (req, res, next) => {
       updateData[field] = value;
     }
 
+    if (req.file) {
+      updateData.avatar = `/uploads/about/${req.file.filename}`;
+    }
+
     let aboutData = await About.findOne();
+    const previousAvatar = aboutData?.avatar;
 
     if (!aboutData) {
-      const missingFields = allowedFields.filter(
+      const requiredFields = [
+        "fullName",
+        "title",
+        "avatar",
+        "bio",
+        "experienceYears",
+      ];
+      const missingFields = requiredFields.filter(
         (field) => !Object.hasOwn(updateData, field),
       );
 
@@ -105,6 +149,10 @@ exports.updateAbout = async (req, res, next) => {
 
       aboutData.updatedBy = adminId;
       await aboutData.save();
+    }
+
+    if (req.file && previousAvatar && previousAvatar !== updateData.avatar) {
+      await deleteLocalAvatar(previousAvatar);
     }
 
     const responseData = aboutData.toObject();

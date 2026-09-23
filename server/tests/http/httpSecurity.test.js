@@ -67,6 +67,21 @@ test("allowed CORS preflight returns 204", async () => {
   assert.equal(response.headers["access-control-allow-credentials"], "true");
 });
 
+test("same-origin Swagger preflight returns 204", async () => {
+  const response = await request(app)
+    .options("/api/auth/login")
+    .set("Host", "localhost:8080")
+    .set("Origin", "http://localhost:8080")
+    .set("Access-Control-Request-Method", "POST")
+    .expect(204);
+
+  assert.equal(
+    response.headers["access-control-allow-origin"],
+    "http://localhost:8080",
+  );
+  assert.equal(response.headers["access-control-allow-credentials"], "true");
+});
+
 test("malformed JSON returns safe 400 response", async () => {
   const response = await request(app)
     .post("/api/auth/login")

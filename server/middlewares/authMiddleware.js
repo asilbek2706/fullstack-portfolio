@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 const { env } = require("../config/env");
-const { isOriginAllowed } = require("../config/cors");
+const { isOriginAllowed, isSameOrigin } = require("../config/cors");
 
 // 1. Token va qurilmani tekshirish (Kuki tizimida avtomatik)
 const protect = async (req, res, next) => {
@@ -16,7 +16,12 @@ const protect = async (req, res, next) => {
 
       const requestOrigin = req.get("origin");
 
-      if (unsafeMethod && (!requestOrigin || !isOriginAllowed(requestOrigin))) {
+      if (
+        unsafeMethod &&
+        (!requestOrigin ||
+          (!isOriginAllowed(requestOrigin) &&
+            !isSameOrigin(req, requestOrigin)))
+      ) {
         return res.status(403).json({
           message: "So'rov manbasi tasdiqlanmadi.",
         });
