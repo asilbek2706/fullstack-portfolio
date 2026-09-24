@@ -9,19 +9,33 @@ import { useCallback, useState } from 'react';
 import Cropper, { type Area, type Point } from 'react-easy-crop';
 import { createCroppedImageFile } from '../../utils/cropImage';
 
-interface AvatarCropModalProps {
+interface ImageCropModalProps {
   imageSource: string;
   originalFile: File;
+  title: string;
+  description: string;
+  aspect: number;
+  outputWidth: number;
+  outputHeight: number;
+  cropShape?: 'rect' | 'round';
+  showGrid?: boolean;
   onCancel: () => void;
   onConfirm: (file: File) => void;
 }
 
-export function AvatarCropModal({
+export function ImageCropModal({
   imageSource,
   originalFile,
+  title,
+  description,
+  aspect,
+  outputWidth,
+  outputHeight,
+  cropShape = 'rect',
+  showGrid = true,
   onCancel,
   onConfirm,
-}: AvatarCropModalProps) {
+}: ImageCropModalProps) {
   const [crop, setCrop] = useState<Point>({
     x: 0,
     y: 0,
@@ -31,12 +45,9 @@ export function AvatarCropModal({
   const [processing, setProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleCropComplete = useCallback(
-    (_croppedArea: Area, croppedPixels: Area) => {
-      setCroppedArea(croppedPixels);
-    },
-    [],
-  );
+  const handleCropComplete = useCallback((_area: Area, croppedPixels: Area) => {
+    setCroppedArea(croppedPixels);
+  }, []);
 
   const handleConfirm = async () => {
     if (!croppedArea) {
@@ -52,6 +63,10 @@ export function AvatarCropModal({
         imageSource,
         croppedArea,
         originalFile,
+        {
+          width: outputWidth,
+          height: outputHeight,
+        },
       );
 
       onConfirm(croppedFile);
@@ -71,7 +86,7 @@ export function AvatarCropModal({
       open
       centered
       width={680}
-      title="Profil rasmini moslashtirish"
+      title={title}
       className="avatar-cropper-modal"
       maskClosable={!processing}
       keyboard={!processing}
@@ -97,10 +112,7 @@ export function AvatarCropModal({
         </Button>,
       ]}
     >
-      <p className="avatar-cropper-description">
-        Rasmni suring va kerakli o‘lchamni zoom orqali tanlang. Yakuniy rasm 512
-        × 512 px bo‘ladi.
-      </p>
+      <p className="avatar-cropper-description">{description}</p>
 
       {errorMessage && (
         <div
@@ -117,9 +129,9 @@ export function AvatarCropModal({
           image={imageSource}
           crop={crop}
           zoom={zoom}
-          aspect={1}
-          cropShape="round"
-          showGrid={false}
+          aspect={aspect}
+          cropShape={cropShape}
+          showGrid={showGrid}
           objectFit="contain"
           minZoom={1}
           maxZoom={3}

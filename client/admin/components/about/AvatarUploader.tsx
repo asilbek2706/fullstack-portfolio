@@ -5,7 +5,7 @@ import {
 } from '@ant-design/icons';
 import { Avatar, Button, Upload } from 'antd';
 import { useEffect, useState } from 'react';
-import { AvatarCropModal } from './AvatarCropModal';
+import { ImageCropModal } from '../image/ImageCropModal';
 
 interface AvatarUploaderProps {
   currentAvatar?: string;
@@ -130,9 +130,16 @@ export function AvatarUploader({
       </div>
 
       {cropSource && cropFile && (
-        <AvatarCropModal
+        <ImageCropModal
           imageSource={cropSource}
           originalFile={cropFile}
+          title="Profil rasmini moslashtirish"
+          description="Rasmni suring va zoom orqali kerakli qismini tanlang. Yakuniy rasm 512 × 512 px bo‘ladi."
+          aspect={1}
+          outputWidth={512}
+          outputHeight={512}
+          cropShape="round"
+          showGrid={false}
           onCancel={closeCropper}
           onConfirm={applyCroppedFile}
         />

@@ -1,6 +1,9 @@
 import type { Area } from 'react-easy-crop';
 
-const outputSize = 512;
+interface CropOutputSize {
+  width: number;
+  height: number;
+}
 
 const loadImage = (source: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
@@ -14,6 +17,7 @@ const loadImage = (source: string): Promise<HTMLImageElement> =>
 const getOutputName = (fileName: string) => {
   const dotIndex = fileName.lastIndexOf('.');
   const baseName = dotIndex > 0 ? fileName.slice(0, dotIndex) : fileName;
+
   const extension = dotIndex > 0 ? fileName.slice(dotIndex) : '.jpg';
 
   return `${baseName}-cropped${extension}`;
@@ -23,6 +27,7 @@ export const createCroppedImageFile = async (
   imageSource: string,
   crop: Area,
   originalFile: File,
+  outputSize: CropOutputSize,
 ): Promise<File> => {
   const image = await loadImage(imageSource);
   const canvas = document.createElement('canvas');
@@ -32,8 +37,8 @@ export const createCroppedImageFile = async (
     throw new Error('Rasmni qayta ishlash imkoniyati mavjud emas.');
   }
 
-  canvas.width = outputSize;
-  canvas.height = outputSize;
+  canvas.width = outputSize.width;
+  canvas.height = outputSize.height;
 
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = 'high';
@@ -46,13 +51,13 @@ export const createCroppedImageFile = async (
     crop.height,
     0,
     0,
-    outputSize,
-    outputSize,
+    outputSize.width,
+    outputSize.height,
   );
 
-  const outputType = ['image/jpeg', 'image/png', 'image/webp'].includes(
-    originalFile.type,
-  )
+  const supportedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+  const outputType = supportedTypes.includes(originalFile.type)
     ? originalFile.type
     : 'image/jpeg';
 
