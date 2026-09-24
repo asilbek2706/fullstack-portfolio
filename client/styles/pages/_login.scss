@@ -17,7 +17,7 @@
   z-index: 100;
 }
 
-.django-login {
+.portfolio-login {
   width: 100%;
   max-width: 430px;
   overflow: hidden;
@@ -30,7 +30,7 @@
   animation: login-enter 260ms ease-out;
 }
 
-.django-login-header {
+.portfolio-login-header {
   min-height: 92px;
   display: flex;
   align-items: center;
@@ -54,7 +54,7 @@
   }
 }
 
-.django-login-body {
+.portfolio-login-body {
   padding: 30px 28px 32px;
 
   h2.ant-typography {
@@ -129,7 +129,7 @@
     right: 14px;
   }
 
-  .django-login-header {
+  .portfolio-login-header {
     min-height: 82px;
     padding: 17px 19px;
 
@@ -138,13 +138,13 @@
     }
   }
 
-  .django-login-body {
+  .portfolio-login-body {
     padding: 25px 20px 27px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .django-login {
+  .portfolio-login {
     animation: none;
   }
 }

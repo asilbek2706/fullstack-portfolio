@@ -40,8 +40,8 @@ export function LoginPage() {
         <ThemeSwitcher />
       </div>
 
-      <section className="django-login">
-        <header className="django-login-header">
+      <section className="portfolio-login">
+        <header className="portfolio-login-header">
           <BrandLogo size={42} />
 
           <div>
@@ -53,7 +53,7 @@ export function LoginPage() {
           </div>
         </header>
 
-        <div className="django-login-body">
+        <div className="portfolio-login-body">
           <Typography.Title level={2}>Tizimga kirish</Typography.Title>
 
           <Typography.Paragraph type="secondary">
