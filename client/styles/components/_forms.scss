@@ -1,0 +1,29 @@
+@use '../abstracts/mixins' as mixins;
+
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-input-number,
+.ant-select-selector,
+.ant-picker {
+  color: var(--body-text) !important;
+  border-color: var(--strong-border) !important;
+  background: var(--input-bg) !important;
+
+  &:hover {
+    border-color: var(--primary) !important;
+  }
+}
+
+.ant-input-affix-wrapper-focused,
+.ant-input:focus,
+.ant-picker-focused {
+  @include mixins.focus-ring;
+}
+
+.ant-input-affix-wrapper input {
+  background: transparent !important;
+}
+
+.ant-form-item-label > label {
+  color: var(--body-text) !important;
+}

@@ -1,0 +1,10 @@
+.ant-btn-primary {
+  border-color: var(--primary);
+  background: var(--primary);
+  box-shadow: none;
+
+  &:hover {
+    border-color: var(--primary-hover) !important;
+    background: var(--primary-hover) !important;
+  }
+}

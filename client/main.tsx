@@ -1,19 +1,17 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import 'antd/dist/reset.css';
+import './styles/main.scss';
+import App from './App';
 
-import './index.css';
-import App from './App.tsx';
-import { AdminProvider } from './context/AdminProvider';
-import { Toaster } from 'react-hot-toast';
+const root = document.getElementById('root');
 
-createRoot(document.getElementById('root')!).render(
+if (!root) {
+  throw new Error('Root elementi topilmadi.');
+}
+
+createRoot(root).render(
   <StrictMode>
-    <AdminProvider>
-      <BrowserRouter>
-        <App />
-        <Toaster position="top-right" reverseOrder={false} />
-      </BrowserRouter>
-    </AdminProvider>
+    <App />
   </StrictMode>,
 );

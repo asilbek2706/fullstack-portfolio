@@ -1,0 +1,19 @@
+.ant-table {
+  border: 1px solid var(--border-color);
+  background: var(--panel-bg);
+}
+
+.ant-table-thead > tr > th {
+  color: var(--body-text) !important;
+  border-color: var(--border-color) !important;
+  background: var(--panel-hover) !important;
+  font-weight: 600;
+}
+
+.ant-table-tbody > tr > td {
+  border-color: var(--border-color) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: var(--panel-hover) !important;
+}

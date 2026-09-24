@@ -1,0 +1,33 @@
+@use '../abstracts/variables' as variables;
+
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: variables.$admin-header-height;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 0 24px !important;
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+  background: var(--header-bg) !important;
+  box-shadow: 0 2px 7px rgb(0 0 0 / 20%);
+}
+
+.sidebar-trigger {
+  width: 40px;
+  height: 40px;
+  color: var(--header-text) !important;
+  font-size: 18px;
+
+  &:hover {
+    background: rgb(255 255 255 / 10%) !important;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}

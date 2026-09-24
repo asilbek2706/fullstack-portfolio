@@ -1,0 +1,48 @@
+@use '../abstracts/variables' as variables;
+
+.admin-shell {
+  min-height: 100vh;
+  background: var(--body-bg);
+}
+
+.admin-content {
+  min-height: calc(100vh - variables.$admin-header-height);
+  padding: 24px;
+  background: var(--body-bg);
+}
+
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-color);
+
+  h2 {
+    margin: 0 0 4px;
+    color: var(--body-text);
+    font-size: 22px;
+    font-weight: 400;
+  }
+}
+
+@media (max-width: variables.$small-breakpoint) {
+  .admin-header {
+    padding: 0 12px !important;
+  }
+
+  .admin-account div,
+  .theme-option-label {
+    display: none;
+  }
+
+  .admin-content {
+    padding: 16px 12px;
+  }
+
+  .page-heading {
+    align-items: flex-start;
+  }
+}

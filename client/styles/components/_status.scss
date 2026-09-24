@@ -1,0 +1,9 @@
+.route-loader {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  color: var(--muted-text);
+  background: var(--body-bg);
+}

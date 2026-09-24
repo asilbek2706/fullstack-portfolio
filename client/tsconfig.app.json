@@ -1,31 +1,27 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "es2023",
-    "lib": ["ES2023", "DOM"],
-    "module": "esnext",
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
     "types": ["vite/client"],
     "skipLibCheck": true,
-
-    /* Path Aliases (Vite config bilan sinxron qilish) */
-    "paths": {
-      "@src/*": ["./src/*"],
-      "@admin/*": ["./admin/*"]
-    },
-
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-
-    /* Linting */
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@admin/*": ["./admin/*"],
+      "@shared/*": ["./shared/*"]
+    }
   },
-  "include": ["src", "admin", "main.tsx", "App.tsx", "api", "vite-env.d.ts"]
+  "include": ["src", "admin", "shared", "main.tsx", "App.tsx", "vite-env.d.ts"]
 }

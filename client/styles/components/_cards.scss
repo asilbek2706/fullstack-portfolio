@@ -1,0 +1,38 @@
+@use '../abstracts/mixins' as mixins;
+
+.module-card,
+.welcome-card,
+.ant-card {
+  @include mixins.panel;
+}
+
+.module-card {
+  height: 100%;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+
+  &:hover {
+    border-color: var(--primary);
+    background: var(--panel-hover);
+  }
+
+  h4 {
+    margin: 16px 0 5px;
+    color: var(--body-text);
+  }
+}
+
+.module-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  font-size: 21px;
+}
+
+.welcome-card {
+  margin-top: 20px;
+  border-left: 4px solid var(--primary);
+}

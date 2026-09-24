@@ -1,0 +1,35 @@
+.theme-switcher {
+  padding: 3px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--panel-bg);
+  box-shadow: var(--panel-shadow);
+}
+
+.theme-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.admin-header {
+  .theme-switcher {
+    border-color: rgb(255 255 255 / 14%);
+    background: rgb(0 0 0 / 16%);
+
+    .ant-segmented-item {
+      color: rgb(255 255 255 / 72%);
+    }
+
+    .ant-segmented-item-selected {
+      color: var(--body-text);
+      background: var(--panel-bg);
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .theme-option-label {
+    display: none;
+  }
+}

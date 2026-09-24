@@ -1,0 +1,11 @@
+@mixin panel {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--panel-bg);
+  box-shadow: var(--panel-shadow);
+}
+
+@mixin focus-ring {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}

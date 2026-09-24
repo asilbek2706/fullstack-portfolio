@@ -1,0 +1,56 @@
+@use '../abstracts/variables' as variables;
+
+.admin-sidebar {
+  position: sticky !important;
+  top: 0;
+  height: 100vh;
+  overflow: auto;
+  border-right: 1px solid var(--border-color);
+  background: var(--sidebar-bg) !important;
+
+  .ant-menu {
+    padding: 10px 8px;
+    background: transparent !important;
+  }
+
+  .ant-menu-item {
+    height: 40px;
+    margin-block: 3px;
+    border-radius: 3px;
+  }
+}
+
+.admin-logo {
+  height: variables.$admin-header-height;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 18px;
+  color: var(--header-text);
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+  background: var(--header-bg);
+
+  strong,
+  span {
+    display: block;
+    white-space: nowrap;
+  }
+
+  span {
+    margin-top: 2px;
+    color: rgb(255 255 255 / 68%);
+    font-size: 12px;
+  }
+}
+
+.admin-logo-mark {
+  min-width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 3px;
+  background: rgb(255 255 255 / 10%);
+  color: #ffffff;
+  font-weight: 700;
+}
