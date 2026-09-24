@@ -54,7 +54,7 @@
 
 .dashboard-content-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: stretch;
   gap: 20px;
 
@@ -133,6 +133,12 @@
   display: grid;
   place-items: center;
   background: var(--body-bg);
+}
+
+@media (max-width: 1280px) {
+  .dashboard-content-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 900px) {

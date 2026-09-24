@@ -9,6 +9,7 @@ import { Button, Card, Col, Empty, Row, Spin, Tag, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../auth/useAuth';
 import { AboutPreview } from '../../components/about/AboutPreview';
+import { ContactsSummaryCard } from '../../components/dashboard/ContactsSummaryCard';
 import { ProjectsSummaryCard } from '../../components/dashboard/ProjectsSummaryCard';
 import { useAbout } from '../../context/about/useAbout';
 
@@ -160,6 +161,7 @@ export function DashboardPage() {
         </Card>
 
         <ProjectsSummaryCard />
+        <ContactsSummaryCard />
       </div>
     </div>
   );
