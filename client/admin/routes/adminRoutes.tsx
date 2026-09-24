@@ -11,6 +11,7 @@ import type { ReactNode } from 'react';
 import { AboutPage } from '../pages/about/AboutPage';
 import { ContactsPage } from '../pages/contacts/ContactsPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
+import { FaqPage } from '../pages/faq/FaqPage';
 import { PlaceholderPage } from '../pages/placeholder/PlaceholderPage';
 import { ProjectsPage } from '../pages/projects/ProjectsPage';
 import type { AdminRole } from '../types/auth';
@@ -72,12 +73,7 @@ export const adminRoutes: AdminRouteDefinition[] = [
     path: '/admin/faq',
     label: 'FAQ',
     icon: <ReadOutlined />,
-    element: (
-      <PlaceholderPage
-        title="FAQ"
-        description="Savol va javoblarni boshqarish."
-      />
-    ),
+    element: <FaqPage />,
     showInMenu: true,
   },
   {
