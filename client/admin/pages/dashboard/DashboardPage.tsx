@@ -10,10 +10,19 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../auth/useAuth';
 import { AboutPreview } from '../../components/about/AboutPreview';
 import { ContactsSummaryCard } from '../../components/dashboard/ContactsSummaryCard';
+import { FaqSummaryCard } from '../../components/dashboard/FaqSummaryCard';
 import { ProjectsSummaryCard } from '../../components/dashboard/ProjectsSummaryCard';
 import { useAbout } from '../../context/about/useAbout';
 
 const modules = [
+  {
+    title: 'About',
+    description: 'Portfolio egasi ma’lumotlari',
+    path: '/admin/about',
+    icon: <IdcardOutlined />,
+    color: '#b98cd9',
+    roles: ['superadmin'],
+  },
   {
     title: 'Loyihalar',
     description: 'Portfolio loyihalarini boshqarish',
@@ -28,14 +37,7 @@ const modules = [
     icon: <InboxOutlined />,
     color: '#44b78b',
   },
-  {
-    title: 'About',
-    description: 'Portfolio egasi ma’lumotlari',
-    path: '/admin/about',
-    icon: <IdcardOutlined />,
-    color: '#b98cd9',
-    roles: ['superadmin'],
-  },
+
   {
     title: 'FAQ',
     description: 'Savol va javoblarni boshqarish',
@@ -162,6 +164,7 @@ export function DashboardPage() {
 
         <ProjectsSummaryCard />
         <ContactsSummaryCard />
+        <FaqSummaryCard />
       </div>
     </div>
   );
