@@ -1,6 +1,6 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Alert, Button, Form, Input, Typography } from 'antd';
-import { useState } from 'react';
+import { Button, Form, Input, Typography } from 'antd';
+import toast from 'react-hot-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getApiError } from '../../../shared/utils/getApiError';
 import { useAuth } from '../../auth/useAuth';
@@ -13,24 +13,29 @@ type LocationState = {
 };
 
 export function LoginPage() {
-  const [errorMessage, setErrorMessage] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleSubmit = async (credentials: LoginCredentials) => {
-    setErrorMessage('');
+    const loadingToast = toast.loading('Hisob tekshirilmoqda...');
 
     try {
       await login(credentials);
 
       const state = location.state as LocationState | null;
 
+      toast.success('Tizimga muvaffaqiyatli kirdingiz.', {
+        id: loadingToast,
+      });
+
       navigate(state?.from || '/admin/dashboard', {
         replace: true,
       });
     } catch (error) {
-      setErrorMessage(getApiError(error, 'Username yoki parol noto‘g‘ri.'));
+      toast.error(getApiError(error, 'Username yoki parol noto‘g‘ri.'), {
+        id: loadingToast,
+      });
     }
   };
 
@@ -59,15 +64,6 @@ export function LoginPage() {
           <Typography.Paragraph type="secondary">
             Administrator hisobingizdan foydalaning.
           </Typography.Paragraph>
-
-          {errorMessage && (
-            <Alert
-              type="error"
-              showIcon
-              message={errorMessage}
-              className="login-alert"
-            />
-          )}
 
           <Form<LoginCredentials>
             layout="vertical"
