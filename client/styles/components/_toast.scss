@@ -1,0 +1,50 @@
+.app-toast {
+  min-width: 300px;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 14px 16px !important;
+  color: var(--body-fg) !important;
+  font-size: 14px;
+  line-height: 1.45;
+  background: var(--body-bg) !important;
+  border: 1px solid var(--hairline-color) !important;
+  border-left-width: 4px !important;
+  border-radius: 6px !important;
+  box-shadow:
+    0 12px 34px rgb(0 0 0 / 22%),
+    0 2px 8px rgb(0 0 0 / 12%) !important;
+
+  > div:last-child {
+    font-weight: 600;
+  }
+}
+
+.app-toast--success {
+  border-left-color: #44b78b !important;
+}
+
+.app-toast--error {
+  border-left-color: #e57373 !important;
+}
+
+.app-toast--loading {
+  border-left-color: #79aec8 !important;
+}
+
+.about-empty-state {
+  margin-bottom: 20px;
+  padding: 22px;
+  background: var(--body-bg);
+  border: 1px solid var(--hairline-color);
+  border-radius: 4px;
+
+  p {
+    margin: 5px 0 0;
+    color: var(--body-quiet-color);
+  }
+}
+
+@media (max-width: 640px) {
+  .app-toast {
+    min-width: 0;
+  }
+}

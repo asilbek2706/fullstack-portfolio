@@ -9,7 +9,17 @@ export interface About {
   updatedAt?: string;
 }
 
+export interface AboutFormValues {
+  fullName: string;
+  title: string;
+  bio: string;
+  experienceYears: string;
+}
+
 export interface AboutResponse {
   success: boolean;
+  message?: string;
   data: About;
 }
+
+export type AboutStatus = 'loading' | 'ready' | 'empty' | 'error';

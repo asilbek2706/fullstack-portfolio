@@ -8,8 +8,9 @@ import {
   UserSwitchOutlined,
 } from '@ant-design/icons';
 import type { ReactNode } from 'react';
+import { AboutPage } from '../pages/about/AboutPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
-import { PlaceholderPage } from '../pages/PlaceholderPage';
+import { PlaceholderPage } from '../pages/placeholder/PlaceholderPage';
 import type { AdminRole } from '../types/auth';
 
 export interface AdminRouteDefinition {
@@ -33,12 +34,8 @@ export const adminRoutes: AdminRouteDefinition[] = [
     path: '/admin/about',
     label: 'About',
     icon: <IdcardOutlined />,
-    element: (
-      <PlaceholderPage
-        title="About"
-        description="Portfolio egasi haqidagi ma’lumotlar."
-      />
-    ),
+    element: <AboutPage />,
+    roles: ['superadmin'],
     showInMenu: true,
   },
   {

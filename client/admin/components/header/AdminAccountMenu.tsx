@@ -1,31 +1,14 @@
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Dropdown, Typography, type MenuProps } from 'antd';
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { aboutApi } from '../../api/aboutApi';
 import { useAuth } from '../../auth/useAuth';
 
 export function AdminAccountMenu() {
-  const [avatar, setAvatar] = useState<string>();
   const { admin, logout } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void aboutApi
-      .get()
-      .then((about) => {
-        if (!cancelled && about.avatar) {
-          setAvatar(about.avatar);
-        }
-      })
-      .catch(() => undefined);
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const usernameInitial =
+    admin?.username?.trim().charAt(0).toUpperCase() || '?';
 
   const items: MenuProps['items'] = [
     {
@@ -44,7 +27,9 @@ export function AdminAccountMenu() {
       danger: true,
       onClick: async () => {
         await logout();
-        navigate('/admin', { replace: true });
+        navigate('/admin', {
+          replace: true,
+        });
       },
     },
   ];
@@ -56,11 +41,9 @@ export function AdminAccountMenu() {
         type="button"
         aria-label="Admin menyusini ochish"
       >
-        <Avatar
-          size={38}
-          src={avatar}
-          icon={!avatar ? <UserOutlined /> : undefined}
-        />
+        <Avatar size={38} className="admin-account-initial">
+          {usernameInitial}
+        </Avatar>
 
         <div>
           <Typography.Text strong>{admin?.username}</Typography.Text>

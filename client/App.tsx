@@ -1,10 +1,10 @@
 import { ConfigProvider, theme as antdTheme } from 'antd';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './admin/auth/AuthProvider';
+import { AppToaster } from './admin/components/feedback/AppToaster';
 import { AdminLayout } from './admin/layouts/AdminLayout';
-import { DashboardPage } from './admin/pages/dashboard/DashboardPage';
 import { LoginPage } from './admin/pages/login/LoginPage';
-import { PlaceholderPage } from './admin/pages/PlaceholderPage';
+import { adminRoutes } from './admin/routes/adminRoutes';
 import { GuestRoute } from './admin/routes/GuestRoute';
 import { ProtectedRoute } from './admin/routes/ProtectedRoute';
 import { ThemeProvider } from './admin/theme/ThemeProvider';
@@ -63,69 +63,20 @@ function Application() {
 
           <Route element={<ProtectedRoute />}>
             <Route element={<AdminLayout />}>
-              <Route path="/admin/dashboard" element={<DashboardPage />} />
-
-              <Route
-                path="/admin/about"
-                element={
-                  <PlaceholderPage
-                    title="About"
-                    description="Portfolio egasi haqidagi ma’lumotlar."
-                  />
-                }
-              />
-
-              <Route
-                path="/admin/projects"
-                element={
-                  <PlaceholderPage
-                    title="Loyihalar"
-                    description="Portfolio loyihalarini boshqarish."
-                  />
-                }
-              />
-
-              <Route
-                path="/admin/contacts"
-                element={
-                  <PlaceholderPage
-                    title="Murojaatlar"
-                    description="Foydalanuvchilardan kelgan murojaatlar."
-                  />
-                }
-              />
-
-              <Route
-                path="/admin/faq"
-                element={
-                  <PlaceholderPage
-                    title="FAQ"
-                    description="Savol va javoblarni boshqarish."
-                  />
-                }
-              />
-
-              <Route
-                path="/admin/admins"
-                element={
-                  <PlaceholderPage
-                    title="Administratorlar"
-                    description="Admin hisoblarini boshqarish."
-                  />
-                }
-              />
-
-              <Route
-                path="/admin/profile"
-                element={
-                  <PlaceholderPage
-                    title="Profil"
-                    description="Shaxsiy admin profilini yangilash."
-                  />
-                }
-              />
+              {adminRoutes.map((route) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={route.element}
+                />
+              ))}
             </Route>
           </Route>
+
+          <Route
+            path="/admin/*"
+            element={<Navigate to="/admin/dashboard" replace />}
+          />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -138,6 +89,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
+        <AppToaster />
         <Application />
       </ThemeProvider>
     </BrowserRouter>
