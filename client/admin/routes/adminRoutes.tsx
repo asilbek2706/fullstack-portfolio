@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import type { ReactNode } from 'react';
 import { AboutPage } from '../pages/about/AboutPage';
+import { AdminsPage } from '../pages/admins/AdminsPage';
 import { ContactsPage } from '../pages/contacts/ContactsPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { FaqPage } from '../pages/faq/FaqPage';
@@ -80,12 +81,7 @@ export const adminRoutes: AdminRouteDefinition[] = [
     path: '/admin/admins',
     label: 'Administratorlar',
     icon: <SafetyCertificateOutlined />,
-    element: (
-      <PlaceholderPage
-        title="Administratorlar"
-        description="Admin hisoblarini boshqarish."
-      />
-    ),
+    element: <AdminsPage />,
     roles: ['superadmin'],
     showInMenu: true,
   },
