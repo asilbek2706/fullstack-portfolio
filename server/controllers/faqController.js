@@ -13,7 +13,7 @@ exports.getFAQs = async (req, res, next) => {
   try {
     // 🔥 -__v maydoni front-endga keraksiz, shuni select orqali olib tashlaymiz
     const faqs = await FAQ.find()
-      .sort({ order: 1, createdAt: 1 })
+      .sort({ createdAt: -1 })
       .select("-createdBy")
       .lean();
 
@@ -30,7 +30,7 @@ exports.getFAQs = async (req, res, next) => {
 // 🔒 2. Yangi FAQ savol-javob qo'shish (⚠️ Faqat SuperAdmin)
 exports.createFAQ = async (req, res, next) => {
   try {
-    const { question, answer, order } = req.body;
+    const { question, answer } = req.body;
 
     // 🛡️ Xavfsizlik va Validatsiya: Bo'sh ma'lumot yuborishdan himoya
     if (!question || !answer) {
@@ -45,7 +45,6 @@ exports.createFAQ = async (req, res, next) => {
     const newFaq = await FAQ.create({
       question: question.trim(),
       answer: answer.trim(),
-      order: order ?? 0,
       createdBy: adminId,
     });
 

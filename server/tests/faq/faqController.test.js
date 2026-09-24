@@ -116,8 +116,7 @@ test("FAQ list returns sorted public records", async () => {
   const result = await runController(getFAQs);
 
   assert.deepEqual(calls.sort, {
-    order: 1,
-    createdAt: 1,
+    createdAt: -1,
   });
 
   assert.equal(calls.select, "-createdBy");
@@ -196,7 +195,6 @@ test("FAQ creation normalizes data and hides createdBy", async () => {
   assert.deepEqual(receivedPayload, {
     question: "What is Node.js?",
     answer: "JavaScript runtime.",
-    order: 0,
     createdBy: "creator-admin-id",
   });
 
@@ -208,7 +206,7 @@ test("FAQ creation normalizes data and hides createdBy", async () => {
   assert.equal(result.res.body.data.question, "What is Node.js?");
 });
 
-test("FAQ creation preserves explicit zero-based order", async () => {
+test("FAQ creation ignores client supplied order", async () => {
   let receivedPayload;
 
   FAQ.create = async (payload) => {
@@ -233,8 +231,8 @@ test("FAQ creation preserves explicit zero-based order", async () => {
     },
   });
 
-  assert.equal(receivedPayload.order, 3);
-  assert.equal(result.res.body.data.order, 3);
+  assert.equal(receivedPayload.order, undefined);
+  assert.equal(result.res.body.data.order, undefined);
 
   assert.equal(Object.hasOwn(result.res.body.data, "createdBy"), false);
 });
