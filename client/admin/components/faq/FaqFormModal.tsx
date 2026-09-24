@@ -1,8 +1,4 @@
-import {
-  EditOutlined,
-  PlusOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons';
+import { EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Form, Input, Modal } from 'antd';
 import type { Faq, FaqFormValues } from '../../types/faq.types';
 
@@ -95,7 +91,6 @@ export function FaqFormModal({
             }}
             showCount
             maxLength={300}
-            prefix={<QuestionCircleOutlined />}
             placeholder="Foydalanuvchilar ko‘p so‘raydigan savol"
             disabled={loading}
           />
