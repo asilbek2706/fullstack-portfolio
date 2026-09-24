@@ -107,6 +107,7 @@ export function DashboardPage() {
 
       <div className="dashboard-content-grid">
         <Card
+          hoverable
           className="dashboard-content-card dashboard-about-card"
           bordered={false}
         >
