@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import type { ReactNode } from 'react';
 import { AboutPage } from '../pages/about/AboutPage';
+import { ContactsPage } from '../pages/contacts/ContactsPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { PlaceholderPage } from '../pages/placeholder/PlaceholderPage';
 import { ProjectsPage } from '../pages/projects/ProjectsPage';
@@ -64,12 +65,7 @@ export const adminRoutes: AdminRouteDefinition[] = [
     path: '/admin/contacts',
     label: 'Murojaatlar',
     icon: <InboxOutlined />,
-    element: (
-      <PlaceholderPage
-        title="Murojaatlar"
-        description="Foydalanuvchilardan kelgan murojaatlar."
-      />
-    ),
+    element: <ContactsPage />,
     showInMenu: true,
   },
   {
