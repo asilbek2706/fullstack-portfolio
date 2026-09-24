@@ -11,10 +11,13 @@ interface GetProjectsOptions {
   limit?: number;
 }
 
-interface UpdateProjectInput {
-  id: string;
+interface ProjectMutationInput {
   values: ProjectFormValues;
   image?: File;
+}
+
+interface UpdateProjectInput extends ProjectMutationInput {
+  id: string;
 }
 
 const appendProjectFields = (formData: FormData, values: ProjectFormValues) => {
@@ -25,7 +28,12 @@ const appendProjectFields = (formData: FormData, values: ProjectFormValues) => {
     JSON.stringify(values.technologies.map((technology) => technology.trim())),
   );
   formData.append('githubLink', values.githubLink.trim());
-  formData.append('demoLink', values.demoLink?.trim() || '');
+
+  const demoLink = values.demoLink?.trim();
+
+  if (demoLink) {
+    formData.append('demoLink', demoLink);
+  }
 };
 
 export const projectApi = {
@@ -49,6 +57,20 @@ export const projectApi = {
     return response.data.data;
   },
 
+  async create({ values, image }: ProjectMutationInput): Promise<Project> {
+    const formData = new FormData();
+
+    appendProjectFields(formData, values);
+
+    if (image) {
+      formData.append('image', image);
+    }
+
+    const response = await http.post<ProjectResponse>('/projects', formData);
+
+    return response.data.data;
+  },
+
   async update({ id, values, image }: UpdateProjectInput): Promise<Project> {
     const formData = new FormData();
 
@@ -64,5 +86,9 @@ export const projectApi = {
     );
 
     return response.data.data;
+  },
+
+  async remove(id: string): Promise<void> {
+    await http.delete(`/projects/${id}`);
   },
 };

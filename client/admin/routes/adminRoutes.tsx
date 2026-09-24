@@ -47,6 +47,20 @@ export const adminRoutes: AdminRouteDefinition[] = [
     showInMenu: true,
   },
   {
+    path: '/admin/projects/create',
+    label: 'Project yaratish',
+    icon: <RocketOutlined />,
+    element: <ProjectsPage />,
+    showInMenu: false,
+  },
+  {
+    path: '/admin/projects/edit/:projectId',
+    label: 'Projectni tahrirlash',
+    icon: <RocketOutlined />,
+    element: <ProjectsPage />,
+    showInMenu: false,
+  },
+  {
     path: '/admin/contacts',
     label: 'Murojaatlar',
     icon: <InboxOutlined />,

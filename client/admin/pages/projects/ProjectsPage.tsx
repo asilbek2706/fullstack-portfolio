@@ -1,7 +1,20 @@
-import { ReloadOutlined, RocketOutlined } from '@ant-design/icons';
-import { Button, Empty, Pagination, Result, Spin, Typography } from 'antd';
+import {
+  PlusOutlined,
+  ReloadOutlined,
+  RocketOutlined,
+} from '@ant-design/icons';
+import {
+  Button,
+  Empty,
+  Modal,
+  Pagination,
+  Result,
+  Spin,
+  Typography,
+} from 'antd';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { projectApi } from '../../api/projectApi';
 import { ProjectCard } from '../../components/projects/ProjectCard';
 import { ProjectEditModal } from '../../components/projects/ProjectEditModal';
@@ -9,15 +22,29 @@ import type { Project, ProjectFormValues } from '../../types/project.types';
 import { getApiError } from '../../../shared/utils/getApiError';
 
 const pageSize = 12;
+const projectsPath = '/admin/projects';
 
 export function ProjectsPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { projectId } = useParams<{
+    projectId: string;
+  }>();
+
   const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedProject, setSelectedProject] = useState<Project>();
+  const [editingProject, setEditingProject] = useState<Project>();
+  const [deleteTarget, setDeleteTarget] = useState<Project>();
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const isCreateRoute = location.pathname === `${projectsPath}/create`;
+
+  const isEditRoute =
+    location.pathname.startsWith(`${projectsPath}/edit/`) && Boolean(projectId);
 
   const loadProjects = (requestedPage: number) => {
     setLoading(true);
@@ -70,18 +97,82 @@ export function ProjectsPage() {
     };
   }, [page]);
 
-  const handleSave = async (
-    project: Project,
-    values: ProjectFormValues,
-    image?: File,
-  ) => {
+  useEffect(() => {
+    if (!isEditRoute || !projectId) return;
+
+    let active = true;
+
+    projectApi
+      .getById(projectId)
+      .then((project) => {
+        if (active) {
+          setEditingProject(project);
+        }
+      })
+      .catch((error) => {
+        if (!active) return;
+
+        toast.error(getApiError(error, 'Project ma’lumotini yuklab bo‘lmadi.'));
+
+        navigate(projectsPath, {
+          replace: true,
+        });
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [isEditRoute, navigate, projectId]);
+
+  const closeProjectModal = () => {
+    if (saving) return;
+
+    setEditingProject(undefined);
+    navigate(projectsPath);
+  };
+
+  const openEditModal = (project: Project) => {
+    setEditingProject(project);
+    navigate(`${projectsPath}/edit/${project._id}`);
+  };
+
+  const handleSave = async (values: ProjectFormValues, image?: File) => {
     setSaving(true);
 
-    const loadingToast = toast.loading('Loyiha yangilanmoqda...');
+    const loadingToast = toast.loading(
+      isCreateRoute ? 'Project yaratilmoqda...' : 'Project yangilanmoqda...',
+    );
 
     try {
+      if (isCreateRoute) {
+        await projectApi.create({
+          values,
+          image,
+        });
+
+        toast.success('Project muvaffaqiyatli yaratildi.', {
+          id: loadingToast,
+        });
+
+        navigate(projectsPath, {
+          replace: true,
+        });
+
+        if (page === 1) {
+          loadProjects(1);
+        } else {
+          setPage(1);
+        }
+
+        return;
+      }
+
+      if (!editingProject) {
+        throw new Error('Tahrirlanayotgan project topilmadi.');
+      }
+
       const updatedProject = await projectApi.update({
-        id: project._id,
+        id: editingProject._id,
         values,
         image,
       });
@@ -94,17 +185,59 @@ export function ProjectsPage() {
         ),
       );
 
-      setSelectedProject(undefined);
+      setEditingProject(undefined);
 
-      toast.success('Loyiha muvaffaqiyatli yangilandi.', {
+      navigate(projectsPath, {
+        replace: true,
+      });
+
+      toast.success('Project muvaffaqiyatli yangilandi.', {
         id: loadingToast,
       });
     } catch (error) {
-      toast.error(getApiError(error, 'Loyihani yangilab bo‘lmadi.'), {
+      toast.error(
+        getApiError(
+          error,
+          isCreateRoute
+            ? 'Projectni yaratib bo‘lmadi.'
+            : 'Projectni yangilab bo‘lmadi.',
+        ),
+        {
+          id: loadingToast,
+        },
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    setDeleting(true);
+
+    const loadingToast = toast.loading('Project o‘chirilmoqda...');
+
+    try {
+      await projectApi.remove(deleteTarget._id);
+
+      toast.success('Project muvaffaqiyatli o‘chirildi.', {
+        id: loadingToast,
+      });
+
+      setDeleteTarget(undefined);
+
+      if (projects.length === 1 && page > 1) {
+        setPage((currentPage) => currentPage - 1);
+      } else {
+        loadProjects(page);
+      }
+    } catch (error) {
+      toast.error(getApiError(error, 'Projectni o‘chirib bo‘lmadi.'), {
         id: loadingToast,
       });
     } finally {
-      setSaving(false);
+      setDeleting(false);
     }
   };
 
@@ -115,17 +248,27 @@ export function ProjectsPage() {
           <Typography.Title level={2}>Loyihalar</Typography.Title>
 
           <Typography.Text type="secondary">
-            Portfolio loyihalarini ko‘rish va tahrirlash.
+            Portfolio loyihalarini yaratish, tahrirlash va o‘chirish.
           </Typography.Text>
         </div>
 
-        <Button
-          icon={<ReloadOutlined />}
-          loading={loading}
-          onClick={() => loadProjects(page)}
-        >
-          Yangilash
-        </Button>
+        <div className="projects-heading-actions">
+          <Button
+            icon={<ReloadOutlined />}
+            loading={loading}
+            onClick={() => loadProjects(page)}
+          >
+            Yangilash
+          </Button>
+
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => navigate(`${projectsPath}/create`)}
+          >
+            Project yaratish
+          </Button>
+        </div>
       </div>
 
       {loading && (
@@ -152,7 +295,15 @@ export function ProjectsPage() {
         <Empty
           image={<RocketOutlined />}
           description="Hozircha loyihalar mavjud emas"
-        />
+        >
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => navigate(`${projectsPath}/create`)}
+          >
+            Birinchi projectni yaratish
+          </Button>
+        </Empty>
       )}
 
       {!loading && !errorMessage && projects.length > 0 && (
@@ -162,7 +313,8 @@ export function ProjectsPage() {
               <ProjectCard
                 key={project._id}
                 project={project}
-                onEdit={setSelectedProject}
+                onEdit={openEditModal}
+                onDelete={setDeleteTarget}
               />
             ))}
           </div>
@@ -173,25 +325,66 @@ export function ProjectsPage() {
               pageSize={pageSize}
               total={total}
               showSizeChanger={false}
-              onChange={setPage}
+              onChange={(nextPage) => {
+                setLoading(true);
+                setPage(nextPage);
+              }}
             />
           )}
         </>
       )}
 
-      {selectedProject && (
+      {isCreateRoute && (
         <ProjectEditModal
-          key={selectedProject._id}
-          project={selectedProject}
+          key="create-project"
+          mode="create"
           saving={saving}
-          onCancel={() => {
-            if (!saving) {
-              setSelectedProject(undefined);
-            }
-          }}
+          onCancel={closeProjectModal}
           onSave={handleSave}
         />
       )}
+
+      {isEditRoute && editingProject && (
+        <ProjectEditModal
+          key={editingProject._id}
+          mode="edit"
+          project={editingProject}
+          saving={saving}
+          onCancel={closeProjectModal}
+          onSave={handleSave}
+        />
+      )}
+
+      <Modal
+        open={Boolean(deleteTarget)}
+        centered
+        title="Projectni o‘chirish"
+        okText="Ha, o‘chirish"
+        cancelText="Bekor qilish"
+        confirmLoading={deleting}
+        closable={!deleting}
+        maskClosable={!deleting}
+        keyboard={!deleting}
+        okButtonProps={{
+          danger: true,
+        }}
+        onCancel={() => {
+          if (!deleting) {
+            setDeleteTarget(undefined);
+          }
+        }}
+        onOk={() => void handleDelete()}
+      >
+        <p>
+          <strong>{deleteTarget?.title}</strong> projectini butunlay
+          o‘chirmoqchimisiz?
+        </p>
+
+        <Typography.Text type="secondary">
+          Project va unga tegishli rasm ham o‘chiriladi. Bu amalni ortga
+          qaytarib bo‘lmaydi.
+        </Typography.Text>
+      </Modal>
     </div>
   );
 }
