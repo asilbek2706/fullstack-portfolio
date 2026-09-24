@@ -11,6 +11,7 @@ import type { ReactNode } from 'react';
 import { AboutPage } from '../pages/about/AboutPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { PlaceholderPage } from '../pages/placeholder/PlaceholderPage';
+import { ProjectsPage } from '../pages/projects/ProjectsPage';
 import type { AdminRole } from '../types/auth';
 
 export interface AdminRouteDefinition {
@@ -42,12 +43,7 @@ export const adminRoutes: AdminRouteDefinition[] = [
     path: '/admin/projects',
     label: 'Loyihalar',
     icon: <RocketOutlined />,
-    element: (
-      <PlaceholderPage
-        title="Loyihalar"
-        description="Portfolio loyihalarini boshqarish."
-      />
-    ),
+    element: <ProjectsPage />,
     showInMenu: true,
   },
   {

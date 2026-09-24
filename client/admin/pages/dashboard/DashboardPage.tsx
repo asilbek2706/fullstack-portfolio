@@ -9,6 +9,7 @@ import { Button, Card, Col, Empty, Row, Spin, Tag, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../auth/useAuth';
 import { AboutPreview } from '../../components/about/AboutPreview';
+import { ProjectsSummaryCard } from '../../components/dashboard/ProjectsSummaryCard';
 import { useAbout } from '../../context/about/useAbout';
 
 const modules = [
@@ -157,13 +158,7 @@ export function DashboardPage() {
           )}
         </Card>
 
-        {/*
-          Keyingi bosqichlarda shu grid ichiga:
-          Projects summary
-          Contacts summary
-          FAQ summary
-          kartalari qo‘shiladi.
-        */}
+        <ProjectsSummaryCard />
       </div>
     </div>
   );
