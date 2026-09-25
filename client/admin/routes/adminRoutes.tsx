@@ -1,3 +1,4 @@
+import { ProfilePage } from '../pages/profile/ProfilePage';
 import {
   AppstoreOutlined,
   IdcardOutlined,
@@ -13,7 +14,6 @@ import { AdminsPage } from '../pages/admins/AdminsPage';
 import { ContactsPage } from '../pages/contacts/ContactsPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { FaqPage } from '../pages/faq/FaqPage';
-import { PlaceholderPage } from '../pages/placeholder/PlaceholderPage';
 import { ProjectsPage } from '../pages/projects/ProjectsPage';
 import type { AdminRole } from '../types/auth';
 
@@ -89,12 +89,7 @@ export const adminRoutes: AdminRouteDefinition[] = [
     path: '/admin/profile',
     label: 'Profil',
     icon: <UserSwitchOutlined />,
-    element: (
-      <PlaceholderPage
-        title="Profil"
-        description="Shaxsiy admin profilini yangilash."
-      />
-    ),
+    element: <ProfilePage />,
     showInMenu: true,
   },
 ];
