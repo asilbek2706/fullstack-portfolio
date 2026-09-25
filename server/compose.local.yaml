@@ -1,0 +1,29 @@
+name: portfolio-local
+
+services:
+  backend:
+    build:
+      context: .
+      target: development
+    init: true
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      PORT: "8080"
+    network_mode: host
+    volumes:
+      - uploads:/app/uploads
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  uploads:
