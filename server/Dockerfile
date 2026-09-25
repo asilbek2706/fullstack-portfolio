@@ -2,18 +2,20 @@ FROM node:22-bookworm-slim AS base
 
 WORKDIR /app
 
+ENV PORT=8080
+
 COPY package.json package-lock.json ./
 
 FROM base AS development
 
 ENV NODE_ENV=development
-ENV PORT=8080
 
 RUN npm ci && npm cache clean --force
 
 COPY --chown=node:node . .
 
-RUN mkdir -p /app/uploads && chown node:node /app/uploads
+RUN mkdir -p /app/uploads \
+    && chown node:node /app/uploads
 
 USER node
 
@@ -27,13 +29,13 @@ CMD ["node", "server.js"]
 FROM base AS production
 
 ENV NODE_ENV=production
-ENV PORT=8080
 
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --chown=node:node . .
 
-RUN mkdir -p /app/uploads && chown node:node /app/uploads
+RUN mkdir -p /app/uploads \
+    && chown node:node /app/uploads
 
 USER node
 

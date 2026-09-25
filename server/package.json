@@ -13,7 +13,15 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "npm run check && npm run lint && npm run format:check && npm test"
+    "validate": "npm run check && npm run lint && npm run format:check && npm test",
+    "docker:build": "docker compose -f compose.local.yaml build",
+    "docker:up": "docker compose -f compose.local.yaml up -d --build --wait",
+    "docker:down": "docker compose -f compose.local.yaml down",
+    "docker:logs": "docker compose -f compose.local.yaml logs -f backend",
+    "docker:prod:build": "docker build --target production -t portfolio-backend:production .",
+    "docker:prod:up": "docker compose -f compose.production.yaml up -d --build --wait",
+    "docker:prod:down": "docker compose -f compose.production.yaml down",
+    "docker:prod:logs": "docker compose -f compose.production.yaml logs -f backend"
   },
   "keywords": [],
   "author": "",

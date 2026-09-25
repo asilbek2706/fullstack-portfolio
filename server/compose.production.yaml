@@ -1,20 +1,27 @@
-name: portfolio-local
+name: portfolio-production
 
 services:
   backend:
+    image: portfolio-backend:production
     build:
       context: .
       dockerfile: Dockerfile
-      target: development
+      target: production
     init: true
+    restart: unless-stopped
     env_file:
-      - .env
+      - .env.production
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       PORT: "8080"
-    network_mode: host
+      LOG_LEVEL: info
+    ports:
+      - "127.0.0.1:8080:8080"
     volumes:
       - uploads:/app/uploads
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
     security_opt:
       - no-new-privileges:true
     cap_drop:
