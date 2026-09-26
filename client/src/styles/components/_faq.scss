@@ -1,0 +1,198 @@
+/* ==========================================================================
+   FAQ SECTION STYLES
+   ========================================================================== */
+
+.pf-faq-section {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) 1.15fr;
+  gap: clamp(36px, 5vw, 80px);
+  padding-block: clamp(60px, 8vw, 120px);
+  align-items: start;
+
+  .pf-eyebrow {
+    color: var(--pf-accent-blue, #64caff);
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: clamp(38px, 4.4vw, 64px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+
+  .pf-muted {
+    margin-top: 20px;
+    max-width: 360px;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+}
+
+/* Scrollable Container (Fixed height for ~5 items) */
+.pf-faq-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 580px; /* taxminan 5 ta savol uchun fiksirlangan balandlik */
+  overflow-y: auto;
+  padding-right: 8px;
+
+  /* Custom Smooth Scrollbar */
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--pf-line, rgba(158, 219, 255, 0.2));
+    border-radius: 10px;
+
+    &:hover {
+      background: var(--pf-lime, #d0ff91);
+    }
+  }
+}
+
+/* FAQ Item Card */
+.pf-faq-item {
+  border: 1px solid var(--pf-line, rgba(158, 219, 255, 0.13));
+  border-radius: 20px;
+  background: var(
+    --pf-card-bg,
+    linear-gradient(120deg, rgba(17, 33, 51, 0.53), rgba(9, 18, 29, 0.53))
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+  transition:
+    border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s ease;
+
+  &:hover {
+    border-color: rgba(100, 202, 255, 0.35);
+    background: rgba(17, 33, 51, 0.7);
+  }
+
+  &[open] {
+    border-color: var(--pf-lime, #d0ff91);
+    background: rgba(16, 35, 51, 0.85);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+
+    .pf-faq-plus {
+      transform: rotate(45deg);
+      color: var(--pf-lime, #d0ff91);
+    }
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 22px 24px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--pf-text, #f1f2f4);
+    user-select: none;
+    transition: color 0.2s ease;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &:hover {
+      color: var(--pf-lime, #d0ff91);
+    }
+  }
+
+  /* Answer text with smooth shift and border line */
+  p {
+    margin: 0 24px 24px 58px;
+    padding: 12px 0 12px 20px;
+    border-left: 2px solid var(--pf-lime, #d0ff91);
+    color: var(--pf-muted, #afc1d1);
+    font-size: 14px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+
+    /* Smooth entrance animation */
+    animation: pf-fade-slide-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+.pf-faq-number {
+  color: var(--pf-accent-blue, #6bd4ff);
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.pf-faq-plus {
+  margin-left: auto;
+  color: var(--pf-accent-blue, #6bd4ff);
+  font-size: 22px;
+  line-height: 1;
+  transition:
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.3s ease;
+}
+
+/* ==========================================================================
+   ANIMATIONS & RESPONSIVE DESIGN
+   ========================================================================== */
+
+@keyframes pf-fade-slide-right {
+  0% {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .pf-faq-section {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding-block: 50px 70px;
+  }
+
+  .pf-faq-container {
+    max-height: 500px;
+  }
+
+  .pf-faq-item {
+    summary {
+      padding: 18px 20px;
+      gap: 14px;
+      font-size: 15px;
+    }
+
+    p {
+      margin: 0 20px 20px 20px;
+      padding-left: 16px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .pf-faq-item summary {
+    padding: 16px;
+  }
+
+  .pf-faq-item p {
+    margin: 0 16px 16px 16px;
+    font-size: 13.5px;
+  }
+}

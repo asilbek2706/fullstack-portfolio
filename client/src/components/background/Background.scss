@@ -1,0 +1,42 @@
+.portfolio-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: var(--bg);
+  --grid-color: #008fdf;
+}
+.sp-site[data-theme='dark'] .portfolio-background {
+  --grid-color: #28bfff;
+}
+.portfolio-background svg {
+  width: 100%;
+  height: 100%;
+  opacity: 0.62;
+}
+.portfolio-background__lines {
+  animation: portfolio-grid-breathe 12s ease-in-out infinite alternate;
+}
+.portfolio-background__shade {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 72%,
+    transparent 10%,
+    var(--bg) 95%
+  );
+}
+@keyframes portfolio-grid-breathe {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-background__lines {
+    animation: none;
+  }
+}

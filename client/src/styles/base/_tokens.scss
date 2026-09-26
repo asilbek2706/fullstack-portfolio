@@ -1,0 +1,383 @@
+/* ==========================================================================
+   GLOBAL THEME VARIABLES & RESET
+   ========================================================================== */
+
+:root {
+  /* Dark Mode (Default) Variables */
+  --pf-bg: #090b10;
+  --pf-bg-gradient:
+    radial-gradient(ellipse at 82% 10%, #192338 0, transparent 32%),
+    radial-gradient(ellipse at 0 58%, #181a29 0, transparent 24%), #090b10;
+  --pf-text: #f1f2f4;
+  --pf-muted: #9b9fae;
+  --pf-line: rgba(232, 239, 255, 0.13);
+  --pf-lime: #d0ff91;
+  --pf-lime-hover: #beff6c;
+  --pf-lime-shadow: rgba(207, 255, 145, 0.2);
+  --pf-button-quiet-bg: rgba(255, 255, 255, 0.05);
+  --pf-button-quiet-hover: rgba(255, 255, 255, 0.1);
+  --pf-toast-bg: #20252e;
+}
+
+/* Light Mode Override */
+.light,
+[data-theme='light'] {
+  --pf-bg: #f8fafc;
+  --pf-bg-gradient:
+    radial-gradient(ellipse at 82% 10%, #e2e8f0 0, transparent 40%),
+    radial-gradient(ellipse at 0 58%, #cbd5e1 0, transparent 30%), #f8fafc;
+  --pf-text: #0f172a;
+  --pf-muted: #64748b;
+  --pf-line: rgba(15, 23, 42, 0.12);
+  --pf-lime: #10b981; /* Light mode uchun ko'zga tashlanadigan zümrad/yashil color */
+  --pf-lime-hover: #059669;
+  --pf-lime-shadow: rgba(16, 185, 129, 0.25);
+  --pf-button-quiet-bg: rgba(15, 23, 42, 0.04);
+  --pf-button-quiet-hover: rgba(15, 23, 42, 0.08);
+  --pf-toast-bg: #ffffff;
+}
+
+body:has(.pf-site) {
+  margin: 0;
+  background-color: var(--pf-bg);
+  transition: background-color 0.4s ease;
+}
+
+/* ==========================================================================
+   MAIN SITE CONTAINER
+   ========================================================================== */
+
+.pf-site {
+  color: var(--pf-text);
+  background: var(--pf-bg-gradient);
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow: clip;
+  transition:
+    color 0.4s ease,
+    background 0.4s ease;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  button,
+  input,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  button {
+    cursor: pointer;
+    border: none;
+    background: none;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+
+  /* Accessibility Focus Rings */
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--pf-lime);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    margin: 0;
+    color: inherit;
+  }
+
+  h2 {
+    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    letter-spacing: -0.05em;
+    line-height: 1.05;
+    font-weight: 600;
+
+    > span {
+      color: var(--pf-muted);
+      font-weight: 400;
+    }
+  }
+
+  ::selection {
+    background: var(--pf-lime);
+    color: #090b10;
+  }
+}
+
+/* ==========================================================================
+   LAYOUT SECTIONS
+   ========================================================================== */
+
+.pf-section,
+.pf-hero,
+.pf-footer {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 72px);
+}
+
+.pf-section {
+  padding-block: clamp(60px, 8vw, 120px);
+  scroll-margin-top: 80px;
+}
+
+.pf-section-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  border-top: 1px solid var(--pf-line);
+  padding-top: 24px;
+  margin-bottom: 48px;
+
+  > span {
+    color: var(--pf-muted);
+    font-size: 13px;
+    font-weight: 500;
+  }
+}
+
+.pf-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 48px;
+
+  > p {
+    color: var(--pf-muted);
+    max-width: 540px;
+    font-size: 17px;
+  }
+}
+
+/* ==========================================================================
+   TYPOGRAPHY & UTILITIES
+   ========================================================================== */
+
+.pf-eyebrow {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pf-muted {
+  color: var(--pf-muted) !important;
+}
+
+.pf-lime {
+  color: var(--pf-lime);
+}
+
+/* ==========================================================================
+   BUTTONS & LINKS
+   ========================================================================== */
+
+.pf-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 52px;
+  padding: 12px 28px;
+  border-radius: 99px;
+  border: 1px solid var(--pf-line);
+  background-color: transparent;
+  color: var(--pf-text);
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  user-select: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.25s ease;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px var(--pf-lime-shadow);
+
+    svg {
+      transform: translateX(3px) translateY(-3px);
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.pf-site {
+  .pf-button--primary {
+    background-color: var(--pf-lime);
+    color: #090b10;
+    border-color: var(--pf-lime);
+
+    &:hover:not(:disabled) {
+      background-color: var(--pf-lime-hover);
+      border-color: var(--pf-lime-hover);
+    }
+  }
+
+  .pf-button--quiet {
+    background-color: var(--pf-button-quiet-bg);
+    color: var(--pf-text);
+
+    &:hover:not(:disabled) {
+      background-color: var(--pf-button-quiet-hover);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+  }
+}
+
+.pf-text-link {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  border: 0;
+  background: none;
+  color: var(--pf-text);
+  padding: 6px 0;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  &:hover {
+    color: var(--pf-lime);
+
+    svg {
+      transform: translateX(4px);
+    }
+  }
+}
+
+/* ==========================================================================
+   COMPONENTS & UI FEEDBACK
+   ========================================================================== */
+
+.pf-resource {
+  padding: 32px 36px;
+  border: 1px solid var(--pf-line);
+  border-radius: 24px;
+  margin-block: 24px;
+  color: var(--pf-muted);
+  background: var(--pf-button-quiet-bg);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: var(--pf-lime);
+  }
+}
+
+.pf-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--pf-line);
+  border-top-color: var(--pf-lime);
+  border-radius: 50%;
+  animation: pf-spin 0.8s linear infinite;
+}
+
+.pf-toast {
+  background-color: var(--pf-toast-bg) !important;
+  color: var(--pf-text) !important;
+  border: 1px solid var(--pf-line) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(16px);
+}
+
+/* ==========================================================================
+   KEYFRAMES & RESPONSIVE DESIGN
+   ========================================================================== */
+
+@keyframes pf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 767px) {
+  .pf-section-top {
+    margin-bottom: 24px;
+  }
+
+  .pf-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .pf-button {
+    width: 100%;
+    padding: 12px 20px;
+  }
+
+  .pf-resource {
+    padding: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-site *,
+  .pf-site *::before,
+  .pf-site *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

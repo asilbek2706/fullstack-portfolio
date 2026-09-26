@@ -1,0 +1,44 @@
+/* ==========================================================================
+   PUBLIC SHELL / MAIN LAYOUT WRAPPER
+   ========================================================================== */
+
+body:has(.public-shell) {
+  margin: 0;
+  padding: 0;
+  background-color: var(--pf-bg, #06080e);
+  color-scheme: dark light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.4s ease;
+}
+
+.public-shell {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh; /* Mobil brauzerlar balandligini aniq hisoblash uchun */
+  color: var(--pf-text, #edf3ff);
+  background: var(--pf-bg-gradient, #06080e);
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
+  overflow-x: hidden;
+
+  /* Asosiy sahifa kontenti uchun konteyner */
+  &__content {
+    flex: 1 0 auto;
+    width: 100%;
+    min-height: 360px;
+    display: flex;
+    flex-direction: column;
+  }
+}

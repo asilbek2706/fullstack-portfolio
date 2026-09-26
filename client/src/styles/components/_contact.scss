@@ -1,0 +1,240 @@
+/* ==========================================================================
+   CONTACT SECTION STYLES
+   ========================================================================== */
+
+.pf-contact-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 70px);
+  align-items: start;
+
+  h2 {
+    margin-top: 20px;
+    font-size: clamp(38px, 4.5vw, 64px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+}
+
+.pf-contact-intro {
+  margin-top: 20px !important;
+  color: var(--pf-muted) !important;
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 480px;
+}
+
+.pf-contact-decoration {
+  font-size: clamp(100px, 12vw, 160px);
+  line-height: 1;
+  color: var(--pf-lime);
+  opacity: 0.85;
+  user-select: none;
+  pointer-events: none;
+  margin-top: 10px;
+  filter: drop-shadow(0 10px 20px var(--pf-lime-shadow));
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: rotate(-5deg) scale(1.05);
+  }
+}
+
+/* Glassmorphism Form Panel */
+.pf-contact-panel {
+  min-width: 0;
+  padding: clamp(24px, 4vw, 36px);
+  border: 1px solid var(--pf-line);
+  border-radius: 28px;
+  background: var(
+    --pf-card-bg,
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.05),
+      rgba(255, 255, 255, 0.01)
+    )
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+
+  &:hover {
+    border-color: rgba(208, 255, 145, 0.25);
+  }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: var(--pf-text);
+    opacity: 0.9;
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    display: block;
+    padding: 14px 16px;
+    border: 1px solid var(--pf-line);
+    border-radius: 14px;
+    color: var(--pf-text);
+    background: var(--pf-button-quiet-bg, rgba(9, 11, 16, 0.4));
+    margin-bottom: 20px;
+    font-size: 14px;
+    outline: none;
+    resize: vertical;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &::placeholder {
+      color: var(--pf-muted);
+      opacity: 0.7;
+    }
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    &:focus {
+      border-color: var(--pf-lime);
+      background: rgba(9, 11, 16, 0.7);
+      box-shadow: 0 0 0 4px var(--pf-lime-shadow);
+    }
+  }
+
+  textarea {
+    min-height: 130px;
+  }
+
+  form > .pf-button {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+}
+
+.pf-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pf-privacy {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--pf-muted) !important;
+  margin-top: 16px !important;
+
+  a {
+    color: var(--pf-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: var(--pf-lime);
+    }
+  }
+}
+
+/* Status Tracker Accordion/Details */
+.pf-tracker {
+  border-top: 1px solid var(--pf-line);
+  padding-top: 22px;
+  margin-top: 28px;
+
+  summary {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--pf-text);
+    opacity: 0.85;
+    margin-bottom: 16px;
+    user-select: none;
+    transition:
+      color 0.2s ease,
+      opacity 0.2s ease;
+
+    &:hover {
+      color: var(--pf-lime);
+      opacity: 1;
+    }
+  }
+
+  form > .pf-button {
+    margin-bottom: 12px;
+  }
+}
+
+/* Receipt & Response Cards */
+.pf-receipt,
+.pf-answer {
+  margin-top: 20px;
+  border: 1px solid rgba(208, 255, 145, 0.25);
+  border-radius: 16px;
+  padding: 20px;
+  background: rgba(208, 255, 145, 0.04);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+
+  strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pf-lime);
+  }
+
+  p {
+    color: var(--pf-muted);
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 8px;
+    white-space: pre-line;
+  }
+
+  code {
+    display: block;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 12px;
+    color: var(--pf-text);
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px dashed var(--pf-line);
+    padding: 10px 14px;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+    margin-block: 12px;
+    user-select: all;
+  }
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .pf-contact-section {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .pf-contact-decoration {
+    display: none;
+  }
+}
+
+@media (max-width: 540px) {
+  .pf-contact-panel {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .pf-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
