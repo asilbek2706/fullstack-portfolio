@@ -1,0 +1,28 @@
+// ==========================================================================
+// DESIGN TOKENS
+// Shared SCSS-level constants for component styles (Navbar, Footer,
+// Background). Colors that need to switch between light/dark themes live
+// as CSS custom properties on `.sp-site` in `public.css`, not here — these
+// are structural/spacing/breakpoint tokens only.
+// ==========================================================================
+
+// Breakpoints (max-width, matches the ones used across the public site)
+$breakpoint-tablet: 900px;
+$breakpoint-mobile: 767px;
+
+// Spacing scale
+$space-xs: 8px;
+$space-sm: 12px;
+$space-md: 20px;
+$space-lg: 32px;
+$space-xl: 48px;
+
+// Radii
+$radius-sm: 9px;
+$radius-md: 16px;
+$radius-lg: 24px;
+
+// Motion
+$ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+$duration-fast: 0.2s;
+$duration-base: 0.3s;

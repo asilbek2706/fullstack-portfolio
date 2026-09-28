@@ -9,8 +9,17 @@
 // ==========================================================================
 
 .sp-footer {
+  width: calc(100% - 64px);
+  padding: v.$space-lg v.$space-lg v.$space-md;
+
   @include m.glass-panel($radius: 0);
   border-radius: v.$radius-lg v.$radius-lg 0 0;
+
+  @include m.respond-to(mobile) {
+    width: calc(100% - 32px);
+    margin-inline: auto;
+    padding: v.$space-lg v.$space-md;
+  }
 }
 
 .sp-top-button {

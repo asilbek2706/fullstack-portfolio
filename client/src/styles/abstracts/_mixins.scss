@@ -1,0 +1,39 @@
+@use 'variables' as v;
+
+// ==========================================================================
+// MIXINS
+// ==========================================================================
+
+/// Responsive breakpoint helper — max-width media query.
+/// Usage: @include respond-to(mobile) { ... }
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == tablet {
+    @media (max-width: v.$breakpoint-tablet) {
+      @content;
+    }
+  } @else if $breakpoint == mobile {
+    @media (max-width: v.$breakpoint-mobile) {
+      @content;
+    }
+  } @else {
+    @warn "Unknown breakpoint `#{$breakpoint}`.";
+  }
+}
+
+/// Frosted-glass panel used by the sticky nav, footer and mobile menu.
+@mixin glass-panel($radius: v.$radius-md) {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: $radius;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+/// Reduced-motion safe transition.
+@mixin motion-safe-transition($props...) {
+  transition: $props;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
