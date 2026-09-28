@@ -1,9 +1,17 @@
 import { Link } from 'react-router-dom';
 import './Footer.scss';
-import { Code2, ArrowUpRight, ArrowUp, Phone } from 'lucide-react';
+import {
+  ArrowUp,
+  ArrowUpRight,
+  Camera as Instagram,
+  Code2,
+  Mail,
+  Phone,
+  Send,
+} from 'lucide-react';
 export function Footer() {
   return (
-    <footer className="sp-footer">
+    <footer className="sp-footer container">
       <div className="sp-footer-grid">
         <div>
           <Link className="sp-brand" to="/">
@@ -33,21 +41,35 @@ export function Footer() {
         <div>
           <h3>Aloqa</h3>
           <a
+            className="sp-footer-contact-link"
             href="https://t.me/as1l_2706"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Telegram profilini ochish"
           >
-            Telegram ↗
+            <Send size={15} aria-hidden="true" />
+            <span>Telegram</span>
+            <ArrowUpRight size={13} aria-hidden="true" />
           </a>
           <a
+            className="sp-footer-contact-link"
             href="https://www.instagram.com/asilbek_2706/"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Instagram profilini ochish"
           >
-            Instagram ↗
+            <Instagram size={15} aria-hidden="true" />
+            <span>Instagram</span>
+            <ArrowUpRight size={13} aria-hidden="true" />
           </a>
-          <a href="mailto:asilbekkaromatov2@gmail.com">
-            Email <ArrowUpRight size={13} />
+          <a
+            className="sp-footer-contact-link"
+            href="mailto:asilbekkaromatov2@gmail.com"
+            aria-label="Elektron pochta yuborish"
+          >
+            <Mail size={15} aria-hidden="true" />
+            <span>Elektron pochta</span>
+            <ArrowUpRight size={13} aria-hidden="true" />
           </a>
         </div>
       </div>

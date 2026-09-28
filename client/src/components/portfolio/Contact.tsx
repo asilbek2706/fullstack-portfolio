@@ -5,6 +5,7 @@ import {
   Send,
   Camera as Instagram,
   ArrowUpRight,
+  CodeXml as Github,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { portfolioApi, apiError } from '../../api/portfolioApi';
@@ -14,6 +15,12 @@ import { Reveal } from './Reveal';
 import { Faq } from './Faq';
 const channels = [
   {
+    Icon: Github,
+    label: 'GitHub',
+    value: 'github.com/asilbek2706',
+    href: 'https://github.com/asilbek2706',
+  },
+  {
     Icon: Phone,
     label: 'Telefon',
     value: '+998 50 753 66 36',
@@ -21,7 +28,7 @@ const channels = [
   },
   {
     Icon: Mail,
-    label: 'Email',
+    label: 'Elektron pochta',
     value: 'asilbekkaromatov2@gmail.com',
     href: 'mailto:asilbekkaromatov2@gmail.com',
   },
@@ -160,21 +167,22 @@ export function Contact() {
               </p>
             )}
             <p className="sp-captcha-note">
-              This site is protected by reCAPTCHA and the Google{' '}
+              Ushbu sayt reCAPTCHA tomonidan himoyalangan. Google
+              kompaniyasining{' '}
               <a
                 href="https://policies.google.com/privacy"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Privacy Policy
+                maxfiylik siyosati
               </a>{' '}
-              and{' '}
+              hamda{' '}
               <a
                 href="https://policies.google.com/terms"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Terms of Service
+                foydalanish shartlari
               </a>{' '}
               apply.
             </p>

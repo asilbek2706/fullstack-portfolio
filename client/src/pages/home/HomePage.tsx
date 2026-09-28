@@ -5,7 +5,7 @@ export default function HomePage() {
   return (
     <>
       <About />
-      <Projects />
+      <Projects featuredLimit={2} />
       <Faq />
     </>
   );

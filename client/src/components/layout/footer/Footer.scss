@@ -10,7 +10,9 @@
 
 .sp-footer {
   @include m.glass-panel($radius: 0);
-  border-radius: v.$radius-lg v.$radius-lg 0 0;
+  border-radius: v.$radius-lg;
+  box-shadow: 0 20px 70px rgba(16, 75, 103, 0.14);
+  padding-bottom: 25px;
 }
 
 .sp-top-button {

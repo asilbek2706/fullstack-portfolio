@@ -40,9 +40,9 @@ export function Navbar({
       <div className="sp-theme" role="group" aria-label="Rang rejimi">
         {(
           [
-            { value: 'light', label: 'Light', Icon: Sun },
-            { value: 'dark', label: 'Dark', Icon: Moon },
-            { value: 'system', label: 'System', Icon: Monitor },
+            { value: 'light', label: 'Yorug‘ rejim', Icon: Sun },
+            { value: 'dark', label: 'Qorong‘i rejim', Icon: Moon },
+            { value: 'system', label: 'Tizim rejimi', Icon: Monitor },
           ] as const
         ).map(({ value, label, Icon }) => (
           <button

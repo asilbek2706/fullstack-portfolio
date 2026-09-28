@@ -47,7 +47,7 @@ function ProjectCard({ project }: { project: Project }) {
               href={assetUrl(project.demoLink)}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`${project.title}: demo`}
+              aria-label={`${project.title}: namoyish`}
             >
               <ArrowUpRight size={18} />
             </a>
@@ -71,11 +71,15 @@ function ProjectCard({ project }: { project: Project }) {
 function ProjectCarousel({
   initial,
   totalPages,
+  featuredLimit,
 }: {
   initial: Project[];
   totalPages: number;
+  featuredLimit?: number;
 }) {
-  const [projects, setProjects] = useState(initial);
+  const [projects, setProjects] = useState(
+    featuredLimit ? initial.slice(0, featuredLimit) : initial,
+  );
   const [page, setPage] = useState(1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -120,7 +124,7 @@ function ProjectCarousel({
         className="sp-carousel"
         ref={ref}
         role="region"
-        aria-roledescription="carousel"
+        aria-roledescription="karusel"
         aria-label="Loyihalar"
         tabIndex={0}
         onKeyDown={(e) => {
@@ -149,7 +153,7 @@ function ProjectCarousel({
             size="icon"
             disabled={!canPrev}
             onClick={() => api?.scrollPrev()}
-            aria-label="Oldingi loyiha"
+            aria-label="Avvalgi loyiha"
           >
             <ArrowLeft size={18} />
           </Button>
@@ -164,7 +168,7 @@ function ProjectCarousel({
           </Button>
         </div>
       </div>
-      {page < totalPages && (
+      {!featuredLimit && page < totalPages && (
         <Button
           className="mt-5"
           variant="outline"
@@ -182,7 +186,7 @@ function ProjectCarousel({
     </>
   );
 }
-export function Projects() {
+export function Projects({ featuredLimit }: { featuredLimit?: number }) {
   const { data, loading, error, reload } = useResource(loadFirst);
   return (
     <section className="sp-section" id="projects">
@@ -202,6 +206,7 @@ export function Projects() {
             key={data.data.map((p) => p._id).join(',')}
             initial={data.data}
             totalPages={data.pagination.totalPages}
+            featuredLimit={featuredLimit}
           />
         )}
         {data?.data.length === 0 && (
