@@ -10,8 +10,56 @@
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
-  background: var(--bg);
+  background:
+    radial-gradient(
+      ellipse at 50% 78%,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 52%
+    ),
+    radial-gradient(
+      circle at 8% 8%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 92% 18%,
+      color-mix(in srgb, #76c7c0 10%, transparent),
+      transparent 25%
+    ),
+    var(--bg);
   --grid-color: var(--accent);
+
+  &::before,
+  &::after {
+    position: absolute;
+    inset: -20%;
+    content: '';
+    pointer-events: none;
+  }
+
+  &::before {
+    background: conic-gradient(
+      from 205deg at 50% 58%,
+      transparent 0deg,
+      color-mix(in srgb, var(--accent) 8%, transparent) 24deg,
+      transparent 52deg,
+      transparent 360deg
+    );
+    opacity: 0.7;
+    transform-origin: center;
+    animation: portfolio-background-drift 26s ease-in-out infinite alternate;
+  }
+
+  &::after {
+    background: linear-gradient(
+      122deg,
+      transparent 24%,
+      color-mix(in srgb, #76c7c0 5%, transparent) 45%,
+      transparent 61%
+    );
+    opacity: 0.65;
+    animation: portfolio-background-sweep 22s ease-in-out infinite alternate;
+  }
 
   svg {
     width: 100%;
@@ -20,7 +68,9 @@
   }
 
   &__lines {
-    animation: portfolio-grid-breathe 12s ease-in-out infinite alternate;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: portfolio-grid-breathe 20s ease-in-out infinite alternate;
   }
 
   &__shade {
@@ -29,7 +79,8 @@
     background: radial-gradient(
       ellipse at 50% 72%,
       transparent 10%,
-      var(--bg) 95%
+      color-mix(in srgb, var(--bg) 76%, transparent) 76%,
+      var(--bg) 100%
     );
   }
 }
@@ -37,14 +88,43 @@
 @keyframes portfolio-grid-breathe {
   from {
     opacity: 0.6;
+    transform: translate3d(-1.5%, -0.5%, 0) scale(1.01);
   }
   to {
     opacity: 1;
+    transform: translate3d(1.5%, 0.5%, 0) scale(1.04);
+  }
+}
+
+@keyframes portfolio-background-drift {
+  from {
+    transform: translate3d(-6%, -3%, 0) rotate(-4deg);
+  }
+  to {
+    transform: translate3d(6%, 3%, 0) rotate(4deg);
+  }
+}
+
+@keyframes portfolio-background-sweep {
+  from {
+    transform: translate3d(-4%, 2%, 0);
+  }
+  to {
+    transform: translate3d(4%, -2%, 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .portfolio-background__lines {
+  .portfolio-background__lines,
+  .portfolio-background::before,
+  .portfolio-background::after {
     animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .portfolio-background::before,
+  .portfolio-background::after {
+    opacity: 0.45;
   }
 }
