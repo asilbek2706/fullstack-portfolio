@@ -316,7 +316,11 @@ body:has(.sp-site) {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: radial-gradient(circle at 60% 30%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 60%);
+  background: radial-gradient(
+    circle at 60% 30%,
+    color-mix(in srgb, var(--accent) 20%, transparent),
+    transparent 60%
+  );
 }
 
 .sp-portrait-label {
@@ -836,20 +840,6 @@ body:has(.sp-site) {
 
 .sp-spin {
   animation: sp-spin 1s linear infinite;
-}
-
-.sp-skip {
-  position: absolute;
-  top: -100px;
-}
-
-.sp-skip:focus {
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  z-index: 100;
-  background: var(--panel);
-  padding: 12px;
 }
 
 /* ==========================================================================

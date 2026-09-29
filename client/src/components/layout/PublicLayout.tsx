@@ -32,9 +32,6 @@ export function PublicLayout() {
   return (
     <MotionConfig reducedMotion="user">
       <div className="sp-site" data-theme={resolved}>
-        <a className="sp-skip" href="#main">
-          Kontentga o‘tish
-        </a>
         <Background />
         <Navbar mode={mode} onTheme={setMode} />
         <main id="main" className="sp-main">
