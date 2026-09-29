@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, useLocation } from 'react-router-dom';
+import { AppLoading } from './src/components/AppLoading';
 
 const AdminApplication = lazy(() => import('./AdminApplication'));
 const PublicRoutes = lazy(() => import('./src/routes/PublicRoutes'));
@@ -16,7 +17,7 @@ function ApplicationRouter() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<div role="status">Yuklanmoqda…</div>}>
+      <Suspense fallback={<AppLoading />}>
         <ApplicationRouter />
       </Suspense>
     </BrowserRouter>

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes, Link } from 'react-router-dom';
+import { AppLoading } from '../components/AppLoading';
 import { PublicLayout } from '../components/layout/PublicLayout';
 const HomePage = lazy(() => import('../pages/home/HomePage'));
 const AboutPage = lazy(() => import('../pages/about/AboutPage'));
@@ -12,7 +13,7 @@ export default function PublicRoutes() {
         <Route
           index
           element={
-            <Suspense fallback={<p className="sp-status">Yuklanmoqda…</p>}>
+            <Suspense fallback={<AppLoading />}>
               <HomePage />
             </Suspense>
           }
@@ -20,7 +21,7 @@ export default function PublicRoutes() {
         <Route
           path="about"
           element={
-            <Suspense fallback={<p className="sp-status">Yuklanmoqda…</p>}>
+            <Suspense fallback={<AppLoading />}>
               <AboutPage />
             </Suspense>
           }
@@ -28,7 +29,7 @@ export default function PublicRoutes() {
         <Route
           path="projects"
           element={
-            <Suspense fallback={<p className="sp-status">Yuklanmoqda…</p>}>
+            <Suspense fallback={<AppLoading />}>
               <ProjectsPage />
             </Suspense>
           }
@@ -36,7 +37,7 @@ export default function PublicRoutes() {
         <Route
           path="contact"
           element={
-            <Suspense fallback={<p className="sp-status">Yuklanmoqda…</p>}>
+            <Suspense fallback={<AppLoading />}>
               <ContactPage />
             </Suspense>
           }
