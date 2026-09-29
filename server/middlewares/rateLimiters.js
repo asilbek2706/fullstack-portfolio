@@ -4,7 +4,7 @@ const isTelegramWebhook = (req) => req.path === "/api/contact/telegram-webhook";
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 500,
+  limit: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   skip: isTelegramWebhook,
