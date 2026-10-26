@@ -6,20 +6,39 @@
   @include mixins.panel;
 }
 
+.ant-card {
+  border-radius: 12px;
+}
+
 .module-card {
   height: 100%;
   transition:
     border-color 150ms ease,
     background-color 150ms ease;
 
+  .ant-card-body {
+    display: flex;
+    min-height: 184px;
+    flex-direction: column;
+  }
+
   &:hover {
     border-color: var(--primary);
     background: var(--panel-hover);
+    box-shadow: var(--card-hover-shadow);
   }
 
   h4 {
     margin: 16px 0 5px;
     color: var(--body-text);
+  }
+
+  .ant-typography-secondary {
+    line-height: 1.5;
+  }
+
+  .module-card-action {
+    margin-top: auto;
   }
 }
 
@@ -28,7 +47,7 @@
   height: 44px;
   display: grid;
   place-items: center;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 21px;
 }
 

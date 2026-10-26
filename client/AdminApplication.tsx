@@ -1,6 +1,5 @@
-import './styles/main.scss';
-import 'antd/dist/reset.css';
 import { ConfigProvider, theme as antdTheme } from 'antd';
+import './styles/main.scss';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './admin/auth/AuthProvider';
 import { AppToaster } from './admin/components/feedback/AppToaster';
@@ -23,33 +22,33 @@ function Application() {
           ? antdTheme.darkAlgorithm
           : antdTheme.defaultAlgorithm,
         token: {
-          colorPrimary: isDark ? '#79aec8' : '#417690',
-          colorInfo: isDark ? '#79aec8' : '#417690',
+          colorPrimary: isDark ? '#60a5fa' : '#2563eb',
+          colorInfo: isDark ? '#60a5fa' : '#2563eb',
           colorSuccess: isDark ? '#81c784' : '#2e7d32',
-          colorWarning: isDark ? '#ffb74d' : '#ba7517',
-          colorError: isDark ? '#ef7373' : '#ba2121',
-          colorBgBase: isDark ? '#121212' : '#f8f8f8',
-          colorBgContainer: isDark ? '#1e1e1e' : '#ffffff',
-          colorBgElevated: isDark ? '#252525' : '#ffffff',
-          colorBorder: isDark ? '#353535' : '#dddddd',
-          colorBorderSecondary: isDark ? '#303030' : '#e8e8e8',
-          colorText: isDark ? '#eeeeee' : '#333333',
-          colorTextSecondary: isDark ? '#a8a8a8' : '#666666',
-          borderRadius: 4,
+          colorWarning: isDark ? '#ffb74d' : '#b45309',
+          colorError: isDark ? '#ef7373' : '#b91c1c',
+          colorBgBase: isDark ? '#0f172a' : '#f4f7fb',
+          colorBgContainer: isDark ? '#1e293b' : '#ffffff',
+          colorBgElevated: isDark ? '#263449' : '#ffffff',
+          colorBorder: isDark ? '#334155' : '#e2e8f0',
+          colorBorderSecondary: isDark ? '#334155' : '#e2e8f0',
+          colorText: isDark ? '#e2e8f0' : '#172033',
+          colorTextSecondary: isDark ? '#94a3b8' : '#64748b',
+          borderRadius: 10,
           fontFamily: 'Arial, Helvetica, sans-serif',
         },
         components: {
           Layout: {
-            bodyBg: isDark ? '#121212' : '#f8f8f8',
-            headerBg: isDark ? '#1f3c48' : '#417690',
-            siderBg: isDark ? '#181818' : '#ffffff',
+            bodyBg: isDark ? '#0f172a' : '#f4f7fb',
+            headerBg: isDark ? '#172554' : '#172554',
+            siderBg: isDark ? '#111827' : '#ffffff',
           },
           Card: {
-            colorBgContainer: isDark ? '#1e1e1e' : '#ffffff',
+            colorBgContainer: isDark ? '#1e293b' : '#ffffff',
           },
           Table: {
-            headerBg: isDark ? '#252525' : '#f6f6f6',
-            rowHoverBg: isDark ? '#252525' : '#f5f5f5',
+            headerBg: isDark ? '#263449' : '#f8fafc',
+            rowHoverBg: isDark ? '#263449' : '#f8fafc',
           },
         },
       }}

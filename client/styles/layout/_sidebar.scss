@@ -7,16 +7,30 @@
   overflow: auto;
   border-right: 1px solid var(--border-color);
   background: var(--sidebar-bg) !important;
+  box-shadow: 4px 0 18px rgb(15 23 42 / 4%);
 
   .ant-menu {
-    padding: 10px 8px;
+    padding: 16px 10px;
     background: transparent !important;
   }
 
   .ant-menu-item {
-    height: 40px;
-    margin-block: 3px;
-    border-radius: 3px;
+    height: 44px;
+    margin-block: 5px;
+    border-radius: 10px;
+    color: var(--sidebar-text);
+    font-weight: 500;
+  }
+
+  .ant-menu-item-selected {
+    color: var(--primary) !important;
+    background: color-mix(in srgb, var(--primary) 12%, transparent) !important;
+    font-weight: 600;
+  }
+
+  .ant-menu-item:hover {
+    color: var(--primary) !important;
+    background: var(--panel-hover) !important;
   }
 }
 
@@ -25,10 +39,10 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  padding: 0 18px;
+  padding: 0 20px;
   color: var(--header-text);
   border-bottom: 1px solid rgb(255 255 255 / 12%);
-  background: var(--header-bg);
+  background: linear-gradient(135deg, var(--header-bg), #1e3a8a);
 
   strong,
   span {
@@ -49,7 +63,7 @@
   display: grid;
   place-items: center;
   border: 1px solid rgb(255 255 255 / 20%);
-  border-radius: 3px;
+  border-radius: 10px;
   background: rgb(255 255 255 / 10%);
   color: #ffffff;
   font-weight: 700;
