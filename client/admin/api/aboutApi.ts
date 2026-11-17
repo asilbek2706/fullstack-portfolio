@@ -5,6 +5,7 @@ interface UpdateAboutInput {
   values: AboutFormValues;
   avatar?: File;
 }
+
 export const aboutApi = {
   async get() {
     const response = await http.get<AboutResponse>('/about');
